@@ -3,6 +3,7 @@ import * as Linking from "expo-linking";
 import * as SecureStore from "expo-secure-store";
 import axios from "axios";
 import { ENV } from "../lib/env";
+import Constants from "expo-constants";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -22,7 +23,9 @@ export function useMobileAuth() {
   const signIn = async (): Promise<MobileSession | null> => {
     return new Promise((resolve, reject) => {
       // Build NextAuth signin URL with callback to our /mobile/finish route
-      const finish = `${ENV.API_BASE_URL}/api/mobile/finish?redirect=budgetingmobile://auth/callback`;
+      // Use Expo development URL scheme for reliable deep linking
+      const expoUrl = Constants.expoConfig?.hostUri || '192.168.1.69:8081';
+      const finish = `${ENV.API_BASE_URL}/api/mobile/finish?redirect=exp://${expoUrl}/--/auth/callback`;
       const signinUrl = `${ENV.API_BASE_URL}/api/auth/signin?callbackUrl=${encodeURIComponent(finish)}`;
 
       console.log('Opening signin URL:', signinUrl);
@@ -77,7 +80,7 @@ export function useMobileAuth() {
       });
 
       // Open the authentication session
-      WebBrowser.openAuthSessionAsync(signinUrl, "budgetingmobile://auth/callback")
+      WebBrowser.openAuthSessionAsync(signinUrl, `exp://${expoUrl}/--/auth/callback`)
         .then((result) => {
           console.log('WebBrowser result:', result);
           if (result.type === 'dismiss') {

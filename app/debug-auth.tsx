@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable, StyleSheet, Alert } from 'react-native';
 import * as Linking from 'expo-linking';
+import Constants from 'expo-constants';
 import { useMobileAuth } from '../src/auth/useMobileAuth';
 
 export default function DebugAuthScreen() {
@@ -38,7 +39,8 @@ export default function DebugAuthScreen() {
   };
 
   const testDeepLink = () => {
-    const testUrl = 'budgetingmobile://auth/callback?code=test-code-123';
+    const expoUrl = Constants.expoConfig?.hostUri || '192.168.1.69:8081';
+    const testUrl = `exp://${expoUrl}/--/auth/callback?code=test-code-123`;
     Linking.openURL(testUrl);
   };
 

@@ -7,6 +7,9 @@ import { useMobileAuth } from '../src/auth/useMobileAuth';
 export default function DebugAuthScreen() {
   const [deepLinkUrl, setDeepLinkUrl] = useState<string>('');
   const { signIn } = useMobileAuth();
+  
+  const expoUrl = Constants.expoConfig?.hostUri || '127.0.0.1:8081';
+  const testDeepLinkUrl = `exp://${expoUrl}/--/auth/callback?code=test-code-123`;
 
   useEffect(() => {
     // Listen for deep links
@@ -39,9 +42,8 @@ export default function DebugAuthScreen() {
   };
 
   const testDeepLink = () => {
-    const expoUrl = Constants.expoConfig?.hostUri || '192.168.1.69:8081';
-    const testUrl = `exp://${expoUrl}/--/auth/callback?code=test-code-123`;
-    Linking.openURL(testUrl);
+    console.log('Testing deep link:', testDeepLinkUrl);
+    Linking.openURL(testDeepLinkUrl);
   };
 
   return (
@@ -52,6 +54,10 @@ export default function DebugAuthScreen() {
         <Text style={styles.sectionTitle}>Deep Link Status</Text>
         <Text style={styles.urlText}>
           {deepLinkUrl || 'No deep link received yet'}
+        </Text>
+        <Text style={styles.sectionTitle}>Test URL:</Text>
+        <Text style={styles.urlText}>
+          {testDeepLinkUrl}
         </Text>
       </View>
 

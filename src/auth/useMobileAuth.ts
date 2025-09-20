@@ -24,10 +24,13 @@ export function useMobileAuth() {
     return new Promise((resolve, reject) => {
       // Build NextAuth signin URL with callback to our /mobile/finish route
       // Use Expo development URL scheme for reliable deep linking
-      const expoUrl = Constants.expoConfig?.hostUri || '192.168.1.69:8081';
+      // According to Expo docs: exp://127.0.0.1:8081 for localhost or exp://hostUri for network
+      const expoUrl = Constants.expoConfig?.hostUri || '127.0.0.1:8081';
       const finish = `${ENV.API_BASE_URL}/api/mobile/finish?redirect=exp://${expoUrl}/--/auth/callback`;
       const signinUrl = `${ENV.API_BASE_URL}/api/auth/signin?callbackUrl=${encodeURIComponent(finish)}`;
 
+      console.log('Expo URL being used:', expoUrl);
+      console.log('Finish URL:', finish);
       console.log('Opening signin URL:', signinUrl);
 
       // Set up deep link listener BEFORE opening the browser

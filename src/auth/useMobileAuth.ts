@@ -27,6 +27,7 @@ export function useMobileAuth() {
 
       console.log('Opening signin URL:', signinUrl);
 
+      // Set up deep link listener BEFORE opening the browser
       const sub = Linking.addEventListener("url", async ({ url }) => {
         try {
           console.log('Received deep link:', url);
@@ -77,6 +78,13 @@ export function useMobileAuth() {
 
       // Open the authentication session
       WebBrowser.openAuthSessionAsync(signinUrl, "myapp://auth/callback")
+        .then((result) => {
+          console.log('WebBrowser result:', result);
+          if (result.type === 'dismiss') {
+            sub.remove();
+            reject(new Error('Authentication was cancelled'));
+          }
+        })
         .catch((error) => {
           console.error('Error opening auth session:', error);
           sub.remove();

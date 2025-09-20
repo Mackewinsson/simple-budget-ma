@@ -22,15 +22,13 @@ export interface MobileSession {
 export function useMobileAuth() {
   const signIn = async (): Promise<MobileSession | null> => {
     return new Promise((resolve, reject) => {
-      // Build NextAuth signin URL with callback to our /mobile/finish route
+      // Build NextAuth signin URL with callback to our budget page, then we'll check for mobile auth
       // Use Expo development URL scheme for reliable deep linking
       // According to Expo docs: exp://127.0.0.1:8081 for localhost or exp://hostUri for network
       const expoUrl = Constants.expoConfig?.hostUri || '127.0.0.1:8081';
-      const finish = `${ENV.API_BASE_URL}/api/mobile/finish?redirect=exp://${expoUrl}/--/auth/callback`;
-      const signinUrl = `${ENV.API_BASE_URL}/api/auth/signin?callbackUrl=${encodeURIComponent(finish)}`;
+      const signinUrl = `${ENV.API_BASE_URL}/api/auth/signin?callbackUrl=${encodeURIComponent(`${ENV.API_BASE_URL}/budget`)}`;
 
       console.log('Expo URL being used:', expoUrl);
-      console.log('Finish URL:', finish);
       console.log('Opening signin URL:', signinUrl);
 
       // Set up deep link listener BEFORE opening the browser
@@ -87,12 +85,37 @@ export function useMobileAuth() {
 
       // Open the authentication session
       console.log('Opening WebBrowser with URL:', signinUrl);
-      console.log('Expected redirect URL:', `exp://${expoUrl}/--/auth/callback`);
+      console.log('Expected redirect URL:', `${ENV.API_BASE_URL}/budget`);
       
-      WebBrowser.openAuthSessionAsync(signinUrl, `exp://${expoUrl}/--/auth/callback`)
-        .then((result) => {
+      WebBrowser.openAuthSessionAsync(signinUrl, `${ENV.API_BASE_URL}/budget`)
+        .then(async (result) => {
           console.log('WebBrowser result:', result);
-          if (result.type === 'dismiss') {
+          
+          if (result.type === 'success') {
+            console.log('WebBrowser auth completed successfully');
+            sub.remove();
+            
+            // Now call our mobile finish route directly to get the JWT
+            try {
+              console.log('Calling mobile finish route...');
+              const finishUrl = `${ENV.API_BASE_URL}/api/mobile/finish?redirect=exp://${expoUrl}/--/auth/callback`;
+              const response = await fetch(finishUrl, {
+                credentials: 'include' // Include cookies for session
+              });
+              
+              if (response.ok) {
+                console.log('Mobile finish route called successfully');
+                // The response should be a redirect to our deep link
+                // We'll let the deep link listener handle it
+              } else {
+                console.error('Mobile finish route failed:', response.status);
+                reject(new Error('Failed to complete mobile authentication'));
+              }
+            } catch (error) {
+              console.error('Error calling mobile finish route:', error);
+              reject(error);
+            }
+          } else if (result.type === 'dismiss') {
             console.log('WebBrowser was dismissed by user');
             sub.remove();
             reject(new Error('Authentication was cancelled'));

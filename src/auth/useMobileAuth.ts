@@ -37,8 +37,11 @@ export function useMobileAuth() {
       const sub = Linking.addEventListener("url", async ({ url }) => {
         try {
           console.log('Received deep link:', url);
+          console.log('Parsing deep link...');
           const parsed = Linking.parse(url);
+          console.log('Parsed URL:', parsed);
           const code = parsed.queryParams?.code as string | undefined;
+          console.log('Extracted code:', code);
           
           if (!code) {
             console.error('No code found in deep link');

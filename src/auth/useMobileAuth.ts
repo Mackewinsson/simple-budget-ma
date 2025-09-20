@@ -22,7 +22,7 @@ export function useMobileAuth() {
   const signIn = async (): Promise<MobileSession | null> => {
     return new Promise((resolve, reject) => {
       // Build NextAuth signin URL with callback to our /mobile/finish route
-      const finish = `${ENV.API_BASE_URL}/api/mobile/finish?redirect=myapp://auth/callback`;
+      const finish = `${ENV.API_BASE_URL}/api/mobile/finish?redirect=budgetingmobile://auth/callback`;
       const signinUrl = `${ENV.API_BASE_URL}/api/auth/signin?callbackUrl=${encodeURIComponent(finish)}`;
 
       console.log('Opening signin URL:', signinUrl);
@@ -77,7 +77,7 @@ export function useMobileAuth() {
       });
 
       // Open the authentication session
-      WebBrowser.openAuthSessionAsync(signinUrl, "myapp://auth/callback")
+      WebBrowser.openAuthSessionAsync(signinUrl, "budgetingmobile://auth/callback")
         .then((result) => {
           console.log('WebBrowser result:', result);
           if (result.type === 'dismiss') {

@@ -13,6 +13,7 @@ export default function RootLayout() {
           <MobileAuthProvider>
             <Stack screenOptions={{ headerShown: false }}>
               <Stack.Screen name="auth/login" options={{ title: "Sign In" }} />
+              <Stack.Screen name="debug-auth" options={{ title: "Debug Auth" }} />
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             </Stack>
           </MobileAuthProvider>

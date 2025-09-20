@@ -11,7 +11,7 @@ export default function Index() {
   }
 
   if (!isAuthenticated || !session) {
-    return <Redirect href="/auth/login" />;
+    return <Redirect href="/debug-auth" />; // Temporarily redirect to debug screen
   }
 
   return <Redirect href="/(tabs)/budgets" />;

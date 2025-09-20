@@ -86,10 +86,18 @@ export function useMobileAuth() {
       });
 
       // Open the authentication session
+      console.log('Opening WebBrowser with URL:', signinUrl);
+      console.log('Expected redirect URL:', `exp://${expoUrl}/--/auth/callback`);
+      
       WebBrowser.openAuthSessionAsync(signinUrl, `exp://${expoUrl}/--/auth/callback`)
         .then((result) => {
           console.log('WebBrowser result:', result);
           if (result.type === 'dismiss') {
+            console.log('WebBrowser was dismissed by user');
+            sub.remove();
+            reject(new Error('Authentication was cancelled'));
+          } else if (result.type === 'cancel') {
+            console.log('WebBrowser was cancelled');
             sub.remove();
             reject(new Error('Authentication was cancelled'));
           }

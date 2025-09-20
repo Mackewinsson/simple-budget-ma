@@ -29,6 +29,7 @@ export function useMobileAuth() {
       const signinUrl = `${ENV.API_BASE_URL}/api/auth/signin?callbackUrl=${encodeURIComponent(`${ENV.API_BASE_URL}/budget`)}`;
 
       console.log('Expo URL being used:', expoUrl);
+      console.log('API Base URL from ENV:', ENV.API_BASE_URL);
       console.log('Opening signin URL:', signinUrl);
 
       // Set up deep link listener BEFORE opening the browser

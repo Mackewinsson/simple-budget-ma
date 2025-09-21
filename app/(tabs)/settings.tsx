@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { View, Text, Pressable, StyleSheet, Alert, ScrollView, Switch } from "react-native";
 import { useUserCurrency, useUpdateUserCurrency } from "../../src/api/hooks/useUsers";
-import { useAuth } from "../../src/auth/MobileAuthProvider";
+import { useAuthStore } from "../../src/store/authStore";
+import { useRouter } from "expo-router";
 
 function SettingsScreenContent() {
-  const { session, signOut } = useAuth();
+  const { session, signOut } = useAuthStore();
   const { data: currency } = useUserCurrency();
   const updateCurrency = useUpdateUserCurrency();
+  const router = useRouter();
   
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = useState(true);
@@ -20,7 +22,16 @@ function SettingsScreenContent() {
         { 
           text: "Sign Out", 
           style: "destructive", 
-          onPress: signOut
+          onPress: async () => {
+            try {
+              await signOut();
+              console.log('[Settings] Sign out successful, redirecting to login');
+              router.replace('/auth/login');
+            } catch (error) {
+              console.error('[Settings] Sign out error:', error);
+              Alert.alert('Error', 'Failed to sign out');
+            }
+          }
         },
       ]
     );

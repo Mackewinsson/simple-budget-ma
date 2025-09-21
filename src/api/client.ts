@@ -9,10 +9,13 @@ const client = axios.create({
 
 client.interceptors.request.use(async (config) => {
   try {
-    // Get JWT token from secure store (mobile auth)
-    const token = await SecureStore.getItemAsync('auth_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    // Get token from secure store (simple auth)
+    const session = await SecureStore.getItemAsync('simple_auth_session');
+    if (session) {
+      const parsedSession = JSON.parse(session);
+      if (parsedSession.token) {
+        config.headers.Authorization = `Bearer ${parsedSession.token}`;
+      }
     }
   } catch (error) {
     console.error('Error getting auth token:', error);
@@ -25,12 +28,12 @@ client.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid, clear stored token
+      // Token expired or invalid, clear stored session
       try {
-        await SecureStore.deleteItemAsync('auth_token');
-        console.log('Cleared expired auth token');
+        await SecureStore.deleteItemAsync('simple_auth_session');
+        console.log('Cleared expired auth session');
       } catch (clearError) {
-        console.error('Error clearing auth token:', clearError);
+        console.error('Error clearing auth session:', clearError);
       }
     }
     return Promise.reject(error);

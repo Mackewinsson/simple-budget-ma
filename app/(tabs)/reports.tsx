@@ -3,10 +3,10 @@ import { View, Text, StyleSheet, ScrollView, Pressable, Alert } from "react-nati
 import { useBudget } from "../../src/api/hooks/useBudgets";
 import { useCategories } from "../../src/api/hooks/useCategories";
 import { useExpenses } from "../../src/api/hooks/useExpenses";
-import { useAuth } from "../../src/auth/MobileAuthProvider";
+import { useAuthStore } from "../../src/store/authStore";
 
 function ReportsScreenContent() {
-  const { session } = useAuth();
+  const { session } = useAuthStore();
   const { data: budget, isLoading: budgetLoading } = useBudget(session?.user?.id || "");
   const { data: categories = [], isLoading: categoriesLoading } = useCategories(session?.user?.id || "");
   const { data: expenses = [], isLoading: expensesLoading } = useExpenses(session?.user?.id || "");

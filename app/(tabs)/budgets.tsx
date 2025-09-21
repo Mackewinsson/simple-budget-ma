@@ -3,7 +3,7 @@ import { View, Text, FlatList, StyleSheet, ScrollView, Pressable, Alert } from "
 import { useBudget } from "../../src/api/hooks/useBudgets";
 import { useCategories } from "../../src/api/hooks/useCategories";
 import { useExpenses } from "../../src/api/hooks/useExpenses";
-import { useAuth } from "../../src/auth/MobileAuthProvider";
+import { useAuthStore } from "../../src/store/authStore";
 import { useResetBudget } from "../../src/api/hooks/useBudgets";
 import NewBudgetForm from "../../components/NewBudgetForm";
 import CategoryList from "../../components/CategoryList";
@@ -11,7 +11,7 @@ import Summary from "../../components/Summary";
 import BudgetSetupSection from "../../components/BudgetSetupSection";
 
 function BudgetsScreenContent() {
-  const { session } = useAuth();
+  const { session } = useAuthStore();
   const { data: budget, isLoading: budgetLoading, error: budgetError } = useBudget(session?.user?.id || "");
   const { data: categories = [], isLoading: categoriesLoading, error: categoriesError } = useCategories(session?.user?.id || "");
   const { data: expenses = [], isLoading: expensesLoading, error: expensesError } = useExpenses(session?.user?.id || "");

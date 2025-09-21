@@ -3,13 +3,13 @@ import { View, Text, FlatList, StyleSheet, ScrollView, Pressable, Alert } from "
 import { useExpenses } from "../../src/api/hooks/useExpenses";
 import { useBudget } from "../../src/api/hooks/useBudgets";
 import { useCategories } from "../../src/api/hooks/useCategories";
-import { useAuth } from "../../src/auth/MobileAuthProvider";
+import { useAuthStore } from "../../src/store/authStore";
 import { useDeleteExpense } from "../../src/api/hooks/useExpenses";
 import NewExpenseForm from "../../components/NewExpenseForm";
 import DailySpendingTracker from "../../components/DailySpendingTracker";
 
 function TransactionsScreenContent() {
-  const { session } = useAuth();
+  const { session } = useAuthStore();
   const { data: budget, isLoading: budgetLoading } = useBudget(session?.user?.id || "");
   const { data: categories = [], isLoading: categoriesLoading } = useCategories(session?.user?.id || "");
   const { data: expenses = [], isLoading: expensesLoading } = useExpenses(session?.user?.id || "");

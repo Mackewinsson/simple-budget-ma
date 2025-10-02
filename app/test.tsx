@@ -1,10 +1,12 @@
 import React from "react";
 import { View, Text, StyleSheet, Pressable, Alert } from "react-native";
 import { useAuthStore } from "../src/store/authStore";
+import { useSafeAreaStyles } from "../src/hooks/useSafeAreaStyles";
 import { useRouter } from "expo-router";
 
 export default function TestScreen() {
   const { session, signOut, isAuthenticated } = useAuthStore();
+  const safeAreaStyles = useSafeAreaStyles();
   const router = useRouter();
 
   const handleSignOut = async () => {
@@ -19,7 +21,8 @@ export default function TestScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={safeAreaStyles.containerWithBottomPadding}>
+      <View style={styles.container}>
       <Text style={styles.title}>Test Screen</Text>
       <Text style={styles.subtitle}>If you can see this, the app is working!</Text>
       
@@ -51,6 +54,7 @@ export default function TestScreen() {
           </Pressable>
         )}
       </View>
+      </View>
     </View>
   );
 }
@@ -60,7 +64,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#000",
     padding: 20,
   },
   title: {

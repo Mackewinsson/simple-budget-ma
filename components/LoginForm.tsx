@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { useAuthStore } from '../src/store/authStore';
+import { useSafeAreaStyles } from '../src/hooks/useSafeAreaStyles';
 import { useRouter } from 'expo-router';
 
 export default function LoginForm() {
@@ -8,6 +9,7 @@ export default function LoginForm() {
   const [password, setPassword] = useState('MobilePass123!');
   const [isLoading, setIsLoading] = useState(false);
   const { signIn, loading } = useAuthStore();
+  const safeAreaStyles = useSafeAreaStyles();
   const router = useRouter();
 
   const handleLogin = async () => {
@@ -31,8 +33,9 @@ export default function LoginForm() {
 
 
   return (
-    <View style={styles.container}>
-      <View style={styles.form}>
+    <View style={safeAreaStyles.containerWithBottomPadding}>
+      <View style={styles.container}>
+        <View style={styles.form}>
         <Text style={styles.title}>Sign In</Text>
         <Text style={styles.subtitle}>Enter your credentials to continue</Text>
         
@@ -79,6 +82,7 @@ export default function LoginForm() {
         </Pressable>
 
         {/* Google login removed */}
+        </View>
       </View>
     </View>
   );
@@ -87,7 +91,6 @@ export default function LoginForm() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,

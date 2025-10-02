@@ -5,6 +5,7 @@ import { useBudget } from "../../src/api/hooks/useBudgets";
 import { useCategories } from "../../src/api/hooks/useCategories";
 import { useAuthStore } from "../../src/store/authStore";
 import { useDeleteExpense } from "../../src/api/hooks/useExpenses";
+import { useSafeAreaStyles } from "../../src/hooks/useSafeAreaStyles";
 import NewExpenseForm from "../../components/NewExpenseForm";
 import DailySpendingTracker from "../../components/DailySpendingTracker";
 
@@ -14,6 +15,7 @@ function TransactionsScreenContent() {
   const { data: categories = [], isLoading: categoriesLoading } = useCategories(session?.user?.id || "");
   const { data: expenses = [], isLoading: expensesLoading } = useExpenses(session?.user?.id || "");
   const deleteExpense = useDeleteExpense();
+  const safeAreaStyles = useSafeAreaStyles();
   
   const isLoading = budgetLoading || categoriesLoading || expensesLoading;
   const [showExpenseForm, setShowExpenseForm] = useState(false);
@@ -58,7 +60,7 @@ function TransactionsScreenContent() {
 
   if (isLoading) {
     return (
-      <View style={styles.container}>
+      <View style={safeAreaStyles.container}>
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>Loading transactions...</Text>
         </View>
@@ -67,7 +69,7 @@ function TransactionsScreenContent() {
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={safeAreaStyles.container}>
       <Text style={styles.title}>Transaction History</Text>
       
       {budget && (
@@ -114,9 +116,7 @@ export default function TransactionsScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     padding: 16,
-    backgroundColor: "#000",
   },
   loadingContainer: {
     flex: 1,

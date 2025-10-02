@@ -1,12 +1,17 @@
 import React from 'react';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { useSafeAreaStyles } from '../src/hooks/useSafeAreaStyles';
 
 export default function LoadingScreen() {
+  const safeAreaStyles = useSafeAreaStyles();
+  
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Simple Budget</Text>
-      <ActivityIndicator size="large" color="#4ade80" style={styles.spinner} />
-      <Text style={styles.subtitle}>Loading...</Text>
+    <View style={safeAreaStyles.containerWithBottomPadding}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Simple Budget</Text>
+        <ActivityIndicator size="large" color="#4ade80" style={styles.spinner} />
+        <Text style={styles.subtitle}>Loading...</Text>
+      </View>
     </View>
   );
 }
@@ -14,7 +19,6 @@ export default function LoadingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,

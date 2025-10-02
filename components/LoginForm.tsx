@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TextInput, Pressable, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { useAuthStore } from '../src/store/authStore';
 import { useSafeAreaStyles } from '../src/hooks/useSafeAreaStyles';
 import { useRouter } from 'expo-router';
@@ -19,6 +19,7 @@ export default function LoginForm() {
     }
 
     try {
+      setIsLoading(true);
       console.log('[LoginForm] Attempting login...');
       await signIn(email.trim(), password);
       console.log('[LoginForm] Login successful!');
@@ -28,6 +29,8 @@ export default function LoginForm() {
       console.error('Login error:', error);
       const errorMessage = error.response?.data?.message || 'Login failed. Please try again.';
       Alert.alert('Login Failed', errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -70,11 +73,11 @@ export default function LoginForm() {
         </View>
 
         <Pressable 
-          style={[styles.button, loading && styles.buttonDisabled]}
+          style={[styles.button, (isLoading || loading) && styles.buttonDisabled]}
           onPress={handleLogin}
-          disabled={loading}
+          disabled={isLoading || loading}
         >
-          {loading ? (
+          {(isLoading || loading) ? (
             <ActivityIndicator color="#000" />
           ) : (
             <Text style={styles.buttonText}>Sign In</Text>

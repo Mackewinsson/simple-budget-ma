@@ -6,7 +6,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: "budgeting-mobile",
   scheme: "budgetingmobile", // Use the original scheme that was working
   extra: {
-    API_BASE_URL: process.env.EXPO_PUBLIC_API_BASE_URL || "http://192.168.1.69:3001", // Use your local IP or Vercel URL
+    API_BASE_URL: process.env.EXPO_PUBLIC_API_BASE_URL || "https://www.simple-budget.pro", // Production URL
     GOOGLE_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || "",
     GOOGLE_CLIENT_SECRET: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_SECRET || "",
     // Platform-specific Google OAuth client IDs (optional but recommended)

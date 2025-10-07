@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, Pressable, Alert } from "react-native";
 import { useUpdateBudget } from "../src/api/hooks/useBudgets";
 import { useDemoUser } from "../src/api/hooks/useDemoUser";
+import { useTheme } from "../src/theme/ThemeContext";
 
 interface Budget {
   _id: string;
@@ -26,11 +27,117 @@ interface BudgetSetupSectionProps {
   categories: Category[];
 }
 
+const createStyles = (theme: any) => StyleSheet.create({
+  container: {
+    margin: 16,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: theme.text,
+    marginBottom: 16,
+  },
+  budgetCard: {
+    backgroundColor: theme.cardBackground,
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: theme.cardBorder,
+    shadowColor: theme.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: theme.shadowOpacity * 1.5,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  budgetHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  budgetLabel: {
+    fontSize: 14,
+    color: theme.textSecondary,
+  },
+  editButton: {
+    backgroundColor: theme.success,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  editButtonText: {
+    color: theme.buttonText,
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  editContainer: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  cancelButton: {
+    backgroundColor: theme.textSecondary,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  cancelButtonText: {
+    color: theme.buttonText,
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  saveButton: {
+    backgroundColor: theme.success,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  saveButtonText: {
+    color: theme.buttonText,
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  budgetAmount: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: theme.text,
+  },
+  summaryGrid: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  summaryCard: {
+    backgroundColor: theme.cardBackground,
+    padding: 12,
+    borderRadius: 12,
+    flex: 1,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: theme.cardBorder,
+    shadowColor: theme.shadow,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: theme.shadowOpacity,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  summaryLabel: {
+    fontSize: 12,
+    color: theme.textSecondary,
+    marginBottom: 4,
+  },
+  summaryValue: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: theme.text,
+  },
+});
+
 export default function BudgetSetupSection({ budget, categories }: BudgetSetupSectionProps) {
   const { data: demoUser } = useDemoUser();
   const updateBudget = useUpdateBudget();
   const [isEditingTotal, setIsEditingTotal] = useState(false);
   const [newTotal, setNewTotal] = useState(budget.totalBudgeted.toString());
+  const { theme } = useTheme();
 
   const handleUpdateTotal = async () => {
     if (!demoUser?._id) return;
@@ -65,6 +172,8 @@ export default function BudgetSetupSection({ budget, categories }: BudgetSetupSe
   const totalBudgeted = categories.reduce((sum, cat) => sum + cat.budgeted, 0);
   const totalSpent = categories.reduce((sum, cat) => sum + cat.spent, 0);
   const remaining = totalBudgeted - totalSpent;
+
+  const styles = createStyles(theme);
 
   return (
     <View style={styles.container}>
@@ -104,16 +213,16 @@ export default function BudgetSetupSection({ budget, categories }: BudgetSetupSe
         
         <View style={styles.summaryCard}>
           <Text style={styles.summaryLabel}>Spent</Text>
-          <Text style={[styles.summaryValue, { color: "#ef4444" }]}>
+          <Text style={[styles.summaryValue, { color: theme.error }]}>
             ${totalSpent.toFixed(2)}
           </Text>
         </View>
-        
+
         <View style={styles.summaryCard}>
           <Text style={styles.summaryLabel}>Remaining</Text>
           <Text style={[
-            styles.summaryValue, 
-            { color: remaining >= 0 ? "#4ade80" : "#ef4444" }
+            styles.summaryValue,
+            { color: remaining >= 0 ? theme.success : theme.error }
           ]}>
             ${remaining.toFixed(2)}
           </Text>
@@ -122,108 +231,3 @@ export default function BudgetSetupSection({ budget, categories }: BudgetSetupSe
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    margin: 16,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#0f172a",
-    marginBottom: 16,
-  },
-  budgetCard: {
-    backgroundColor: "#ffffff",
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  budgetHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  budgetLabel: {
-    fontSize: 14,
-    color: "#64748b",
-  },
-  editButton: {
-    backgroundColor: "#10b981",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-  },
-  editButtonText: {
-    color: "#fff",
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  editContainer: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  cancelButton: {
-    backgroundColor: "#94a3b8",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-  },
-  cancelButtonText: {
-    color: "#fff",
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  saveButton: {
-    backgroundColor: "#10b981",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-  },
-  saveButtonText: {
-    color: "#fff",
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  budgetAmount: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#0f172a",
-  },
-  summaryGrid: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  summaryCard: {
-    backgroundColor: "#ffffff",
-    padding: 12,
-    borderRadius: 12,
-    flex: 1,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  summaryLabel: {
-    fontSize: 12,
-    color: "#64748b",
-    marginBottom: 4,
-  },
-  summaryValue: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#0f172a",
-  },
-});

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, Pressable, Alert } from "react-native";
+import { View, Text, StyleSheet, Pressable, Alert, TextInput } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useUpdateBudget, useDeleteBudget } from "../src/api/hooks/useBudgets";
@@ -156,6 +156,26 @@ const createStyles = (theme: any) => StyleSheet.create({
     fontSize: FONT_SIZES.xs,
     fontWeight: FONT_WEIGHTS.semibold,
   },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: theme.cardBackground,
+    borderWidth: 1,
+    borderColor: theme.cardBorder,
+    borderRadius: BORDER_RADIUS.md,
+    paddingHorizontal: SPACING.md,
+    marginBottom: SPACING.sm,
+  },
+  currencyIcon: {
+    marginRight: SPACING.xs,
+  },
+  budgetInput: {
+    flex: 1,
+    fontSize: FONT_SIZES.huge,
+    fontWeight: FONT_WEIGHTS.bold,
+    color: theme.text,
+    paddingVertical: SPACING.sm,
+  },
 });
 
 export default function BudgetSetupSection({ budget, categories }: BudgetSetupSectionProps) {
@@ -290,7 +310,22 @@ export default function BudgetSetupSection({ budget, categories }: BudgetSetupSe
         </View>
         
         {isEditingTotal ? (
-          <Text style={styles.budgetAmount}>${newTotal}</Text>
+          <View style={styles.inputContainer}>
+            <Ionicons 
+              name="cash-outline" 
+              size={20} 
+              color={theme.textSecondary} 
+              style={styles.currencyIcon}
+            />
+            <TextInput
+              style={styles.budgetInput}
+              value={newTotal}
+              onChangeText={setNewTotal}
+              placeholder="0.00"
+              keyboardType="decimal-pad"
+              autoFocus={true}
+            />
+          </View>
         ) : (
           <Text style={styles.budgetAmount}>${totalBudget.toFixed(2)}</Text>
         )}

@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Pressable, StyleSheet, Alert, ScrollView, Modal } from "react-native";
+import { View, Text, TextInput, Pressable, StyleSheet, Alert, ScrollView, Modal, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import DateTimePicker, { DateTimePickerEvent, DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 import { useCreateExpense } from "../src/api/hooks/useExpenses";
 import { useAuthStore } from "../src/store/authStore";
 import { useBudget } from "../src/api/hooks/useBudgets";
@@ -33,7 +34,8 @@ export default function NewExpenseForm() {
   const createExpense = useCreateExpense();
   const { theme } = useTheme();
 
-  const [showDateModal, setShowDateModal] = useState(false);
+  const [isIOSPickerVisible, setIsIOSPickerVisible] = useState(false);
+  const [iosTempDate, setIOSTempDate] = useState(new Date());
 
   const styles = createStyles(theme);
 
@@ -56,6 +58,14 @@ export default function NewExpenseForm() {
   });
 
   const selectedDate = watch("date");
+
+  const getValidDate = (value: string) => {
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      return new Date();
+    }
+    return parsed;
+  };
 
   const onSubmit = async (data: ExpenseFormData) => {
     if (!session?.user?.id) {
@@ -87,12 +97,54 @@ export default function NewExpenseForm() {
   };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+    const date = getValidDate(dateString);
     return date.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric'
     });
+  };
+
+  const handleAndroidDateChange = (_event: DateTimePickerEvent, date?: Date) => {
+    if (!date) {
+      return;
+    }
+
+    const iso = date.toISOString().split("T")[0];
+    setValue("date", iso, { shouldValidate: true, shouldTouch: true, shouldDirty: true });
+  };
+
+  const handleDatePress = () => {
+    const currentDate = getValidDate(selectedDate);
+
+    if (Platform.OS === "android") {
+      DateTimePickerAndroid.open({
+        mode: "date",
+        value: currentDate,
+        is24Hour: true,
+        onChange: handleAndroidDateChange,
+      });
+      return;
+    }
+
+    setIOSTempDate(currentDate);
+    setIsIOSPickerVisible(true);
+  };
+
+  const handleIOSPickerChange = (_event: DateTimePickerEvent, date?: Date) => {
+    if (date) {
+      setIOSTempDate(date);
+    }
+  };
+
+  const closeIOSPicker = () => {
+    setIsIOSPickerVisible(false);
+  };
+
+  const confirmIOSDate = () => {
+    const iso = iosTempDate.toISOString().split("T")[0];
+    setValue("date", iso, { shouldValidate: true, shouldTouch: true, shouldDirty: true });
+    setIsIOSPickerVisible(false);
   };
 
   return (
@@ -186,7 +238,7 @@ export default function NewExpenseForm() {
               const categoryItems = categories.length > 0 
                 ? categories.map(category => ({
                     label: category.name,
-                    value: category._id
+                    value: category._id || category.id || category.name
                   }))
                 : [{ label: "No categories available", value: "" }];
               
@@ -209,7 +261,7 @@ export default function NewExpenseForm() {
           <Text style={styles.label}>Date</Text>
           <Pressable
             style={styles.selectButton}
-            onPress={() => setShowDateModal(true)}
+            onPress={handleDatePress}
           >
             <Text style={styles.selectText}>
               {formatDate(selectedDate)}
@@ -235,36 +287,42 @@ export default function NewExpenseForm() {
       </Pressable>
 
 
-      {/* Date Selection Modal */}
-      <Modal
-        visible={showDateModal}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setShowDateModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Date</Text>
-              <Pressable onPress={() => setShowDateModal(false)}>
-                <Ionicons name="close" size={24} color={theme.text} />
-              </Pressable>
-            </View>
-            <View style={styles.dateInputContainer}>
-              <TextInput
-                style={styles.dateInput}
-                value={selectedDate}
-                onChangeText={(text) => setValue("date", text)}
-                placeholder="YYYY-MM-DD"
-                placeholderTextColor={theme.textMuted}
-              />
-              <Text style={styles.dateHelpText}>
-                Enter date in YYYY-MM-DD format
-              </Text>
+      {Platform.OS === "ios" && (
+        <Modal
+          visible={isIOSPickerVisible}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={closeIOSPicker}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Select Date</Text>
+                <Pressable onPress={closeIOSPicker}>
+                  <Ionicons name="close" size={24} color={theme.text} />
+                </Pressable>
+              </View>
+              <View style={styles.pickerContainer}>
+                <DateTimePicker
+                  value={iosTempDate}
+                  mode="date"
+                  display="spinner"
+                  onChange={handleIOSPickerChange}
+                  style={styles.iosPicker}
+                />
+              </View>
+              <View style={styles.modalActions}>
+                <Pressable style={styles.modalActionButton} onPress={closeIOSPicker}>
+                  <Text style={styles.modalActionText}>Cancel</Text>
+                </Pressable>
+                <Pressable style={styles.modalActionButton} onPress={confirmIOSDate}>
+                  <Text style={styles.modalActionText}>Done</Text>
+                </Pressable>
+              </View>
             </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
+      )}
     </View>
   );
 }
@@ -328,21 +386,66 @@ const createStyles = (theme: any) => StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
-  dateInputContainer: {
-    padding: 20,
-  },
-  dateInput: {
+  selectButton: {
     backgroundColor: theme.surfaceSecondary,
-    color: theme.text,
     padding: 12,
     borderRadius: 8,
-    fontSize: 16,
     borderWidth: 1,
     borderColor: theme.border,
-    marginBottom: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    minHeight: 48,
   },
-  dateHelpText: {
-    fontSize: 12,
-    color: theme.textMuted,
+  selectText: {
+    fontSize: 16,
+    color: theme.text,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "flex-end",
+  },
+  modalContent: {
+    backgroundColor: theme.cardBackground,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingBottom: 20,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.cardBorder,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: theme.text,
+  },
+  pickerContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+  },
+  iosPicker: {
+    width: "100%",
+  },
+  modalActions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 16,
+    paddingHorizontal: 20,
+    paddingBottom: 24,
+  },
+  modalActionButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  modalActionText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: theme.primary,
   },
 });

@@ -392,7 +392,7 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   tabContainer: {
     flexDirection: "row",
-    backgroundColor: theme.backgroundSecondary,
+    backgroundColor: "#f5f5f5", // Light gray background
     borderRadius: 8,
     padding: 4,
     marginHorizontal: 16,
@@ -400,21 +400,29 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   tab: {
     flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     borderRadius: 6,
     alignItems: "center",
+    justifyContent: "center",
   },
   activeTab: {
-    backgroundColor: theme.primary,
+    backgroundColor: "#ffffff", // White background for selected tab
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   tabText: {
     fontSize: 12,
     fontWeight: "500",
-    color: theme.textSecondary,
+    color: "#666666", // Gray text for unselected tabs
   },
   activeTabText: {
-    color: theme.surface,
+    color: "#000000", // Black text for selected tab
+    fontWeight: "600",
+    fontSize: 12, // Keep same font size
   },
   tabContent: {
     paddingHorizontal: 16,

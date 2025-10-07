@@ -233,9 +233,9 @@ export default function BudgetSetupSection({ budget, categories }: BudgetSetupSe
   };
 
   // Calculate totals
-  const totalBudgeted = categories.reduce((sum, cat) => sum + cat.budgeted, 0);
-  const totalSpent = categories.reduce((sum, cat) => sum + cat.spent, 0);
-  const remaining = totalBudgeted - totalSpent;
+  const totalBudgeted = budget?.totalBudgeted || 0;
+  const totalBudgetedInCategories = categories.reduce((sum, cat) => sum + cat.budgeted, 0);
+  const availableToBudget = totalBudgeted - totalBudgetedInCategories;
 
   const styles = createStyles(theme);
 
@@ -285,23 +285,16 @@ export default function BudgetSetupSection({ budget, categories }: BudgetSetupSe
       <View style={styles.summaryGrid}>
         <View style={styles.summaryCard}>
           <Text style={styles.summaryLabel}>Budgeted</Text>
-          <Text style={styles.summaryValue}>${totalBudgeted.toFixed(2)}</Text>
+          <Text style={styles.summaryValue}>${totalBudgetedInCategories.toFixed(2)}</Text>
         </View>
         
         <View style={styles.summaryCard}>
-          <Text style={styles.summaryLabel}>Spent</Text>
-          <Text style={[styles.summaryValue, { color: theme.error }]}>
-            ${totalSpent.toFixed(2)}
-          </Text>
-        </View>
-
-        <View style={styles.summaryCard}>
-          <Text style={styles.summaryLabel}>Remaining</Text>
+          <Text style={styles.summaryLabel}>Available to Budget</Text>
           <Text style={[
             styles.summaryValue,
-            { color: remaining >= 0 ? theme.success : theme.error }
+            { color: availableToBudget >= 0 ? theme.success : theme.error }
           ]}>
-            ${remaining.toFixed(2)}
+            ${availableToBudget.toFixed(2)}
           </Text>
         </View>
       </View>

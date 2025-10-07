@@ -3,19 +3,18 @@ import { View, Text, FlatList, StyleSheet, ScrollView, Pressable, Alert } from "
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useBudget } from "../../src/api/hooks/useBudgets";
-import { useCategories } from "../../src/api/hooks/useCategories";
+import { useCategoriesByBudget } from "../../src/api/hooks/useCategories";
 import { useExpenses } from "../../src/api/hooks/useExpenses";
 import { useAuthStore } from "../../src/store/authStore";
 import { useSafeAreaStyles } from "../../src/hooks/useSafeAreaStyles";
 import CategoryList from "../../components/CategoryList";
-import Summary from "../../components/Summary";
 import BudgetSetupSection from "../../components/BudgetSetupSection";
 
 function BudgetsScreenContent() {
   const { session } = useAuthStore();
   const router = useRouter();
   const { data: budget, isLoading: budgetLoading, error: budgetError } = useBudget(session?.user?.id || "");
-  const { data: categories = [], isLoading: categoriesLoading, error: categoriesError } = useCategories(session?.user?.id || "");
+  const { data: categories = [], isLoading: categoriesLoading, error: categoriesError } = useCategoriesByBudget(budget?._id || "");
   const { data: expenses = [], isLoading: expensesLoading, error: expensesError } = useExpenses(session?.user?.id || "");
   const safeAreaStyles = useSafeAreaStyles();
 
@@ -66,8 +65,6 @@ function BudgetsScreenContent() {
           </View>
         )}
       </View>
-
-      <Summary />
 
       {budget && (
         <>

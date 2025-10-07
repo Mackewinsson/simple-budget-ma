@@ -47,7 +47,7 @@ export default function DailySpendingTracker({ budget, categories, expenses }: D
     return sum + (expense.type === "expense" ? expense.amount : -expense.amount);
   }, 0);
 
-  const totalBudgeted = categories.reduce((sum, cat) => sum + cat.budgeted, 0);
+  const totalBudgeted = budget?.totalBudgeted || 0;
   const remaining = totalBudgeted - totalSpent;
 
   const styles = createStyles(theme);

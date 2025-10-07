@@ -61,7 +61,7 @@ function ReportsScreenContent() {
   }
 
   // Calculate analytics
-  const totalBudgeted = categories.reduce((sum, cat) => sum + cat.budgeted, 0);
+  const totalBudgeted = budget?.totalBudgeted || 0;
   const totalSpent = expenses.reduce((sum, expense) => {
     return sum + (expense.type === "expense" ? expense.amount : -expense.amount);
   }, 0);

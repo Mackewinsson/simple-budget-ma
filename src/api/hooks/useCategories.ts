@@ -44,8 +44,11 @@ export const useCreateCategory = () => {
     mutationFn: createCategory,
     onSuccess: (data, variables) => {
       // Invalidate and refetch category queries
+      queryClient.invalidateQueries({ queryKey: categoryKeys.all });
       queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
       queryClient.invalidateQueries({ queryKey: categoryKeys.byBudget(variables.budgetId) });
+      // Also invalidate budget queries since categories affect budget totals
+      queryClient.invalidateQueries({ queryKey: ["budgets"] });
       console.log("Category created successfully");
     },
     onError: (error) => {

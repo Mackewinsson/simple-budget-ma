@@ -7,6 +7,7 @@ import { useCategories } from "../../src/api/hooks/useCategories";
 import { useAuthStore } from "../../src/store/authStore";
 import { useDeleteExpense } from "../../src/api/hooks/useExpenses";
 import { useSafeAreaStyles } from "../../src/hooks/useSafeAreaStyles";
+import { useTheme } from "../../src/theme/ThemeContext";
 import NewExpenseForm from "../../components/NewExpenseForm";
 import DailySpendingTracker from "../../components/DailySpendingTracker";
 
@@ -17,9 +18,12 @@ function TransactionsScreenContent() {
   const { data: expenses = [], isLoading: expensesLoading } = useExpenses(session?.user?.id || "");
   const deleteExpense = useDeleteExpense();
   const safeAreaStyles = useSafeAreaStyles();
-  
+  const { theme } = useTheme();
+
   const isLoading = budgetLoading || categoriesLoading || expensesLoading;
   const [showExpenseForm, setShowExpenseForm] = useState(false);
+
+  const styles = createStyles(theme);
 
   const handleDeleteExpense = (expenseId: string, description: string) => {
     Alert.alert(
@@ -41,12 +45,12 @@ function TransactionsScreenContent() {
       <View style={styles.expenseLeft}>
         <View style={[
           styles.iconContainer,
-          { backgroundColor: item.type === "expense" ? "#ef444410" : "#4ade8010" }
+          { backgroundColor: item.type === "expense" ? `${theme.error}20` : `${theme.success}20` }
         ]}>
           <Ionicons
             name={item.type === "expense" ? "arrow-down" : "arrow-up"}
             size={20}
-            color={item.type === "expense" ? "#ef4444" : "#4ade80"}
+            color={item.type === "expense" ? theme.error : theme.success}
           />
         </View>
         <View style={styles.expenseDetails}>
@@ -63,7 +67,7 @@ function TransactionsScreenContent() {
       <View style={styles.expenseRight}>
         <Text style={[
           styles.expenseAmount,
-          { color: item.type === "expense" ? "#ef4444" : "#4ade80" }
+          { color: item.type === "expense" ? theme.error : theme.success }
         ]}>
           {item.type === "expense" ? "-" : "+"}${item.amount.toFixed(2)}
         </Text>
@@ -71,7 +75,7 @@ function TransactionsScreenContent() {
           style={styles.deleteButton}
           onPress={() => handleDeleteExpense(item._id, item.description)}
         >
-          <Ionicons name="trash-outline" size={16} color="#9ca3af" />
+          <Ionicons name="trash-outline" size={16} color={theme.textMuted} />
         </Pressable>
       </View>
     </Pressable>
@@ -146,7 +150,7 @@ export default function TransactionsScreen() {
   return <TransactionsScreenContent />;
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: any) => StyleSheet.create({
   container: {
     padding: 16,
   },
@@ -157,7 +161,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: "#64748b",
+    color: theme.textSecondary,
   },
   header: {
     flexDirection: "row",
@@ -168,36 +172,36 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#0f172a",
+    color: theme.text,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
-    color: "#64748b",
+    color: theme.textSecondary,
   },
   addButtonHeader: {
-    backgroundColor: "#6366f1",
+    backgroundColor: theme.primary,
     width: 48,
     height: 48,
     borderRadius: 24,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: "#6366f1",
+    shadowColor: theme.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
   },
   formContainer: {
-    backgroundColor: "#ffffff",
+    backgroundColor: theme.cardBackground,
     borderRadius: 16,
     padding: 16,
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: "#e2e8f0",
-    shadowColor: "#000",
+    borderColor: theme.cardBorder,
+    shadowColor: theme.shadow,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: theme.shadowOpacity,
     shadowRadius: 8,
     elevation: 2,
   },
@@ -207,7 +211,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#0f172a",
+    color: theme.text,
     marginBottom: 16,
   },
   list: {
@@ -217,15 +221,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#ffffff",
+    backgroundColor: theme.cardBackground,
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: "#e2e8f0",
-    shadowColor: "#000",
+    borderColor: theme.cardBorder,
+    shadowColor: theme.shadow,
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOpacity: theme.shadowOpacity,
     shadowRadius: 4,
     elevation: 2,
   },
@@ -247,13 +251,13 @@ const styles = StyleSheet.create({
   },
   expenseDescription: {
     fontSize: 16,
-    color: "#0f172a",
+    color: theme.text,
     fontWeight: "500",
     marginBottom: 4,
   },
   expenseDate: {
     fontSize: 13,
-    color: "#64748b",
+    color: theme.textSecondary,
   },
   expenseRight: {
     alignItems: "flex-end",
@@ -275,12 +279,12 @@ const styles = StyleSheet.create({
   emptyStateText: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#64748b",
+    color: theme.textSecondary,
     marginTop: 16,
   },
   emptyStateSubtext: {
     fontSize: 14,
-    color: "#94a3b8",
+    color: theme.textMuted,
     marginTop: 8,
   },
 });

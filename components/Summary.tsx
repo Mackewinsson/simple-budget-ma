@@ -4,12 +4,14 @@ import { useBudget } from "../src/api/hooks/useBudgets";
 import { useCategories } from "../src/api/hooks/useCategories";
 import { useExpenses } from "../src/api/hooks/useExpenses";
 import { useDemoUser } from "../src/api/hooks/useDemoUser";
+import { useTheme } from "../src/theme/ThemeContext";
 
 export default function Summary() {
   const { data: demoUser } = useDemoUser();
   const { data: budget } = useBudget(demoUser?._id || "");
   const { data: categories = [] } = useCategories(demoUser?._id || "");
   const { data: expenses = [] } = useExpenses(demoUser?._id || "");
+  const { theme } = useTheme();
 
   // Calculate totals
   const totalBudgeted = categories.reduce((sum, cat) => sum + cat.budgeted, 0);
@@ -17,6 +19,8 @@ export default function Summary() {
     return sum + (expense.type === "expense" ? expense.amount : -expense.amount);
   }, 0);
   const remaining = totalBudgeted - totalSpent;
+
+  const styles = createStyles(theme);
 
   return (
     <View style={styles.container}>
@@ -30,16 +34,16 @@ export default function Summary() {
         
         <View style={styles.summaryCard}>
           <Text style={styles.summaryLabel}>Total Spent</Text>
-          <Text style={[styles.summaryValue, { color: "#ef4444" }]}>
+          <Text style={[styles.summaryValue, { color: theme.error }]}>
             ${totalSpent.toFixed(2)}
           </Text>
         </View>
-        
+
         <View style={styles.summaryCard}>
           <Text style={styles.summaryLabel}>Remaining</Text>
           <Text style={[
-            styles.summaryValue, 
-            { color: remaining >= 0 ? "#4ade80" : "#ef4444" }
+            styles.summaryValue,
+            { color: remaining >= 0 ? theme.success : theme.error }
           ]}>
             ${remaining.toFixed(2)}
           </Text>
@@ -54,14 +58,14 @@ export default function Summary() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: any) => StyleSheet.create({
   container: {
     margin: 16,
   },
   title: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#0f172a",
+    color: theme.text,
     marginBottom: 16,
   },
   summaryGrid: {
@@ -70,28 +74,28 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   summaryCard: {
-    backgroundColor: "#ffffff",
+    backgroundColor: theme.cardBackground,
     padding: 16,
     borderRadius: 12,
     flex: 1,
     minWidth: "45%",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#e2e8f0",
-    shadowColor: "#000",
+    borderColor: theme.cardBorder,
+    shadowColor: theme.shadow,
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOpacity: theme.shadowOpacity,
     shadowRadius: 4,
     elevation: 2,
   },
   summaryLabel: {
     fontSize: 12,
-    color: "#64748b",
+    color: theme.textSecondary,
     marginBottom: 4,
   },
   summaryValue: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#0f172a",
+    color: theme.text,
   },
 });

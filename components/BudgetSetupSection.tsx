@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, Pressable, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { useUpdateBudget, useDeleteBudget } from "../src/api/hooks/useBudgets";
 import { useAuthStore } from "../src/store/authStore";
 import { useTheme } from "../src/theme/ThemeContext";
@@ -159,6 +160,7 @@ const createStyles = (theme: any) => StyleSheet.create({
 
 export default function BudgetSetupSection({ budget, categories }: BudgetSetupSectionProps) {
   const { session } = useAuthStore();
+  const router = useRouter();
   const updateBudget = useUpdateBudget();
   const deleteBudget = useDeleteBudget();
   const [isEditingTotal, setIsEditingTotal] = useState(false);
@@ -212,7 +214,15 @@ export default function BudgetSetupSection({ budget, categories }: BudgetSetupSe
           onPress: async () => {
             try {
               await deleteBudget.mutateAsync(budget._id);
-              Alert.alert("Success", "Budget deleted successfully");
+              Alert.alert("Success", "Budget deleted successfully", [
+                {
+                  text: "OK",
+                  onPress: () => {
+                    // Redirect to budget creation screen after successful deletion
+                    router.replace("/create-budget");
+                  }
+                }
+              ]);
             } catch (error) {
               Alert.alert("Error", "Failed to delete budget");
             }

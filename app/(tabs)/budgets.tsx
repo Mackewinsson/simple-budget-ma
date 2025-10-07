@@ -1,22 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, FlatList, StyleSheet, ScrollView, Pressable, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { useBudget } from "../../src/api/hooks/useBudgets";
 import { useCategories } from "../../src/api/hooks/useCategories";
 import { useExpenses } from "../../src/api/hooks/useExpenses";
 import { useAuthStore } from "../../src/store/authStore";
 import { useSafeAreaStyles } from "../../src/hooks/useSafeAreaStyles";
-import NewBudgetForm from "../../components/NewBudgetForm";
 import CategoryList from "../../components/CategoryList";
 import Summary from "../../components/Summary";
 import BudgetSetupSection from "../../components/BudgetSetupSection";
 
 function BudgetsScreenContent() {
   const { session } = useAuthStore();
+  const router = useRouter();
   const { data: budget, isLoading: budgetLoading, error: budgetError } = useBudget(session?.user?.id || "");
   const { data: categories = [], isLoading: categoriesLoading, error: categoriesError } = useCategories(session?.user?.id || "");
   const { data: expenses = [], isLoading: expensesLoading, error: expensesError } = useExpenses(session?.user?.id || "");
   const safeAreaStyles = useSafeAreaStyles();
+
+  // Redirect to budget creation if no budget exists
+  useEffect(() => {
+    if (!budgetLoading && !budget && session?.user?.id) {
+      router.replace("/create-budget");
+    }
+  }, [budget, budgetLoading, session?.user?.id, router]);
   
   const isLoading = budgetLoading || categoriesLoading || expensesLoading;
   const hasError = budgetError || categoriesError || expensesError;
@@ -52,21 +60,16 @@ function BudgetsScreenContent() {
         {budget && (
           <View style={styles.budgetBadge}>
             <Ionicons name="calendar-outline" size={16} color="#94a3b8" />
-            <Text style={styles.budgetPeriod}>{budget.period || 'Monthly'}</Text>
+            <Text style={styles.budgetPeriod}>
+              {budget.month && budget.year ? `${budget.month}/${budget.year}` : 'Monthly'}
+            </Text>
           </View>
         )}
       </View>
 
       <Summary />
 
-      {!budget ? (
-        <View style={styles.noBudgetContainer}>
-          <Ionicons name="wallet-outline" size={64} color="#475569" />
-          <Text style={styles.noBudgetTitle}>No budget yet</Text>
-          <Text style={styles.noBudgetText}>Create your first budget to start tracking your finances</Text>
-          <NewBudgetForm />
-        </View>
-      ) : (
+      {budget && (
         <>
           <BudgetSetupSection
             budget={budget}
@@ -136,25 +139,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#64748b",
     fontWeight: "500",
-  },
-  noBudgetContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 48,
-    paddingHorizontal: 24,
-  },
-  noBudgetTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#0f172a",
-    marginTop: 16,
-  },
-  noBudgetText: {
-    fontSize: 15,
-    color: "#64748b",
-    marginTop: 8,
-    marginBottom: 24,
-    textAlign: "center",
   },
   budgetCard: {
     backgroundColor: "#ffffff",

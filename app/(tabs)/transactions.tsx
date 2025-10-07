@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, FlatList, StyleSheet, ScrollView, Pressable, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { useExpenses } from "../../src/api/hooks/useExpenses";
 import { useBudget } from "../../src/api/hooks/useBudgets";
 import { useCategories } from "../../src/api/hooks/useCategories";
@@ -13,6 +14,7 @@ import DailySpendingTracker from "../../components/DailySpendingTracker";
 
 function TransactionsScreenContent() {
   const { session } = useAuthStore();
+  const router = useRouter();
   const { data: budget, isLoading: budgetLoading } = useBudget(session?.user?.id || "");
   const { data: categories = [], isLoading: categoriesLoading } = useCategories(session?.user?.id || "");
   const { data: expenses = [], isLoading: expensesLoading } = useExpenses(session?.user?.id || "");
@@ -22,6 +24,13 @@ function TransactionsScreenContent() {
 
   const isLoading = budgetLoading || categoriesLoading || expensesLoading;
   const [showExpenseForm, setShowExpenseForm] = useState(false);
+
+  // Redirect to budget creation if no budget exists
+  useEffect(() => {
+    if (!isLoading && !budget && session?.user?.id) {
+      router.replace("/create-budget");
+    }
+  }, [budget, isLoading, session?.user?.id, router]);
 
   const styles = createStyles(theme);
 

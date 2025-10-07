@@ -4,9 +4,11 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { useCreateBudget } from "../src/api/hooks/useBudgets";
 import { useAuthStore } from "../src/store/authStore";
 import { useAIBudgetCreation } from "../src/api/hooks/useAIBudgetCreation";
+import { useTheme } from "../src/theme/ThemeContext";
 import AILoading from "./AILoading";
 
 const budgetSchema = z.object({
@@ -19,12 +21,16 @@ type BudgetFormData = z.infer<typeof budgetSchema>;
 
 export default function NewBudgetForm() {
   const { session } = useAuthStore();
+  const router = useRouter();
+  const { theme } = useTheme();
   const createBudget = useCreateBudget();
   const { createBudgetFromAI, isProcessing: isAICreating } = useAIBudgetCreation();
   
   const [activeTab, setActiveTab] = useState<'manual' | 'ai'>('manual');
   const [aiDescription, setAiDescription] = useState('');
   const [currentStep, setCurrentStep] = useState<'analyzing' | 'parsing' | 'creating' | 'complete'>('analyzing');
+
+  const styles = createStyles(theme);
 
   const {
     control,
@@ -56,7 +62,15 @@ export default function NewBudgetForm() {
       });
 
       reset();
-      Alert.alert("Success", "Budget created successfully");
+      Alert.alert("Success", "Budget created successfully", [
+        {
+          text: "OK",
+          onPress: () => {
+            // Always redirect to budget tab after successful creation
+            router.replace("/(tabs)/budgets");
+          }
+        }
+      ]);
     } catch (error) {
       Alert.alert("Error", "Failed to create budget");
     }
@@ -96,7 +110,15 @@ export default function NewBudgetForm() {
       setTimeout(() => {
         setAiDescription('');
         setCurrentStep('analyzing');
-        Alert.alert("Success", `Budget created successfully with AI! Created ${result.categories.length} categories.`);
+        Alert.alert("Success", `Budget created successfully with AI! Created ${result.categories.length} categories.`, [
+          {
+            text: "OK",
+            onPress: () => {
+              // Always redirect to budget tab after successful creation
+              router.replace("/(tabs)/budgets");
+            }
+          }
+        ]);
       }, 1000);
       
     } catch (error: any) {
@@ -120,7 +142,7 @@ export default function NewBudgetForm() {
       
       <View style={styles.header}>
         <View style={styles.titleContainer}>
-          <Ionicons name="sparkles" size={24} color="#4ade80" style={styles.titleIcon} />
+          <Ionicons name="sparkles" size={24} color={theme.success} style={styles.titleIcon} />
           <Text style={styles.title}>Create Your Budget</Text>
         </View>
         <Text style={styles.subtitle}>Choose how you'd like to create your budget</Text>
@@ -140,7 +162,7 @@ export default function NewBudgetForm() {
           style={[styles.tab, activeTab === 'ai' && styles.activeTab]}
           onPress={() => setActiveTab('ai')}
         >
-          <Ionicons name="sparkles" size={16} color={activeTab === 'ai' ? '#4ade80' : '#94a3b8'} />
+          <Ionicons name="sparkles" size={16} color={activeTab === 'ai' ? theme.success : theme.textSecondary} />
           <Text style={[styles.tabText, activeTab === 'ai' && styles.activeTabText]}>
             AI Assistant
           </Text>
@@ -273,7 +295,7 @@ export default function NewBudgetForm() {
             onPress={handleAIBudgetCreation}
             disabled={!aiDescription.trim() || isAICreating}
           >
-            <Ionicons name="sparkles" size={20} color="#000" style={styles.buttonIcon} />
+            <Ionicons name="sparkles" size={20} color={theme.surface} style={styles.buttonIcon} />
             <Text style={styles.buttonText}>
               {isAICreating ? "Creating with AI..." : "Create Budget with AI"}
             </Text>
@@ -284,14 +306,14 @@ export default function NewBudgetForm() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: any) => StyleSheet.create({
   container: {
     padding: 16,
-    backgroundColor: "#111",
+    backgroundColor: theme.cardBackground,
     borderRadius: 12,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: "#333",
+    borderColor: theme.cardBorder,
   },
   header: {
     marginBottom: 20,
@@ -307,16 +329,16 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#fff",
+    color: theme.text,
   },
   subtitle: {
     fontSize: 14,
-    color: "#94a3b8",
+    color: theme.textSecondary,
     lineHeight: 20,
   },
   tabContainer: {
     flexDirection: "row",
-    backgroundColor: "#1a1a1a",
+    backgroundColor: theme.backgroundSecondary,
     borderRadius: 8,
     padding: 4,
     marginBottom: 20,
@@ -337,10 +359,10 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#94a3b8",
+    color: theme.textSecondary,
   },
   activeTabText: {
-    color: "#000",
+    color: theme.surface,
   },
   tabContent: {
     // Content styles
@@ -357,18 +379,18 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    color: "#fff",
+    color: theme.text,
     marginBottom: 8,
     fontWeight: "500",
   },
   input: {
-    backgroundColor: "#333",
-    color: "#fff",
+    backgroundColor: theme.surfaceSecondary,
+    color: theme.text,
     padding: 12,
     borderRadius: 8,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: "#444",
+    borderColor: theme.border,
   },
   textArea: {
     minHeight: 100,
@@ -381,14 +403,14 @@ const styles = StyleSheet.create({
   },
   characterCountText: {
     fontSize: 12,
-    color: "#64748b",
+    color: theme.textMuted,
   },
   examplesContainer: {
     marginBottom: 20,
   },
   examplesTitle: {
     fontSize: 14,
-    color: "#fff",
+    color: theme.text,
     marginBottom: 12,
     fontWeight: "500",
   },
@@ -400,22 +422,22 @@ const styles = StyleSheet.create({
   },
   exampleText: {
     fontSize: 13,
-    color: "#94a3b8",
-    backgroundColor: "#1a1a1a",
+    color: theme.textSecondary,
+    backgroundColor: theme.backgroundSecondary,
     padding: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#333",
+    borderColor: theme.cardBorder,
     marginRight: 12,
     minWidth: 280,
   },
   error: {
-    color: "#ef4444",
+    color: theme.error,
     fontSize: 12,
     marginTop: 4,
   },
   button: {
-    backgroundColor: "#4ade80",
+    backgroundColor: theme.success,
     padding: 16,
     borderRadius: 8,
     alignItems: "center",
@@ -424,16 +446,16 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   aiButton: {
-    backgroundColor: "#8b5cf6",
+    backgroundColor: theme.primary,
   },
   buttonDisabled: {
-    backgroundColor: "#666",
+    backgroundColor: theme.textMuted,
   },
   buttonIcon: {
     // Icon styles
   },
   buttonText: {
-    color: "#000",
+    color: theme.surface,
     fontSize: 16,
     fontWeight: "600",
   },

@@ -359,6 +359,8 @@ const createStyles = (theme: any) => StyleSheet.create({
     fontSize: 16,
     borderWidth: 1,
     borderColor: theme.border,
+    minHeight: 48,
+    height: 48,
   },
   error: {
     color: theme.error,
@@ -396,6 +398,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     minHeight: 48,
+    height: 48,
   },
   selectText: {
     fontSize: 16,

@@ -169,6 +169,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     minHeight: 48,
+    height: 48,
   },
   pickerText: {
     fontSize: 16,

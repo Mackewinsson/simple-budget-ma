@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Pressable, Modal, Platform } from "react-native
 import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import { useTheme } from "../src/theme/ThemeContext";
+import { FONT_SIZES, FONT_WEIGHTS } from "../src/theme/layout";
 
 interface PickerItem {
   label: string;
@@ -154,10 +155,10 @@ const createStyles = (theme: any) => StyleSheet.create({
     marginBottom: 16,
   },
   label: {
-    fontSize: 14,
+    fontSize: FONT_SIZES.md,
     color: theme.text,
     marginBottom: 8,
-    fontWeight: "500",
+    fontWeight: FONT_WEIGHTS.medium,
   },
   pickerButton: {
     backgroundColor: theme.surfaceSecondary,
@@ -172,12 +173,12 @@ const createStyles = (theme: any) => StyleSheet.create({
     height: 48,
   },
   pickerText: {
-    fontSize: 16,
+    fontSize: FONT_SIZES.lg,
     flex: 1,
   },
   error: {
     color: theme.error,
-    fontSize: 12,
+    fontSize: FONT_SIZES.xs,
     marginTop: 4,
   },
   // Modal styles
@@ -201,8 +202,8 @@ const createStyles = (theme: any) => StyleSheet.create({
     borderBottomColor: theme.border,
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: "600",
+    fontSize: FONT_SIZES.xl,
+    fontWeight: FONT_WEIGHTS.semibold,
     color: theme.text,
   },
   nativePicker: {
@@ -226,8 +227,8 @@ const createStyles = (theme: any) => StyleSheet.create({
     paddingHorizontal: 12,
   },
   modalActionText: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: FONT_SIZES.lg,
+    fontWeight: FONT_WEIGHTS.semibold,
     color: theme.primary,
   },
   emptyState: {
@@ -236,7 +237,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     gap: 12,
   },
   emptyStateText: {
-    fontSize: 16,
+    fontSize: FONT_SIZES.lg,
     color: theme.textMuted,
   },
 });

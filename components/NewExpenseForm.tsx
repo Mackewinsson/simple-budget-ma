@@ -10,6 +10,7 @@ import { useAuthStore } from "../src/store/authStore";
 import { useBudget } from "../src/api/hooks/useBudgets";
 import { useCategoriesByBudget } from "../src/api/hooks/useCategories";
 import { useTheme } from "../src/theme/ThemeContext";
+import { FONT_SIZES, FONT_WEIGHTS } from "../src/theme/layout";
 import CustomPicker from "./Picker";
 
 const expenseSchema = z.object({
@@ -346,17 +347,17 @@ const createStyles = (theme: any) => StyleSheet.create({
     marginBottom: 16,
   },
   label: {
-    fontSize: 14,
+    fontSize: FONT_SIZES.md,
     color: theme.text,
     marginBottom: 8,
-    fontWeight: "500",
+    fontWeight: FONT_WEIGHTS.medium,
   },
   input: {
     backgroundColor: theme.surfaceSecondary,
     color: theme.text,
     padding: 12,
     borderRadius: 8,
-    fontSize: 16,
+    fontSize: FONT_SIZES.lg,
     borderWidth: 1,
     borderColor: theme.border,
     minHeight: 48,
@@ -364,7 +365,7 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   error: {
     color: theme.error,
-    fontSize: 12,
+    fontSize: FONT_SIZES.xs,
     marginTop: 4,
   },
   button: {
@@ -385,8 +386,8 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   buttonText: {
     color: theme.surface,
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: FONT_SIZES.lg,
+    fontWeight: FONT_WEIGHTS.semibold,
   },
   selectButton: {
     backgroundColor: theme.surfaceSecondary,
@@ -401,7 +402,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     height: 48,
   },
   selectText: {
-    fontSize: 16,
+    fontSize: FONT_SIZES.lg,
     color: theme.text,
   },
   modalOverlay: {
@@ -424,8 +425,8 @@ const createStyles = (theme: any) => StyleSheet.create({
     borderBottomColor: theme.cardBorder,
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: "600",
+    fontSize: FONT_SIZES.xl,
+    fontWeight: FONT_WEIGHTS.semibold,
     color: theme.text,
   },
   pickerContainer: {
@@ -447,8 +448,8 @@ const createStyles = (theme: any) => StyleSheet.create({
     paddingHorizontal: 12,
   },
   modalActionText: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: FONT_SIZES.lg,
+    fontWeight: FONT_WEIGHTS.semibold,
     color: theme.primary,
   },
 });

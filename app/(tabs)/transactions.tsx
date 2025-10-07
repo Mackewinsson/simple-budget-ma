@@ -9,6 +9,7 @@ import { useAuthStore } from "../../src/store/authStore";
 import { useDeleteExpense } from "../../src/api/hooks/useExpenses";
 import { useSafeAreaStyles } from "../../src/hooks/useSafeAreaStyles";
 import { useTheme } from "../../src/theme/ThemeContext";
+import { FONT_SIZES, FONT_WEIGHTS } from "../../src/theme/layout";
 import NewExpenseForm from "../../components/NewExpenseForm";
 import AITransactionInput from "../../components/AITransactionInput";
 
@@ -336,7 +337,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     alignItems: "center",
   },
   loadingText: {
-    fontSize: 16,
+    fontSize: FONT_SIZES.lg,
     color: theme.textSecondary,
   },
   header: {
@@ -353,22 +354,22 @@ const createStyles = (theme: any) => StyleSheet.create({
     alignItems: "flex-end",
   },
   title: {
-    fontSize: 20,
-    fontWeight: "bold",
+    fontSize: FONT_SIZES.xxl,
+    fontWeight: FONT_WEIGHTS.bold,
     color: theme.text,
     marginBottom: 4,
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: FONT_SIZES.md,
     color: theme.textSecondary,
   },
   availableAmount: {
-    fontSize: 18,
-    fontWeight: "700",
+    fontSize: FONT_SIZES.xl,
+    fontWeight: FONT_WEIGHTS.bold,
     marginBottom: 2,
   },
   availableLabel: {
-    fontSize: 12,
+    fontSize: FONT_SIZES.xs,
     color: theme.textSecondary,
   },
   expandButtonContainer: {
@@ -415,14 +416,14 @@ const createStyles = (theme: any) => StyleSheet.create({
     elevation: 2,
   },
   tabText: {
-    fontSize: 12,
-    fontWeight: "500",
+    fontSize: FONT_SIZES.xs,
+    fontWeight: FONT_WEIGHTS.medium,
     color: "#666666", // Gray text for unselected tabs
   },
   activeTabText: {
     color: "#000000", // Black text for selected tab
-    fontWeight: "600",
-    fontSize: 12, // Keep same font size
+    fontWeight: FONT_WEIGHTS.semibold,
+    fontSize: FONT_SIZES.xs, // Keep same font size
   },
   tabContent: {
     paddingHorizontal: 16,
@@ -447,7 +448,7 @@ const createStyles = (theme: any) => StyleSheet.create({
   searchInput: {
     flex: 1,
     paddingVertical: 12,
-    fontSize: 16,
+    fontSize: FONT_SIZES.lg,
     color: theme.text,
   },
   dateFilterContainer: {
@@ -458,17 +459,17 @@ const createStyles = (theme: any) => StyleSheet.create({
     flex: 1,
   },
   dateLabel: {
-    fontSize: 12,
+    fontSize: FONT_SIZES.xs,
     color: theme.text,
     marginBottom: 4,
-    fontWeight: "500",
+    fontWeight: FONT_WEIGHTS.medium,
   },
   dateInput: {
     backgroundColor: theme.surfaceSecondary,
     borderRadius: 8,
     paddingVertical: 12,
     paddingHorizontal: 12,
-    fontSize: 14,
+    fontSize: FONT_SIZES.md,
     color: theme.text,
     borderWidth: 1,
     borderColor: theme.border,
@@ -494,13 +495,13 @@ const createStyles = (theme: any) => StyleSheet.create({
     flex: 1,
   },
   expenseDescription: {
-    fontSize: 16,
+    fontSize: FONT_SIZES.lg,
     color: theme.text,
-    fontWeight: "500",
+    fontWeight: FONT_WEIGHTS.medium,
     marginBottom: 4,
   },
   expenseDate: {
-    fontSize: 13,
+    fontSize: FONT_SIZES.sm,
     color: theme.textSecondary,
   },
   expenseRight: {
@@ -514,8 +515,8 @@ const createStyles = (theme: any) => StyleSheet.create({
     gap: 4,
   },
   expenseAmount: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: FONT_SIZES.lg,
+    fontWeight: FONT_WEIGHTS.semibold,
   },
   actionButtons: {
     flexDirection: "row",
@@ -530,7 +531,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     paddingVertical: 48,
   },
   emptyStateText: {
-    fontSize: 16,
+    fontSize: FONT_SIZES.lg,
     color: theme.textSecondary,
     textAlign: "center",
   },
@@ -545,14 +546,14 @@ const createStyles = (theme: any) => StyleSheet.create({
     marginBottom: 24,
   },
   noCategoriesTitle: {
-    fontSize: 20,
-    fontWeight: "600",
+    fontSize: FONT_SIZES.xxl,
+    fontWeight: FONT_WEIGHTS.semibold,
     color: theme.text,
     marginBottom: 12,
     textAlign: "center",
   },
   noCategoriesMessage: {
-    fontSize: 16,
+    fontSize: FONT_SIZES.lg,
     color: theme.textSecondary,
     textAlign: "center",
     lineHeight: 24,
@@ -569,8 +570,8 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   createCategoriesButtonText: {
     color: theme.surface,
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: FONT_SIZES.lg,
+    fontWeight: FONT_WEIGHTS.semibold,
   },
   buttonIcon: {
     marginRight: 4,

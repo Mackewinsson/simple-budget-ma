@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { FONT_SIZES, FONT_WEIGHTS } from '../src/theme/layout';
 
 export default function LoadingScreen() {
   const insets = useSafeAreaInsets();
@@ -28,8 +29,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    fontSize: FONT_SIZES.massive,
+    fontWeight: FONT_WEIGHTS.bold,
     color: '#fff',
     marginBottom: 40,
   },
@@ -37,7 +38,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: FONT_SIZES.lg,
     color: '#888',
   },
 });

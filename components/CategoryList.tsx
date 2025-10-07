@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useCategoriesByBudget } from "../src/api/hooks/useCategories";
 import { useAuthStore } from "../src/store/authStore";
 import { useBudget } from "../src/api/hooks/useBudgets";
+import { useExpenses } from "../src/api/hooks/useExpenses";
 import { useTheme } from "../src/theme/ThemeContext";
 import { SPACING, BORDER_RADIUS, FONT_SIZES, FONT_WEIGHTS, SHADOW } from "../src/theme/layout";
 import NewCategoryForm from "./NewCategoryForm";
@@ -96,6 +97,7 @@ export default function CategoryList() {
   const { session } = useAuthStore();
   const { data: budget } = useBudget(session?.user?.id || "");
   const { data: categories = [], isLoading } = useCategoriesByBudget(budget?._id || "");
+  const { data: expenses = [] } = useExpenses(session?.user?.id || "");
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const { theme } = useTheme();
 
@@ -109,6 +111,7 @@ export default function CategoryList() {
     <CategoryItem 
       category={item} 
       totalAvailable={budget?.totalAvailable || 0}
+      expenses={expenses}
     />
   );
 

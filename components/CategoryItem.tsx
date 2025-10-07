@@ -14,9 +14,21 @@ interface Category {
   budgetId: string;
 }
 
+interface Expense {
+  _id: string;
+  user: string;
+  budget: string;
+  categoryId: string;
+  amount: number;
+  description: string;
+  date: string;
+  type: "expense" | "income";
+}
+
 interface CategoryItemProps {
   category: Category;
   totalAvailable: number;
+  expenses: Expense[];
 }
 
 const createStyles = (theme: any) => StyleSheet.create({
@@ -142,13 +154,22 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
 });
 
-export default function CategoryItem({ category, totalAvailable }: CategoryItemProps) {
+export default function CategoryItem({ category, totalAvailable, expenses }: CategoryItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(category.name);
   const [editBudgeted, setEditBudgeted] = useState(category.budgeted.toString());
   const { theme } = useTheme();
   const updateCategory = useUpdateCategory();
   const deleteCategory = useDeleteCategory();
+
+  // Calculate spent amount dynamically from expenses (matching simple-budget logic)
+  const spent = expenses
+    .filter((exp) => exp.categoryId === (category._id || category.id))
+    .reduce((sum, exp) => {
+      if (exp.type === "expense") return sum + exp.amount;
+      if (exp.type === "income") return sum - exp.amount;
+      return sum;
+    }, 0);
 
   const handleStartEdit = () => {
     setEditName(category.name);
@@ -273,19 +294,19 @@ export default function CategoryItem({ category, totalAvailable }: CategoryItemP
       </View>
       <View style={styles.categoryHeader}>
         <Text style={styles.categoryAmount}>
-          ${category.budgeted.toFixed(2)} / ${category.spent.toFixed(2)}
+          ${category.budgeted.toFixed(2)} / ${spent.toFixed(2)}
         </Text>
       </View>
       <View style={styles.progressBar}>
         <View 
           style={[
             styles.progressFill, 
-            { width: `${Math.min((category.spent / category.budgeted) * 100, 100)}%` }
+            { width: `${Math.min((spent / category.budgeted) * 100, 100)}%` }
           ]} 
         />
       </View>
       <Text style={styles.remainingText}>
-        ${(category.budgeted - category.spent).toFixed(2)} remaining
+        ${(category.budgeted - spent).toFixed(2)} remaining
       </Text>
     </View>
   );

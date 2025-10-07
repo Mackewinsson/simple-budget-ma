@@ -9,6 +9,7 @@ import { useAuthStore } from "../src/store/authStore";
 import { useBudget } from "../src/api/hooks/useBudgets";
 import { useCategoriesByBudget } from "../src/api/hooks/useCategories";
 import { useTheme } from "../src/theme/ThemeContext";
+import CustomPicker from "./Picker";
 
 const expenseSchema = z.object({
   description: z.string().min(1, "Description is required"),
@@ -23,12 +24,15 @@ type ExpenseFormData = z.infer<typeof expenseSchema>;
 export default function NewExpenseForm() {
   const { session } = useAuthStore();
   const { data: budget } = useBudget(session?.user?.id || "");
-  const { data: categories = [] } = useCategoriesByBudget(budget?._id || "");
+  const { data: categories = [], isLoading: categoriesLoading } = useCategoriesByBudget(budget?._id || "");
+  
+  // Debug logging
+  console.log("Categories data:", categories);
+  console.log("Categories loading:", categoriesLoading);
+  console.log("Budget ID:", budget?._id);
   const createExpense = useCreateExpense();
   const { theme } = useTheme();
 
-  const [showCategoryModal, setShowCategoryModal] = useState(false);
-  const [showTypeModal, setShowTypeModal] = useState(false);
   const [showDateModal, setShowDateModal] = useState(false);
 
   const styles = createStyles(theme);
@@ -51,11 +55,7 @@ export default function NewExpenseForm() {
     },
   });
 
-  const selectedCategoryId = watch("categoryId");
-  const selectedType = watch("type");
   const selectedDate = watch("date");
-
-  const selectedCategory = categories.find(cat => cat._id === selectedCategoryId);
 
   const onSubmit = async (data: ExpenseFormData) => {
     if (!session?.user?.id) {
@@ -122,29 +122,23 @@ export default function NewExpenseForm() {
 
         {/* Type Field */}
         <View style={styles.field}>
-          <Text style={styles.label}>Type</Text>
-          <Pressable
-            style={styles.selectButton}
-            onPress={() => setShowTypeModal(true)}
-          >
-            <View style={styles.selectContent}>
-              <Ionicons
-                name={selectedType === "expense" ? "arrow-up-circle" : "arrow-down-circle"}
-                size={16}
-                color={selectedType === "expense" ? theme.error : theme.success}
+          <Controller
+            control={control}
+            name="type"
+            render={({ field: { onChange, value } }) => (
+              <CustomPicker
+                label="Type"
+                value={value}
+                onValueChange={onChange}
+                items={[
+                  { label: "Expense", value: "expense" },
+                  { label: "Income", value: "income" }
+                ]}
+                placeholder="Select type"
+                error={errors.type?.message}
               />
-              <Text style={[
-                styles.selectText,
-                { color: selectedType === "expense" ? theme.error : theme.success }
-              ]}>
-                {selectedType === "expense" ? "Expense" : "Income"}
-              </Text>
-            </View>
-            <Ionicons name="chevron-down" size={16} color={theme.textMuted} />
-          </Pressable>
-          {errors.type && (
-            <Text style={styles.error}>{errors.type.message}</Text>
-          )}
+            )}
+          />
         </View>
       </View>
 
@@ -172,22 +166,42 @@ export default function NewExpenseForm() {
       <View style={styles.grid}>
         {/* Category Field */}
         <View style={styles.field}>
-          <Text style={styles.label}>Category</Text>
-          <Pressable
-            style={styles.selectButton}
-            onPress={() => setShowCategoryModal(true)}
-          >
-            <Text style={[
-              styles.selectText,
-              { color: selectedCategory ? theme.text : theme.textMuted }
-            ]}>
-              {selectedCategory ? selectedCategory.name : "Select a category"}
-            </Text>
-            <Ionicons name="chevron-down" size={16} color={theme.textMuted} />
-          </Pressable>
-          {errors.categoryId && (
-            <Text style={styles.error}>{errors.categoryId.message}</Text>
-          )}
+          <Controller
+            control={control}
+            name="categoryId"
+            render={({ field: { onChange, value } }) => {
+              if (categoriesLoading) {
+                return (
+                  <CustomPicker
+                    label="Category"
+                    value=""
+                    onValueChange={() => {}}
+                    items={[{ label: "Loading categories...", value: "" }]}
+                    placeholder="Loading..."
+                    error={errors.categoryId?.message}
+                  />
+                );
+              }
+              
+              const categoryItems = categories.length > 0 
+                ? categories.map(category => ({
+                    label: category.name,
+                    value: category._id
+                  }))
+                : [{ label: "No categories available", value: "" }];
+              
+              return (
+                <CustomPicker
+                  label="Category"
+                  value={value}
+                  onValueChange={onChange}
+                  items={categoryItems}
+                  placeholder={categories.length > 0 ? "Select a category" : "Create categories first"}
+                  error={errors.categoryId?.message}
+                />
+              );
+            }}
+          />
         </View>
 
         {/* Date Field */}
@@ -220,118 +234,6 @@ export default function NewExpenseForm() {
         </Text>
       </Pressable>
 
-      {/* Category Selection Modal */}
-      <Modal
-        visible={showCategoryModal}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setShowCategoryModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Category</Text>
-              <Pressable onPress={() => setShowCategoryModal(false)}>
-                <Ionicons name="close" size={24} color={theme.text} />
-              </Pressable>
-            </View>
-            <ScrollView style={styles.modalList}>
-              {categories.map((category) => (
-                <Pressable
-                  key={category._id}
-                  style={[
-                    styles.modalItem,
-                    selectedCategoryId === category._id && styles.modalItemSelected
-                  ]}
-                  onPress={() => {
-                    setValue("categoryId", category._id);
-                    setShowCategoryModal(false);
-                  }}
-                >
-                  <Text style={[
-                    styles.modalItemText,
-                    selectedCategoryId === category._id && styles.modalItemTextSelected
-                  ]}>
-                    {category.name}
-                  </Text>
-                  {selectedCategoryId === category._id && (
-                    <Ionicons name="checkmark" size={20} color={theme.primary} />
-                  )}
-                </Pressable>
-              ))}
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Type Selection Modal */}
-      <Modal
-        visible={showTypeModal}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setShowTypeModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Type</Text>
-              <Pressable onPress={() => setShowTypeModal(false)}>
-                <Ionicons name="close" size={24} color={theme.text} />
-              </Pressable>
-            </View>
-            <View style={styles.modalList}>
-              <Pressable
-                style={[
-                  styles.modalItem,
-                  selectedType === "expense" && styles.modalItemSelected
-                ]}
-                onPress={() => {
-                  setValue("type", "expense");
-                  setShowTypeModal(false);
-                }}
-              >
-                <View style={styles.modalItemContent}>
-                  <Ionicons name="arrow-up-circle" size={20} color={theme.error} />
-                  <Text style={[
-                    styles.modalItemText,
-                    { color: theme.error },
-                    selectedType === "expense" && styles.modalItemTextSelected
-                  ]}>
-                    Expense
-                  </Text>
-                </View>
-                {selectedType === "expense" && (
-                  <Ionicons name="checkmark" size={20} color={theme.primary} />
-                )}
-              </Pressable>
-              <Pressable
-                style={[
-                  styles.modalItem,
-                  selectedType === "income" && styles.modalItemSelected
-                ]}
-                onPress={() => {
-                  setValue("type", "income");
-                  setShowTypeModal(false);
-                }}
-              >
-                <View style={styles.modalItemContent}>
-                  <Ionicons name="arrow-down-circle" size={20} color={theme.success} />
-                  <Text style={[
-                    styles.modalItemText,
-                    { color: theme.success },
-                    selectedType === "income" && styles.modalItemTextSelected
-                  ]}>
-                    Income
-                  </Text>
-                </View>
-                {selectedType === "income" && (
-                  <Ionicons name="checkmark" size={20} color={theme.primary} />
-                )}
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
 
       {/* Date Selection Modal */}
       <Modal
@@ -400,25 +302,6 @@ const createStyles = (theme: any) => StyleSheet.create({
     borderWidth: 1,
     borderColor: theme.border,
   },
-  selectButton: {
-    backgroundColor: theme.surfaceSecondary,
-    padding: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: theme.border,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  selectContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  selectText: {
-    fontSize: 16,
-    color: theme.text,
-  },
   error: {
     color: theme.error,
     fontSize: 12,
@@ -443,59 +326,6 @@ const createStyles = (theme: any) => StyleSheet.create({
   buttonText: {
     color: theme.surface,
     fontSize: 16,
-    fontWeight: "600",
-  },
-  // Modal styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "flex-end",
-  },
-  modalContent: {
-    backgroundColor: theme.cardBackground,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    maxHeight: "80%",
-    paddingBottom: 20,
-  },
-  modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.border,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: theme.text,
-  },
-  modalList: {
-    maxHeight: 400,
-  },
-  modalItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.border,
-  },
-  modalItemSelected: {
-    backgroundColor: theme.primary + "20",
-  },
-  modalItemContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  modalItemText: {
-    fontSize: 16,
-    color: theme.text,
-  },
-  modalItemTextSelected: {
-    color: theme.primary,
     fontWeight: "600",
   },
   dateInputContainer: {

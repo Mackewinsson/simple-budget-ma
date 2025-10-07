@@ -10,6 +10,7 @@ import { useAuthStore } from "../src/store/authStore";
 import { useAIBudgetCreation } from "../src/api/hooks/useAIBudgetCreation";
 import { useTheme } from "../src/theme/ThemeContext";
 import AILoading from "./AILoading";
+import CustomPicker from "./Picker";
 
 const budgetSchema = z.object({
   totalBudgeted: z.coerce.number().min(0.01, "Budget amount must be greater than 0"),
@@ -195,45 +196,58 @@ export default function NewBudgetForm() {
 
           <View style={styles.row}>
             <View style={[styles.field, styles.halfField]}>
-              <Text style={styles.label}>Month</Text>
               <Controller
                 control={control}
                 name="month"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={styles.input}
-                    onBlur={onBlur}
-                    onChangeText={(text) => onChange(parseInt(text) || 1)}
-                    value={value.toString()}
-                    placeholder="1-12"
-                    keyboardType="numeric"
+                render={({ field: { onChange, value } }) => (
+                  <CustomPicker
+                    label="Month"
+                    value={value}
+                    onValueChange={onChange}
+                    items={[
+                      { label: "January", value: 1 },
+                      { label: "February", value: 2 },
+                      { label: "March", value: 3 },
+                      { label: "April", value: 4 },
+                      { label: "May", value: 5 },
+                      { label: "June", value: 6 },
+                      { label: "July", value: 7 },
+                      { label: "August", value: 8 },
+                      { label: "September", value: 9 },
+                      { label: "October", value: 10 },
+                      { label: "November", value: 11 },
+                      { label: "December", value: 12 }
+                    ]}
+                    placeholder="Select month"
+                    error={errors.month?.message}
                   />
                 )}
               />
-              {errors.month && (
-                <Text style={styles.error}>{errors.month.message}</Text>
-              )}
             </View>
 
             <View style={[styles.field, styles.halfField]}>
-              <Text style={styles.label}>Year</Text>
               <Controller
                 control={control}
                 name="year"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={styles.input}
-                    onBlur={onBlur}
-                    onChangeText={(text) => onChange(parseInt(text) || new Date().getFullYear())}
-                    value={value.toString()}
-                    placeholder="2024"
-                    keyboardType="numeric"
-                  />
-                )}
+                render={({ field: { onChange, value } }) => {
+                  const currentYear = new Date().getFullYear();
+                  const years = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i);
+                  
+                  return (
+                    <CustomPicker
+                      label="Year"
+                      value={value}
+                      onValueChange={onChange}
+                      items={years.map(year => ({
+                        label: year.toString(),
+                        value: year
+                      }))}
+                      placeholder="Select year"
+                      error={errors.year?.message}
+                    />
+                  );
+                }}
               />
-              {errors.year && (
-                <Text style={styles.error}>{errors.year.message}</Text>
-              )}
             </View>
           </View>
 

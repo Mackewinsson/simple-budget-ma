@@ -110,7 +110,7 @@ function ReportsScreenContent() {
           <View style={styles.overviewCard}>
             <Ionicons name="wallet-outline" size={24} color={theme.primary} />
             <Text style={styles.overviewLabel}>Budgeted</Text>
-            <Text style={styles.overviewValue}>${totalBudgeted.toFixed(2)}</Text>
+            <Text style={styles.overviewValue}>${totalBudget.toFixed(2)}</Text>
           </View>
           <View style={styles.overviewCard}>
             <Ionicons name="trending-down-outline" size={24} color={theme.error} />

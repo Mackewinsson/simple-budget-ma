@@ -1,29 +1,33 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, FlatList, StyleSheet, ScrollView, Pressable, Alert } from "react-native";
+import { View, Text, FlatList, StyleSheet, ScrollView, Pressable, Alert, TextInput } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useExpenses } from "../../src/api/hooks/useExpenses";
 import { useBudget } from "../../src/api/hooks/useBudgets";
-import { useCategories } from "../../src/api/hooks/useCategories";
+import { useCategoriesByBudget } from "../../src/api/hooks/useCategories";
 import { useAuthStore } from "../../src/store/authStore";
 import { useDeleteExpense } from "../../src/api/hooks/useExpenses";
 import { useSafeAreaStyles } from "../../src/hooks/useSafeAreaStyles";
 import { useTheme } from "../../src/theme/ThemeContext";
 import NewExpenseForm from "../../components/NewExpenseForm";
-import DailySpendingTracker from "../../components/DailySpendingTracker";
+import AITransactionInput from "../../components/AITransactionInput";
 
 function TransactionsScreenContent() {
   const { session } = useAuthStore();
   const router = useRouter();
   const { data: budget, isLoading: budgetLoading } = useBudget(session?.user?.id || "");
-  const { data: categories = [], isLoading: categoriesLoading } = useCategories(session?.user?.id || "");
+  const { data: categories = [], isLoading: categoriesLoading } = useCategoriesByBudget(budget?._id || "");
   const { data: expenses = [], isLoading: expensesLoading } = useExpenses(session?.user?.id || "");
   const deleteExpense = useDeleteExpense();
   const safeAreaStyles = useSafeAreaStyles();
   const { theme } = useTheme();
 
   const isLoading = budgetLoading || categoriesLoading || expensesLoading;
-  const [showExpenseForm, setShowExpenseForm] = useState(false);
+  const [activeTab, setActiveTab] = useState<'add' | 'ai' | 'history'>('add');
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   // Redirect to budget creation if no budget exists
   useEffect(() => {
@@ -33,6 +37,50 @@ function TransactionsScreenContent() {
   }, [budget, isLoading, session?.user?.id, router]);
 
   const styles = createStyles(theme);
+
+  // Calculate available to spend
+  // Filter expenses to only include those from the current budget
+  const currentBudgetExpenses = expenses.filter(expense => expense.budget === budget?._id);
+  
+  // Debug logging
+  console.log('Transactions Debug:', {
+    budget: budget?._id,
+    categoriesCount: categories.length,
+    categoriesLoading,
+    budgetLoading,
+    hasCategories: categories.length > 0,
+    currentBudgetExpenses: currentBudgetExpenses.length
+  });
+  const totalSpent = currentBudgetExpenses.reduce((sum, expense) => {
+    return sum + (expense.type === "expense" ? expense.amount : -expense.amount);
+  }, 0);
+  
+  // Use budget's totalAvailable instead of calculating from categories
+  const remaining = budget?.totalAvailable || 0;
+
+  // Filter expenses based on search term and date range
+  const filteredExpenses = currentBudgetExpenses.filter((expense) => {
+    const category = categories.find(
+      (cat) => cat._id === expense.categoryId || cat.id === expense.categoryId
+    );
+    const searchLower = searchTerm.toLowerCase();
+
+    // Text search
+    const matchesSearch =
+      expense.description.toLowerCase().includes(searchLower) ||
+      category?.name.toLowerCase().includes(searchLower);
+
+    // Date range filter
+    let matchesDateRange = true;
+    if (startDate && endDate) {
+      const expenseDate = new Date(expense.date);
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      matchesDateRange = expenseDate >= start && expenseDate <= end;
+    }
+
+    return matchesSearch && matchesDateRange;
+  });
 
   const handleDeleteExpense = (expenseId: string, description: string) => {
     Alert.alert(
@@ -49,46 +97,53 @@ function TransactionsScreenContent() {
     );
   };
 
-  const renderExpense = ({ item }: { item: any }) => (
-    <Pressable style={styles.expenseCard}>
-      <View style={styles.expenseLeft}>
-        <View style={[
-          styles.iconContainer,
-          { backgroundColor: item.type === "expense" ? `${theme.error}20` : `${theme.success}20` }
-        ]}>
-          <Ionicons
-            name={item.type === "expense" ? "arrow-down" : "arrow-up"}
-            size={20}
-            color={item.type === "expense" ? theme.error : theme.success}
-          />
+  const renderExpense = ({ item }: { item: any }) => {
+    const category = categories.find(
+      (cat) => cat._id === item.categoryId || cat.id === item.categoryId
+    );
+    
+    return (
+      <Pressable style={styles.expenseCard}>
+        <View style={styles.expenseLeft}>
+          <View style={styles.expenseDetails}>
+            <Text style={styles.expenseDescription}>
+              {item.description || `${item.type === "expense" ? "Expense" : "Income"} for ${category?.name || "Unknown"}`}
+            </Text>
+            <Text style={styles.expenseDate}>
+              {category?.name || "Unknown"} • {new Date(item.date).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+              })}
+            </Text>
+          </View>
         </View>
-        <View style={styles.expenseDetails}>
-          <Text style={styles.expenseDescription}>{item.description}</Text>
-          <Text style={styles.expenseDate}>
-            {new Date(item.date).toLocaleDateString('en-US', {
-              month: 'short',
-              day: 'numeric',
-              year: 'numeric'
-            })}
-          </Text>
+        <View style={styles.expenseRight}>
+          <View style={styles.amountContainer}>
+            <Ionicons
+              name={item.type === "expense" ? "arrow-up-circle" : "arrow-down-circle"}
+              size={16}
+              color={item.type === "expense" ? theme.error : theme.success}
+            />
+            <Text style={[
+              styles.expenseAmount,
+              { color: item.type === "expense" ? theme.error : theme.success }
+            ]}>
+              ${item.amount.toFixed(2)}
+            </Text>
+          </View>
+          <View style={styles.actionButtons}>
+            <Pressable
+              style={styles.actionButton}
+              onPress={() => handleDeleteExpense(item._id, item.description)}
+            >
+              <Ionicons name="trash-outline" size={16} color={theme.textMuted} />
+            </Pressable>
+          </View>
         </View>
-      </View>
-      <View style={styles.expenseRight}>
-        <Text style={[
-          styles.expenseAmount,
-          { color: item.type === "expense" ? theme.error : theme.success }
-        ]}>
-          {item.type === "expense" ? "-" : "+"}${item.amount.toFixed(2)}
-        </Text>
-        <Pressable
-          style={styles.deleteButton}
-          onPress={() => handleDeleteExpense(item._id, item.description)}
-        >
-          <Ionicons name="trash-outline" size={16} color={theme.textMuted} />
-        </Pressable>
-      </View>
-    </Pressable>
-  );
+      </Pressable>
+    );
+  };
 
   if (isLoading) {
     return (
@@ -102,53 +157,165 @@ function TransactionsScreenContent() {
 
   return (
     <ScrollView style={safeAreaStyles.container}>
+      {/* Header */}
       <View style={styles.header}>
-        <View>
-          <Text style={styles.title}>Transactions</Text>
-          <Text style={styles.subtitle}>{expenses.length} total transactions</Text>
+        <View style={styles.headerLeft}>
+          <Text style={styles.title}>Transaction History</Text>
+          <Text style={styles.subtitle}>Track your daily income and expenses</Text>
         </View>
+        <View style={styles.headerRight}>
+          <Text style={[
+            styles.availableAmount,
+            { color: remaining < 0 ? theme.error : theme.text }
+          ]}>
+            ${remaining.toFixed(2)}
+          </Text>
+          <Text style={styles.availableLabel}>Available to Spend</Text>
+        </View>
+      </View>
+
+      {/* Expand/Collapse Button */}
+      <View style={styles.expandButtonContainer}>
         <Pressable
-          style={styles.addButtonHeader}
-          onPress={() => setShowExpenseForm(!showExpenseForm)}
+          style={styles.expandButton}
+          onPress={() => setIsExpanded(!isExpanded)}
         >
           <Ionicons
-            name={showExpenseForm ? "close" : "add"}
-            size={24}
-            color="#fff"
+            name={isExpanded ? "chevron-up" : "chevron-down"}
+            size={16}
+            color={theme.text}
           />
         </Pressable>
       </View>
 
-      {budget && (
-        <DailySpendingTracker
-          budget={budget}
-          categories={categories}
-          expenses={expenses}
-        />
-      )}
-
-      {showExpenseForm && (
-        <View style={styles.formContainer}>
-          <NewExpenseForm />
+      {/* Tabs - Only show if categories exist and not loading */}
+      {budget && !categoriesLoading && categories.length > 0 && (
+        <View style={styles.tabContainer}>
+          <Pressable
+            style={[styles.tab, activeTab === 'add' && styles.activeTab]}
+            onPress={() => setActiveTab('add')}
+          >
+            <Text style={[styles.tabText, activeTab === 'add' && styles.activeTabText]}>
+              Add Transaction
+            </Text>
+          </Pressable>
+          <Pressable
+            style={[styles.tab, activeTab === 'ai' && styles.activeTab]}
+            onPress={() => setActiveTab('ai')}
+          >
+            <Text style={[styles.tabText, activeTab === 'ai' && styles.activeTabText]}>
+              AI Quick Input
+            </Text>
+          </Pressable>
+          <Pressable
+            style={[styles.tab, activeTab === 'history' && styles.activeTab]}
+            onPress={() => setActiveTab('history')}
+          >
+            <Text style={[styles.tabText, activeTab === 'history' && styles.activeTabText]}>
+              Transaction History
+            </Text>
+          </Pressable>
         </View>
       )}
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Recent Transactions</Text>
-        {expenses.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Ionicons name="receipt-outline" size={48} color="#4b5563" />
-            <Text style={styles.emptyStateText}>No transactions yet</Text>
-            <Text style={styles.emptyStateSubtext}>Add your first transaction to get started</Text>
+      {/* Tab Content */}
+      <View style={styles.tabContent}>
+        {/* No Categories State */}
+        {budget && !categoriesLoading && categories.length === 0 && (
+          <View style={styles.noCategoriesContainer}>
+            <View style={styles.noCategoriesIcon}>
+              <Ionicons name="folder-outline" size={48} color={theme.textMuted} />
+            </View>
+            <Text style={styles.noCategoriesTitle}>No Categories Yet</Text>
+            <Text style={styles.noCategoriesMessage}>
+              You need to create budget categories before you can add transactions. 
+              Each transaction must be assigned to a category.
+            </Text>
+            <Pressable
+              style={styles.createCategoriesButton}
+              onPress={() => router.push("/(tabs)/budgets")}
+            >
+              <Ionicons name="add-circle" size={20} color={theme.surface} style={styles.buttonIcon} />
+              <Text style={styles.createCategoriesButtonText}>
+                Create Categories
+              </Text>
+            </Pressable>
           </View>
-        ) : (
-          <FlatList
-            data={expenses || []}
-            keyExtractor={(item) => item._id}
-            renderItem={renderExpense}
-            style={styles.list}
-            scrollEnabled={false}
-          />
+        )}
+
+        {/* Normal Content - Only show if categories exist and not loading */}
+        {budget && !categoriesLoading && categories.length > 0 && (
+          <>
+            {activeTab === 'add' && (
+              <NewExpenseForm />
+            )}
+
+            {activeTab === 'ai' && (
+              <AITransactionInput budgetId={budget._id} />
+            )}
+
+            {activeTab === 'history' && (
+          <View style={[
+            styles.historyContainer,
+            { height: isExpanded ? 500 : 300 }
+          ]}>
+            {/* Search and Filters */}
+            <View style={styles.searchContainer}>
+              <View style={styles.searchInputContainer}>
+                <Ionicons name="search" size={16} color={theme.textMuted} style={styles.searchIcon} />
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="Search transactions..."
+                  value={searchTerm}
+                  onChangeText={setSearchTerm}
+                  placeholderTextColor={theme.textMuted}
+                />
+              </View>
+              
+              <View style={styles.dateFilterContainer}>
+                <View style={styles.dateInputContainer}>
+                  <Text style={styles.dateLabel}>Start Date</Text>
+                  <TextInput
+                    style={styles.dateInput}
+                    placeholder="YYYY-MM-DD"
+                    value={startDate}
+                    onChangeText={setStartDate}
+                    placeholderTextColor={theme.textMuted}
+                  />
+                </View>
+                <View style={styles.dateInputContainer}>
+                  <Text style={styles.dateLabel}>End Date</Text>
+                  <TextInput
+                    style={styles.dateInput}
+                    placeholder="YYYY-MM-DD"
+                    value={endDate}
+                    onChangeText={setEndDate}
+                    placeholderTextColor={theme.textMuted}
+                  />
+                </View>
+              </View>
+            </View>
+
+            {/* Transaction List */}
+            <ScrollView style={styles.transactionList} showsVerticalScrollIndicator={false}>
+              {filteredExpenses.length === 0 ? (
+                <View style={styles.emptyState}>
+                  <Text style={styles.emptyStateText}>
+                    {currentBudgetExpenses.length === 0 ? "No transactions yet" : "No transactions found matching your search."}
+                  </Text>
+                </View>
+              ) : (
+                <FlatList
+                  data={filteredExpenses}
+                  keyExtractor={(item) => item._id}
+                  renderItem={renderExpense}
+                  scrollEnabled={false}
+                />
+              )}
+            </ScrollView>
+          </View>
+            )}
+          </>
         )}
       </View>
     </ScrollView>
@@ -175,11 +342,18 @@ const createStyles = (theme: any) => StyleSheet.create({
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 24,
+    alignItems: "flex-start",
+    marginBottom: 16,
+    paddingHorizontal: 16,
+  },
+  headerLeft: {
+    flex: 1,
+  },
+  headerRight: {
+    alignItems: "flex-end",
   },
   title: {
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: "bold",
     color: theme.text,
     marginBottom: 4,
@@ -188,42 +362,110 @@ const createStyles = (theme: any) => StyleSheet.create({
     fontSize: 14,
     color: theme.textSecondary,
   },
-  addButtonHeader: {
-    backgroundColor: theme.primary,
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: theme.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  formContainer: {
-    backgroundColor: theme.cardBackground,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 24,
-    borderWidth: 1,
-    borderColor: theme.cardBorder,
-    shadowColor: theme.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: theme.shadowOpacity,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
+  availableAmount: {
     fontSize: 18,
-    fontWeight: "600",
-    color: theme.text,
+    fontWeight: "700",
+    marginBottom: 2,
+  },
+  availableLabel: {
+    fontSize: 12,
+    color: theme.textSecondary,
+  },
+  expandButtonContainer: {
+    alignItems: "center",
     marginBottom: 16,
   },
-  list: {
+  expandButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: theme.background,
+    borderWidth: 1,
+    borderColor: theme.border,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: theme.shadow,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: theme.shadowOpacity,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  tabContainer: {
+    flexDirection: "row",
+    backgroundColor: theme.backgroundSecondary,
+    borderRadius: 8,
+    padding: 4,
+    marginHorizontal: 16,
+    marginBottom: 16,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    alignItems: "center",
+  },
+  activeTab: {
+    backgroundColor: theme.primary,
+  },
+  tabText: {
+    fontSize: 12,
+    fontWeight: "500",
+    color: theme.textSecondary,
+  },
+  activeTabText: {
+    color: theme.surface,
+  },
+  tabContent: {
+    paddingHorizontal: 16,
+  },
+  historyContainer: {
+    overflow: "hidden",
+  },
+  searchContainer: {
+    marginBottom: 16,
+  },
+  searchInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: theme.surfaceSecondary,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: theme.text,
+  },
+  dateFilterContainer: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  dateInputContainer: {
+    flex: 1,
+  },
+  dateLabel: {
+    fontSize: 12,
+    color: theme.text,
+    marginBottom: 4,
+    fontWeight: "500",
+  },
+  dateInput: {
+    backgroundColor: theme.surfaceSecondary,
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    fontSize: 14,
+    color: theme.text,
+    borderWidth: 1,
+    borderColor: theme.border,
+  },
+  transactionList: {
     flex: 1,
   },
   expenseCard: {
@@ -232,28 +474,13 @@ const createStyles = (theme: any) => StyleSheet.create({
     alignItems: "center",
     backgroundColor: theme.cardBackground,
     padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
+    borderRadius: 8,
+    marginBottom: 8,
     borderWidth: 1,
     borderColor: theme.cardBorder,
-    shadowColor: theme.shadow,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: theme.shadowOpacity,
-    shadowRadius: 4,
-    elevation: 2,
   },
   expenseLeft: {
-    flexDirection: "row",
-    alignItems: "center",
     flex: 1,
-  },
-  iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 12,
   },
   expenseDetails: {
     flex: 1,
@@ -269,15 +496,24 @@ const createStyles = (theme: any) => StyleSheet.create({
     color: theme.textSecondary,
   },
   expenseRight: {
-    alignItems: "flex-end",
-    marginLeft: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  amountContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
   },
   expenseAmount: {
-    fontSize: 18,
-    fontWeight: "700",
-    marginBottom: 4,
+    fontSize: 16,
+    fontWeight: "600",
   },
-  deleteButton: {
+  actionButtons: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  actionButton: {
     padding: 4,
   },
   emptyState: {
@@ -286,14 +522,49 @@ const createStyles = (theme: any) => StyleSheet.create({
     paddingVertical: 48,
   },
   emptyStateText: {
-    fontSize: 18,
-    fontWeight: "600",
+    fontSize: 16,
     color: theme.textSecondary,
-    marginTop: 16,
+    textAlign: "center",
   },
-  emptyStateSubtext: {
-    fontSize: 14,
-    color: theme.textMuted,
-    marginTop: 8,
+  // No categories state styles
+  noCategoriesContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 48,
+    paddingHorizontal: 24,
+  },
+  noCategoriesIcon: {
+    marginBottom: 24,
+  },
+  noCategoriesTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: theme.text,
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  noCategoriesMessage: {
+    fontSize: 16,
+    color: theme.textSecondary,
+    textAlign: "center",
+    lineHeight: 24,
+    marginBottom: 32,
+  },
+  createCategoriesButton: {
+    backgroundColor: theme.primary,
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    borderRadius: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  createCategoriesButtonText: {
+    color: theme.surface,
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  buttonIcon: {
+    marginRight: 4,
   },
 });

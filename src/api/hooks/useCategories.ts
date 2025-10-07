@@ -50,7 +50,12 @@ export const useCreateCategory = () => {
     },
     onError: (error) => {
       console.error("Failed to create category:", error);
-      console.error("Failed to create category");
+      console.error("Error details:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        config: error.config
+      });
     },
   });
 };

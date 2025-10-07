@@ -19,6 +19,8 @@ export interface Category {
 
 export interface Expense {
   _id: string;
+  user: string;
+  budget: string;
   categoryId: string;
   amount: number;
   description: string;

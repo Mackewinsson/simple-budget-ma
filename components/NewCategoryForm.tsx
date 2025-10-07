@@ -4,7 +4,8 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useCreateCategory } from "../src/api/hooks/useCategories";
-import { useDemoUser } from "../src/api/hooks/useDemoUser";
+import { useAuthStore } from "../src/store/authStore";
+import { useBudget } from "../src/api/hooks/useBudgets";
 
 const categorySchema = z.object({
   name: z.string().min(1, "Category name is required"),
@@ -19,7 +20,8 @@ interface NewCategoryFormProps {
 }
 
 export default function NewCategoryForm({ onComplete, onCancel }: NewCategoryFormProps) {
-  const { data: demoUser } = useDemoUser();
+  const { session } = useAuthStore();
+  const { data: budget } = useBudget(session?.user?.id || "");
   const createCategory = useCreateCategory();
 
   const {
@@ -36,8 +38,13 @@ export default function NewCategoryForm({ onComplete, onCancel }: NewCategoryFor
   });
 
   const onSubmit = async (data: CategoryFormData) => {
-    if (!demoUser?._id) {
-      Alert.alert("Error", "User not loaded");
+    if (!session?.user?.id) {
+      Alert.alert("Error", "Please log in to create categories");
+      return;
+    }
+
+    if (!budget?._id) {
+      Alert.alert("Error", "No budget found. Please create a budget first.");
       return;
     }
 
@@ -45,14 +52,15 @@ export default function NewCategoryForm({ onComplete, onCancel }: NewCategoryFor
       await createCategory.mutateAsync({
         name: data.name,
         budgeted: data.budgeted,
-        budgetId: "demo-budget-123", // This would come from the current budget
-        userId: demoUser._id,
+        budgetId: budget._id,
+        userId: session.user.id,
       });
 
       reset();
       Alert.alert("Success", "Category created successfully");
       onComplete?.();
     } catch (error) {
+      console.error("Category creation error:", error);
       Alert.alert("Error", "Failed to create category");
     }
   };

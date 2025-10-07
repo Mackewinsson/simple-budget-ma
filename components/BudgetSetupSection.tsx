@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, Pressable, Alert } from "react-native";
-import { useUpdateBudget } from "../src/api/hooks/useBudgets";
-import { useDemoUser } from "../src/api/hooks/useDemoUser";
+import { Ionicons } from "@expo/vector-icons";
+import { useUpdateBudget, useDeleteBudget } from "../src/api/hooks/useBudgets";
+import { useAuthStore } from "../src/store/authStore";
 import { useTheme } from "../src/theme/ThemeContext";
 import { SPACING, BORDER_RADIUS, FONT_SIZES, FONT_WEIGHTS, SHADOW } from "../src/theme/layout";
 
@@ -127,17 +128,48 @@ const createStyles = (theme: any) => StyleSheet.create({
     fontWeight: FONT_WEIGHTS.semibold,
     color: theme.text,
   },
+  headerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: SPACING.lg,
+  },
+  headerLeft: {
+    flex: 1,
+  },
+  headerRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: SPACING.sm,
+  },
+  deleteButton: {
+    backgroundColor: theme.error,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: SPACING.xs,
+    borderRadius: BORDER_RADIUS.md,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  deleteButtonText: {
+    color: theme.buttonText,
+    fontSize: FONT_SIZES.xs,
+    fontWeight: FONT_WEIGHTS.semibold,
+  },
 });
 
 export default function BudgetSetupSection({ budget, categories }: BudgetSetupSectionProps) {
-  const { data: demoUser } = useDemoUser();
+  const { session } = useAuthStore();
   const updateBudget = useUpdateBudget();
+  const deleteBudget = useDeleteBudget();
   const [isEditingTotal, setIsEditingTotal] = useState(false);
   const [newTotal, setNewTotal] = useState(budget.totalBudgeted.toString());
   const { theme } = useTheme();
 
   const handleUpdateTotal = async () => {
-    if (!demoUser?._id) return;
+    if (!session?.user?.id) {
+      Alert.alert("Error", "Please log in to update budget");
+      return;
+    }
 
     const newTotalAmount = parseFloat(newTotal);
     if (isNaN(newTotalAmount) || newTotalAmount < 0) {
@@ -165,6 +197,31 @@ export default function BudgetSetupSection({ budget, categories }: BudgetSetupSe
     setIsEditingTotal(false);
   };
 
+  const handleDeleteBudget = () => {
+    Alert.alert(
+      "Delete Budget",
+      "Are you sure you want to delete this budget? This will remove all categories and expenses. This action cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteBudget.mutateAsync(budget._id);
+              Alert.alert("Success", "Budget deleted successfully");
+            } catch (error) {
+              Alert.alert("Error", "Failed to delete budget");
+            }
+          },
+        },
+      ]
+    );
+  };
+
   // Calculate totals
   const totalBudgeted = categories.reduce((sum, cat) => sum + cat.budgeted, 0);
   const totalSpent = categories.reduce((sum, cat) => sum + cat.spent, 0);
@@ -174,7 +231,20 @@ export default function BudgetSetupSection({ budget, categories }: BudgetSetupSe
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Budget Setup</Text>
+      <View style={styles.headerContainer}>
+        <View style={styles.headerLeft}>
+          <Text style={styles.title}>Budget Setup</Text>
+        </View>
+        <View style={styles.headerRight}>
+          <Pressable 
+            style={styles.deleteButton} 
+            onPress={handleDeleteBudget}
+            disabled={deleteBudget.isPending}
+          >
+            <Ionicons name="trash-outline" size={16} color="#fff" />
+          </Pressable>
+        </View>
+      </View>
       
       <View style={styles.budgetCard}>
         <View style={styles.budgetHeader}>

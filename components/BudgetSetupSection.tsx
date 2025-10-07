@@ -164,7 +164,7 @@ export default function BudgetSetupSection({ budget, categories }: BudgetSetupSe
   const updateBudget = useUpdateBudget();
   const deleteBudget = useDeleteBudget();
   const [isEditingTotal, setIsEditingTotal] = useState(false);
-  const [newTotal, setNewTotal] = useState(budget.totalBudgeted.toString());
+  const [newTotal, setNewTotal] = useState("");
   const { theme } = useTheme();
 
   const handleUpdateTotal = async () => {
@@ -179,12 +179,20 @@ export default function BudgetSetupSection({ budget, categories }: BudgetSetupSe
       return;
     }
 
+    const currentlyBudgeted = totalBudgetedInCategories;
+    if (newTotalAmount < currentlyBudgeted) {
+      Alert.alert("Error", "New total cannot be less than currently budgeted amount");
+      return;
+    }
+
+    const newTotalAvailable = newTotalAmount - currentlyBudgeted;
+
     try {
       await updateBudget.mutateAsync({
         id: budget._id,
         updates: {
-          totalBudgeted: newTotalAmount,
-          totalAvailable: newTotalAmount - (budget.totalBudgeted - budget.totalAvailable),
+          totalBudgeted: currentlyBudgeted, // Keep currently budgeted amount
+          totalAvailable: newTotalAvailable, // Adjust available amount
         },
       });
       setIsEditingTotal(false);
@@ -195,7 +203,7 @@ export default function BudgetSetupSection({ budget, categories }: BudgetSetupSe
   };
 
   const handleCancelEdit = () => {
-    setNewTotal(budget.totalBudgeted.toString());
+    setNewTotal("");
     setIsEditingTotal(false);
   };
 
@@ -232,10 +240,10 @@ export default function BudgetSetupSection({ budget, categories }: BudgetSetupSe
     );
   };
 
-  // Calculate totals
-  const totalBudgeted = budget?.totalBudgeted || 0;
+  // Calculate totals (matching simple-budget logic)
   const totalBudgetedInCategories = categories.reduce((sum, cat) => sum + cat.budgeted, 0);
-  const availableToBudget = totalBudgeted - totalBudgetedInCategories;
+  const totalBudget = totalBudgetedInCategories + (budget?.totalAvailable || 0);
+  const availableToBudget = budget?.totalAvailable || 0;
 
   const styles = createStyles(theme);
 
@@ -269,7 +277,13 @@ export default function BudgetSetupSection({ budget, categories }: BudgetSetupSe
               </Pressable>
             </View>
           ) : (
-            <Pressable style={styles.editButton} onPress={() => setIsEditingTotal(true)}>
+            <Pressable 
+              style={styles.editButton} 
+              onPress={() => {
+                setIsEditingTotal(true);
+                setNewTotal(totalBudget.toString());
+              }}
+            >
               <Text style={styles.editButtonText}>Edit</Text>
             </Pressable>
           )}
@@ -278,7 +292,7 @@ export default function BudgetSetupSection({ budget, categories }: BudgetSetupSe
         {isEditingTotal ? (
           <Text style={styles.budgetAmount}>${newTotal}</Text>
         ) : (
-          <Text style={styles.budgetAmount}>${budget.totalBudgeted.toFixed(2)}</Text>
+          <Text style={styles.budgetAmount}>${totalBudget.toFixed(2)}</Text>
         )}
       </View>
 

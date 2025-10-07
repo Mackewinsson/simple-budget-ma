@@ -60,13 +60,14 @@ function ReportsScreenContent() {
     );
   }
 
-  // Calculate analytics
-  const totalBudgeted = budget?.totalBudgeted || 0;
+  // Calculate analytics (matching simple-budget logic)
+  const totalBudgetedInCategories = categories.reduce((sum, cat) => sum + cat.budgeted, 0);
+  const totalBudget = totalBudgetedInCategories + (budget?.totalAvailable || 0);
   const totalSpent = expenses.reduce((sum, expense) => {
     return sum + (expense.type === "expense" ? expense.amount : -expense.amount);
   }, 0);
-  const remaining = totalBudgeted - totalSpent;
-  const spendingPercentage = totalBudgeted > 0 ? (totalSpent / totalBudgeted) * 100 : 0;
+  const remaining = budget?.totalAvailable || 0;
+  const spendingPercentage = totalBudgetedInCategories > 0 ? (totalSpent / totalBudgetedInCategories) * 100 : 0;
 
   // Calculate monthly spending
   const currentMonth = new Date().getMonth();

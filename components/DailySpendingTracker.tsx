@@ -42,13 +42,12 @@ export default function DailySpendingTracker({ budget, categories, expenses }: D
   const [isExpanded, setIsExpanded] = useState(false);
   const { theme } = useTheme();
 
-  // Calculate totals
+  // Calculate totals (matching simple-budget logic)
   const totalSpent = expenses.reduce((sum, expense) => {
     return sum + (expense.type === "expense" ? expense.amount : -expense.amount);
   }, 0);
 
-  const totalBudgeted = budget?.totalBudgeted || 0;
-  const remaining = totalBudgeted - totalSpent;
+  const remaining = budget?.totalAvailable || 0;
 
   const styles = createStyles(theme);
 

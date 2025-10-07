@@ -3,6 +3,7 @@ import { View, Text, FlatList, StyleSheet, Pressable } from "react-native";
 import { useCategories } from "../src/api/hooks/useCategories";
 import { useDemoUser } from "../src/api/hooks/useDemoUser";
 import { useTheme } from "../src/theme/ThemeContext";
+import { SPACING, BORDER_RADIUS, FONT_SIZES, FONT_WEIGHTS, SHADOW } from "../src/theme/layout";
 import NewCategoryForm from "./NewCategoryForm";
 
 interface Category {
@@ -16,80 +17,76 @@ interface Category {
 
 const createStyles = (theme: any) => StyleSheet.create({
   container: {
-    margin: 16,
+    marginBottom: SPACING.lg,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: SPACING.lg,
   },
   title: {
-    fontSize: 20,
-    fontWeight: "600",
+    fontSize: FONT_SIZES.xxl,
+    fontWeight: FONT_WEIGHTS.semibold,
     color: theme.text,
   },
   addButton: {
     backgroundColor: theme.success,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    borderRadius: BORDER_RADIUS.md,
     shadowColor: theme.success,
-    shadowOffset: { width: 0, height: 2 },
+    ...SHADOW.md,
     shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 2,
   },
   addButtonText: {
     color: theme.buttonText,
-    fontSize: 14,
-    fontWeight: "600",
+    fontSize: FONT_SIZES.md,
+    fontWeight: FONT_WEIGHTS.semibold,
   },
   list: {
     flex: 1,
   },
   categoryCard: {
     backgroundColor: theme.cardBackground,
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
+    padding: SPACING.lg,
+    borderRadius: BORDER_RADIUS.lg,
+    marginBottom: SPACING.md,
     borderWidth: 1,
     borderColor: theme.cardBorder,
     shadowColor: theme.shadow,
-    shadowOffset: { width: 0, height: 1 },
+    ...SHADOW.md,
     shadowOpacity: theme.shadowOpacity,
-    shadowRadius: 4,
-    elevation: 2,
   },
   categoryHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: SPACING.sm,
   },
   categoryName: {
-    fontSize: 16,
-    fontWeight: "500",
+    fontSize: FONT_SIZES.lg,
+    fontWeight: FONT_WEIGHTS.medium,
     color: theme.text,
   },
   categoryAmount: {
-    fontSize: 14,
+    fontSize: FONT_SIZES.md,
     color: theme.textSecondary,
   },
   progressBar: {
     height: 6,
     backgroundColor: theme.surfaceSecondary,
-    borderRadius: 3,
-    marginBottom: 8,
+    borderRadius: BORDER_RADIUS.sm - 1,
+    marginBottom: SPACING.sm,
     overflow: "hidden",
   },
   progressFill: {
     height: "100%",
     backgroundColor: theme.success,
-    borderRadius: 3,
+    borderRadius: BORDER_RADIUS.sm - 1,
   },
   remainingText: {
-    fontSize: 12,
+    fontSize: FONT_SIZES.xs,
     color: theme.textSecondary,
   },
 });

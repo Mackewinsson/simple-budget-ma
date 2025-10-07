@@ -5,6 +5,7 @@ import { useCategories } from "../src/api/hooks/useCategories";
 import { useExpenses } from "../src/api/hooks/useExpenses";
 import { useDemoUser } from "../src/api/hooks/useDemoUser";
 import { useTheme } from "../src/theme/ThemeContext";
+import { SPACING, BORDER_RADIUS, FONT_SIZES, FONT_WEIGHTS, SHADOW } from "../src/theme/layout";
 
 export default function Summary() {
   const { data: demoUser } = useDemoUser();
@@ -60,42 +61,40 @@ export default function Summary() {
 
 const createStyles = (theme: any) => StyleSheet.create({
   container: {
-    margin: 16,
+    marginBottom: SPACING.lg,
   },
   title: {
-    fontSize: 20,
-    fontWeight: "600",
+    fontSize: FONT_SIZES.xxl,
+    fontWeight: FONT_WEIGHTS.semibold,
     color: theme.text,
-    marginBottom: 16,
+    marginBottom: SPACING.lg,
   },
   summaryGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 12,
+    gap: SPACING.md,
   },
   summaryCard: {
     backgroundColor: theme.cardBackground,
-    padding: 16,
-    borderRadius: 12,
+    padding: SPACING.lg,
+    borderRadius: BORDER_RADIUS.lg,
     flex: 1,
     minWidth: "45%",
     alignItems: "center",
     borderWidth: 1,
     borderColor: theme.cardBorder,
     shadowColor: theme.shadow,
-    shadowOffset: { width: 0, height: 1 },
+    ...SHADOW.md,
     shadowOpacity: theme.shadowOpacity,
-    shadowRadius: 4,
-    elevation: 2,
   },
   summaryLabel: {
-    fontSize: 12,
+    fontSize: FONT_SIZES.xs,
     color: theme.textSecondary,
-    marginBottom: 4,
+    marginBottom: SPACING.xs,
   },
   summaryValue: {
-    fontSize: 18,
-    fontWeight: "600",
+    fontSize: FONT_SIZES.xl,
+    fontWeight: FONT_WEIGHTS.semibold,
     color: theme.text,
   },
 });

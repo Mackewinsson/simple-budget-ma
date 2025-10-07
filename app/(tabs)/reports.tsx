@@ -7,6 +7,7 @@ import { useExpenses } from "../../src/api/hooks/useExpenses";
 import { useAuthStore } from "../../src/store/authStore";
 import { useSafeAreaStyles } from "../../src/hooks/useSafeAreaStyles";
 import { useTheme } from "../../src/theme/ThemeContext";
+import { SPACING, BORDER_RADIUS, FONT_SIZES, FONT_WEIGHTS, SHADOW } from "../../src/theme/layout";
 
 function ReportsScreenContent() {
   const { session } = useAuthStore();
@@ -214,26 +215,26 @@ const createStyles = (theme: any) => StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    gap: 16,
+    gap: SPACING.lg,
   },
   loadingText: {
-    fontSize: 16,
+    fontSize: FONT_SIZES.lg,
     color: theme.textSecondary,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 24,
-    gap: 16,
+    paddingHorizontal: SPACING.xxl,
+    gap: SPACING.lg,
   },
   emptyTitle: {
-    fontSize: 20,
-    fontWeight: "600",
+    fontSize: FONT_SIZES.xxl,
+    fontWeight: FONT_WEIGHTS.semibold,
     color: theme.text,
   },
   emptyText: {
-    fontSize: 15,
+    fontSize: FONT_SIZES.base,
     color: theme.textSecondary,
     textAlign: "center",
   },
@@ -241,28 +242,28 @@ const createStyles = (theme: any) => StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 24,
+    marginBottom: SPACING.xxl,
   },
   title: {
-    fontSize: 28,
-    fontWeight: "bold",
+    fontSize: FONT_SIZES.huge,
+    fontWeight: FONT_WEIGHTS.bold,
     color: theme.text,
   },
   periodBadge: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: theme.surfaceSecondary,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    gap: 6,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.xs + 2,
+    borderRadius: BORDER_RADIUS.xl,
+    gap: SPACING.xs + 2,
     borderWidth: 1,
     borderColor: theme.cardBorder,
   },
   periodText: {
-    fontSize: 13,
+    fontSize: FONT_SIZES.sm,
     color: theme.textSecondary,
-    fontWeight: "500",
+    fontWeight: FONT_WEIGHTS.medium,
   },
   section: {
     marginBottom: 24,

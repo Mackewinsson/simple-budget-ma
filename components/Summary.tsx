@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#fff",
+    color: "#0f172a",
     marginBottom: 16,
   },
   summaryGrid: {
@@ -70,21 +70,28 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   summaryCard: {
-    backgroundColor: "#111",
+    backgroundColor: "#ffffff",
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 12,
     flex: 1,
     minWidth: "45%",
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   summaryLabel: {
     fontSize: 12,
-    color: "#888",
+    color: "#64748b",
     marginBottom: 4,
   },
   summaryValue: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#fff",
+    color: "#0f172a",
   },
 });

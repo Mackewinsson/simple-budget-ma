@@ -1,17 +1,23 @@
 import React, { useState } from "react";
 import { View, Text, Pressable, StyleSheet, Alert, ScrollView, Switch } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useUserCurrency, useUpdateUserCurrency } from "../../src/api/hooks/useUsers";
 import { useAuthStore } from "../../src/store/authStore";
 import { useRouter } from "expo-router";
+import { useSafeAreaStyles } from "../../src/hooks/useSafeAreaStyles";
+import { useTheme } from "../../src/theme/ThemeContext";
 
 function SettingsScreenContent() {
   const { session, signOut } = useAuthStore();
   const { data: currency } = useUserCurrency();
   const updateCurrency = useUpdateUserCurrency();
   const router = useRouter();
-  
+  const safeAreaStyles = useSafeAreaStyles();
+  const { theme, themeMode, isDark, setThemeMode } = useTheme();
+
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [darkModeEnabled, setDarkModeEnabled] = useState(true);
+
+  const styles = createStyles(theme);
 
   const handleSignOut = () => {
     Alert.alert(
@@ -83,31 +89,42 @@ function SettingsScreenContent() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>Settings</Text>
-      
+    <ScrollView style={safeAreaStyles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Settings</Text>
+        <View style={styles.profileBadge}>
+          <Ionicons name="person-circle-outline" size={24} color="#94a3b8" />
+        </View>
+      </View>
+
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Account</Text>
         <View style={styles.settingItem}>
-          <Text style={styles.settingLabel}>Name</Text>
+          <View style={styles.settingLeft}>
+            <Ionicons name="person-outline" size={20} color="#94a3b8" />
+            <Text style={styles.settingLabel}>Name</Text>
+          </View>
           <Text style={styles.settingValue}>{session?.user?.name || "Loading..."}</Text>
         </View>
         <View style={styles.settingItem}>
-          <Text style={styles.settingLabel}>Email</Text>
+          <View style={styles.settingLeft}>
+            <Ionicons name="mail-outline" size={20} color="#94a3b8" />
+            <Text style={styles.settingLabel}>Email</Text>
+          </View>
           <Text style={styles.settingValue}>{session?.user?.email || "Loading..."}</Text>
         </View>
-        <Pressable style={[styles.button, styles.signOutButton]} onPress={handleSignOut}>
-          <Text style={[styles.buttonText, styles.signOutButtonText]}>Sign Out</Text>
-        </Pressable>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Preferences</Text>
-        
+
         <View style={styles.settingItem}>
-          <Text style={styles.settingLabel}>Currency</Text>
+          <View style={styles.settingLeft}>
+            <Ionicons name="cash-outline" size={20} color="#94a3b8" />
+            <Text style={styles.settingLabel}>Currency</Text>
+          </View>
           <View style={styles.currencyContainer}>
-            <Pressable 
+            <Pressable
               style={[styles.currencyButton, currency === "USD" && styles.currencyButtonActive]}
               onPress={() => handleCurrencyChange("USD")}
             >
@@ -115,7 +132,7 @@ function SettingsScreenContent() {
                 USD
               </Text>
             </Pressable>
-            <Pressable 
+            <Pressable
               style={[styles.currencyButton, currency === "EUR" && styles.currencyButtonActive]}
               onPress={() => handleCurrencyChange("EUR")}
             >
@@ -123,7 +140,7 @@ function SettingsScreenContent() {
                 EUR
               </Text>
             </Pressable>
-            <Pressable 
+            <Pressable
               style={[styles.currencyButton, currency === "GBP" && styles.currencyButtonActive]}
               onPress={() => handleCurrencyChange("GBP")}
             >
@@ -135,49 +152,85 @@ function SettingsScreenContent() {
         </View>
 
         <View style={styles.settingItem}>
-          <Text style={styles.settingLabel}>Notifications</Text>
+          <View style={styles.settingLeft}>
+            <Ionicons name="notifications-outline" size={20} color="#94a3b8" />
+            <Text style={styles.settingLabel}>Notifications</Text>
+          </View>
           <Switch
             value={notificationsEnabled}
             onValueChange={setNotificationsEnabled}
-            trackColor={{ false: "#333", true: "#4ade80" }}
-            thumbColor={notificationsEnabled ? "#fff" : "#888"}
+            trackColor={{ false: "#334155", true: "#3b82f6" }}
+            thumbColor="#fff"
           />
         </View>
 
         <View style={styles.settingItem}>
-          <Text style={styles.settingLabel}>Dark Mode</Text>
-          <Switch
-            value={darkModeEnabled}
-            onValueChange={setDarkModeEnabled}
-            trackColor={{ false: "#333", true: "#4ade80" }}
-            thumbColor={darkModeEnabled ? "#fff" : "#888"}
-          />
+          <View style={styles.settingLeft}>
+            <Ionicons name={isDark ? "moon" : "sunny-outline"} size={20} color={theme.textSecondary} />
+            <Text style={styles.settingLabel}>Theme</Text>
+          </View>
+          <View style={styles.themeButtons}>
+            <Pressable
+              style={[styles.themeButton, themeMode === "light" && styles.themeButtonActive]}
+              onPress={() => setThemeMode("light")}
+            >
+              <Ionicons name="sunny-outline" size={16} color={themeMode === "light" ? "#fff" : theme.textSecondary} />
+            </Pressable>
+            <Pressable
+              style={[styles.themeButton, themeMode === "system" && styles.themeButtonActive]}
+              onPress={() => setThemeMode("system")}
+            >
+              <Ionicons name="phone-portrait-outline" size={16} color={themeMode === "system" ? "#fff" : theme.textSecondary} />
+            </Pressable>
+            <Pressable
+              style={[styles.themeButton, themeMode === "dark" && styles.themeButtonActive]}
+              onPress={() => setThemeMode("dark")}
+            >
+              <Ionicons name="moon-outline" size={16} color={themeMode === "dark" ? "#fff" : theme.textSecondary} />
+            </Pressable>
+          </View>
         </View>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Data Management</Text>
-        
-        <Pressable style={[styles.button, styles.exportButton]} onPress={handleExportData}>
-          <Text style={styles.buttonText}>Export Data</Text>
+
+        <Pressable style={styles.actionButton} onPress={handleExportData}>
+          <Ionicons name="download-outline" size={20} color="#fff" />
+          <Text style={styles.actionButtonText}>Export Data</Text>
         </Pressable>
-        
-        <Pressable style={[styles.button, styles.clearButton]} onPress={handleClearData}>
-          <Text style={[styles.buttonText, styles.clearButtonText]}>Clear All Data</Text>
+
+        <Pressable style={[styles.actionButton, styles.dangerButton]} onPress={handleClearData}>
+          <Ionicons name="trash-outline" size={20} color="#fff" />
+          <Text style={styles.actionButtonText}>Clear All Data</Text>
         </Pressable>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>About</Text>
-        
-        <Pressable style={styles.button} onPress={handleAbout}>
-          <Text style={styles.buttonText}>About Simple Budget Mobile</Text>
+
+        <Pressable style={styles.aboutButton} onPress={handleAbout}>
+          <View style={styles.aboutLeft}>
+            <Ionicons name="information-circle-outline" size={20} color="#94a3b8" />
+            <Text style={styles.aboutButtonText}>About Simple Budget Mobile</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="#64748b" />
         </Pressable>
-        
+
         <View style={styles.settingItem}>
-          <Text style={styles.settingLabel}>Version</Text>
+          <View style={styles.settingLeft}>
+            <Ionicons name="code-outline" size={20} color="#94a3b8" />
+            <Text style={styles.settingLabel}>Version</Text>
+          </View>
           <Text style={styles.settingValue}>1.0.0</Text>
         </View>
+      </View>
+
+      <View style={styles.section}>
+        <Pressable style={styles.signOutButton} onPress={handleSignOut}>
+          <Ionicons name="log-out-outline" size={20} color="#fff" />
+          <Text style={styles.signOutButtonText}>Sign Out</Text>
+        </Pressable>
       </View>
     </ScrollView>
   );
@@ -187,90 +240,176 @@ export default function SettingsScreen() {
   return <SettingsScreenContent />;
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: "#000",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 20,
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#fff",
-    marginBottom: 12,
-  },
-  settingItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: "#111",
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  settingLabel: {
-    fontSize: 16,
-    color: "#fff",
-    fontWeight: "500",
-  },
-  settingValue: {
-    fontSize: 14,
-    color: "#888",
-  },
-  button: {
-    backgroundColor: "#333",
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    textAlign: "center",
-  },
-  exportButton: {
-    backgroundColor: "#4ade80",
-  },
-  clearButton: {
-    backgroundColor: "#ef4444",
-  },
-  clearButtonText: {
-    color: "#fff",
-  },
-  signOutButton: {
-    backgroundColor: "#ef4444",
-  },
-  signOutButtonText: {
-    color: "#fff",
-  },
-  currencyContainer: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  currencyButton: {
-    backgroundColor: "#333",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-  },
-  currencyButtonActive: {
-    backgroundColor: "#4ade80",
-  },
-  currencyButtonText: {
-    color: "#888",
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  currencyButtonTextActive: {
-    color: "#000",
-  },
-});
+function createStyles(theme: any) {
+  return StyleSheet.create({
+    header: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 24,
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: "bold",
+      color: theme.text,
+    },
+    profileBadge: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: theme.surfaceSecondary,
+      justifyContent: "center",
+      alignItems: "center",
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
+    section: {
+      marginBottom: 24,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: "600",
+      color: theme.text,
+      marginBottom: 12,
+    },
+    settingItem: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      backgroundColor: theme.cardBackground,
+      padding: 16,
+      borderRadius: 12,
+      marginBottom: 8,
+      borderWidth: 1,
+      borderColor: theme.cardBorder,
+      shadowColor: theme.shadow,
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: theme.shadowOpacity,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    settingLeft: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+    },
+    settingLabel: {
+      fontSize: 16,
+      color: theme.text,
+      fontWeight: "500",
+    },
+    settingValue: {
+      fontSize: 14,
+      color: theme.textSecondary,
+    },
+    currencyContainer: {
+      flexDirection: "row",
+      gap: 8,
+    },
+    currencyButton: {
+      backgroundColor: theme.surfaceSecondary,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
+    currencyButtonActive: {
+      backgroundColor: theme.primary,
+      borderColor: theme.primary,
+    },
+    currencyButtonText: {
+      color: theme.textSecondary,
+      fontSize: 14,
+      fontWeight: "600",
+    },
+    currencyButtonTextActive: {
+      color: "#fff",
+    },
+    actionButton: {
+      flexDirection: "row",
+      backgroundColor: theme.primary,
+      padding: 16,
+      borderRadius: 12,
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      marginBottom: 12,
+      shadowColor: theme.primary,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    dangerButton: {
+      backgroundColor: theme.error,
+      shadowColor: theme.error,
+    },
+    actionButtonText: {
+      color: "#fff",
+      fontSize: 16,
+      fontWeight: "600",
+    },
+    aboutButton: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      backgroundColor: theme.cardBackground,
+      padding: 16,
+      borderRadius: 12,
+      marginBottom: 8,
+      borderWidth: 1,
+      borderColor: theme.cardBorder,
+      shadowColor: theme.shadow,
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: theme.shadowOpacity,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    aboutLeft: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+    },
+    aboutButtonText: {
+      fontSize: 16,
+      color: theme.text,
+      fontWeight: "500",
+    },
+    signOutButton: {
+      flexDirection: "row",
+      backgroundColor: theme.error,
+      padding: 16,
+      borderRadius: 12,
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      shadowColor: theme.error,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    signOutButtonText: {
+      color: "#fff",
+      fontSize: 16,
+      fontWeight: "600",
+    },
+    themeButtons: {
+      flexDirection: "row",
+      gap: 8,
+    },
+    themeButton: {
+      backgroundColor: theme.surfaceSecondary,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
+    themeButtonActive: {
+      backgroundColor: theme.primary,
+      borderColor: theme.primary,
+    },
+  });
+}

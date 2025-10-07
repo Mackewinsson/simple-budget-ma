@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, FlatList, StyleSheet, ScrollView, Pressable, Alert } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useBudget } from "../../src/api/hooks/useBudgets";
 import { useCategories } from "../../src/api/hooks/useCategories";
 import { useExpenses } from "../../src/api/hooks/useExpenses";
@@ -25,6 +26,7 @@ function BudgetsScreenContent() {
     return (
       <View style={safeAreaStyles.container}>
         <View style={styles.loadingContainer}>
+          <Ionicons name="wallet-outline" size={48} color="#475569" />
           <Text style={styles.loadingText}>Loading your budget...</Text>
         </View>
       </View>
@@ -35,8 +37,9 @@ function BudgetsScreenContent() {
     return (
       <View style={safeAreaStyles.container}>
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Error loading data. Please try again.</Text>
-          <Text style={styles.errorText}>Error: {JSON.stringify(hasError)}</Text>
+          <Ionicons name="alert-circle-outline" size={48} color="#ef4444" />
+          <Text style={styles.errorTitle}>Error loading data</Text>
+          <Text style={styles.errorText}>Please try again later</Text>
         </View>
       </View>
     );
@@ -45,23 +48,31 @@ function BudgetsScreenContent() {
   return (
     <ScrollView style={safeAreaStyles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Budget Overview</Text>
+        <Text style={styles.title}>Budget</Text>
+        {budget && (
+          <View style={styles.budgetBadge}>
+            <Ionicons name="calendar-outline" size={16} color="#94a3b8" />
+            <Text style={styles.budgetPeriod}>{budget.period || 'Monthly'}</Text>
+          </View>
+        )}
       </View>
-      
+
       <Summary />
-      
+
       {!budget ? (
         <View style={styles.noBudgetContainer}>
-          <Text style={styles.noBudgetText}>No budget found. Create one to get started!</Text>
+          <Ionicons name="wallet-outline" size={64} color="#475569" />
+          <Text style={styles.noBudgetTitle}>No budget yet</Text>
+          <Text style={styles.noBudgetText}>Create your first budget to start tracking your finances</Text>
           <NewBudgetForm />
         </View>
       ) : (
         <>
-          <BudgetSetupSection 
+          <BudgetSetupSection
             budget={budget}
             categories={categories}
           />
-          
+
           <CategoryList />
         </>
       )}
@@ -81,49 +92,91 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    gap: 16,
   },
   loadingText: {
     fontSize: 16,
-    color: "#888",
+    color: "#64748b",
+  },
+  errorTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#ef4444",
+    marginTop: 12,
   },
   errorText: {
-    fontSize: 12,
-    color: "#ef4444",
+    fontSize: 14,
+    color: "#64748b",
     marginTop: 8,
     textAlign: "center",
   },
   header: {
-    marginBottom: 20,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 24,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
-    color: "#fff",
+    color: "#0f172a",
+  },
+  budgetBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f1f5f9",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    gap: 6,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+  },
+  budgetPeriod: {
+    fontSize: 13,
+    color: "#64748b",
+    fontWeight: "500",
   },
   noBudgetContainer: {
     alignItems: "center",
-    marginBottom: 20,
+    justifyContent: "center",
+    paddingVertical: 48,
+    paddingHorizontal: 24,
+  },
+  noBudgetTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#0f172a",
+    marginTop: 16,
   },
   noBudgetText: {
-    fontSize: 16,
-    color: "#888",
-    marginBottom: 20,
+    fontSize: 15,
+    color: "#64748b",
+    marginTop: 8,
+    marginBottom: 24,
     textAlign: "center",
   },
   budgetCard: {
-    backgroundColor: "#111",
+    backgroundColor: "#ffffff",
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 12,
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   budgetAmount: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#fff",
+    color: "#0f172a",
   },
   budgetLabel: {
     fontSize: 14,
-    color: "#888",
+    color: "#64748b",
     marginTop: 4,
   },
 });

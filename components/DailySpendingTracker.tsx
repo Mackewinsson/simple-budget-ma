@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
+import { useTheme } from "../src/theme/ThemeContext";
 
 interface Budget {
   _id: string;
@@ -36,14 +37,17 @@ interface DailySpendingTrackerProps {
 
 export default function DailySpendingTracker({ budget, categories, expenses }: DailySpendingTrackerProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const { theme } = useTheme();
 
   // Calculate totals
   const totalSpent = expenses.reduce((sum, expense) => {
     return sum + (expense.type === "expense" ? expense.amount : -expense.amount);
   }, 0);
-  
+
   const totalBudgeted = categories.reduce((sum, cat) => sum + cat.budgeted, 0);
   const remaining = totalBudgeted - totalSpent;
+
+  const styles = createStyles(theme);
 
   return (
     <View style={styles.container}>
@@ -135,12 +139,19 @@ export default function DailySpendingTracker({ budget, categories, expenses }: D
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: any) => StyleSheet.create({
   container: {
-    backgroundColor: "#111",
-    borderRadius: 8,
+    backgroundColor: theme.cardBackground,
+    borderRadius: 12,
     margin: 16,
     padding: 16,
+    borderWidth: 1,
+    borderColor: theme.cardBorder,
+    shadowColor: theme.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: theme.shadowOpacity * 1.5,
+    shadowRadius: 8,
+    elevation: 3,
   },
   header: {
     flexDirection: "row",
@@ -154,12 +165,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#fff",
+    color: theme.text,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
-    color: "#888",
+    color: theme.textSecondary,
   },
   amountContainer: {
     alignItems: "flex-end",
@@ -170,18 +181,20 @@ const styles = StyleSheet.create({
   },
   remainingLabel: {
     fontSize: 12,
-    color: "#888",
+    color: theme.textSecondary,
     marginTop: 2,
   },
   expandButton: {
-    backgroundColor: "#333",
-    padding: 8,
-    borderRadius: 6,
+    backgroundColor: theme.surfaceSecondary,
+    padding: 10,
+    borderRadius: 8,
     alignItems: "center",
     marginBottom: 16,
+    borderWidth: 1,
+    borderColor: theme.border,
   },
   expandButtonText: {
-    color: "#fff",
+    color: theme.text,
     fontSize: 14,
     fontWeight: "500",
   },
@@ -193,21 +206,23 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   summaryCard: {
-    backgroundColor: "#222",
+    backgroundColor: theme.surface,
     padding: 12,
-    borderRadius: 6,
+    borderRadius: 8,
     flex: 1,
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: theme.border,
   },
   summaryLabel: {
     fontSize: 12,
-    color: "#888",
+    color: theme.textSecondary,
     marginBottom: 4,
   },
   summaryValue: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#fff",
+    color: theme.text,
   },
   categoryBreakdown: {
     gap: 12,
@@ -215,13 +230,15 @@ const styles = StyleSheet.create({
   breakdownTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#fff",
+    color: theme.text,
     marginBottom: 8,
   },
   categoryItem: {
-    backgroundColor: "#222",
+    backgroundColor: theme.surface,
     padding: 12,
-    borderRadius: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: theme.border,
   },
   categoryHeader: {
     flexDirection: "row",
@@ -232,21 +249,22 @@ const styles = StyleSheet.create({
   categoryName: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#fff",
+    color: theme.text,
   },
   categoryAmount: {
     fontSize: 12,
-    color: "#888",
+    color: theme.textSecondary,
   },
   progressBar: {
-    height: 4,
-    backgroundColor: "#333",
-    borderRadius: 2,
+    height: 6,
+    backgroundColor: theme.surfaceSecondary,
+    borderRadius: 3,
     marginBottom: 6,
+    overflow: "hidden",
   },
   progressFill: {
     height: "100%",
-    borderRadius: 2,
+    borderRadius: 3,
   },
   categoryRemaining: {
     fontSize: 12,

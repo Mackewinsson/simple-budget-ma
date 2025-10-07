@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, FlatList, StyleSheet, ScrollView, Pressable, Alert } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useExpenses } from "../../src/api/hooks/useExpenses";
 import { useBudget } from "../../src/api/hooks/useBudgets";
 import { useCategories } from "../../src/api/hooks/useCategories";
@@ -36,26 +37,44 @@ function TransactionsScreenContent() {
   };
 
   const renderExpense = ({ item }: { item: any }) => (
-    <View style={styles.expenseCard}>
-      <View style={styles.expenseHeader}>
-        <Text style={styles.expenseDescription}>{item.description}</Text>
-        <Pressable 
+    <Pressable style={styles.expenseCard}>
+      <View style={styles.expenseLeft}>
+        <View style={[
+          styles.iconContainer,
+          { backgroundColor: item.type === "expense" ? "#ef444410" : "#4ade8010" }
+        ]}>
+          <Ionicons
+            name={item.type === "expense" ? "arrow-down" : "arrow-up"}
+            size={20}
+            color={item.type === "expense" ? "#ef4444" : "#4ade80"}
+          />
+        </View>
+        <View style={styles.expenseDetails}>
+          <Text style={styles.expenseDescription}>{item.description}</Text>
+          <Text style={styles.expenseDate}>
+            {new Date(item.date).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric'
+            })}
+          </Text>
+        </View>
+      </View>
+      <View style={styles.expenseRight}>
+        <Text style={[
+          styles.expenseAmount,
+          { color: item.type === "expense" ? "#ef4444" : "#4ade80" }
+        ]}>
+          {item.type === "expense" ? "-" : "+"}${item.amount.toFixed(2)}
+        </Text>
+        <Pressable
           style={styles.deleteButton}
           onPress={() => handleDeleteExpense(item._id, item.description)}
         >
-          <Text style={styles.deleteButtonText}>×</Text>
+          <Ionicons name="trash-outline" size={16} color="#9ca3af" />
         </Pressable>
       </View>
-      <Text style={[
-        styles.expenseAmount,
-        { color: item.type === "expense" ? "#ef4444" : "#4ade80" }
-      ]}>
-        {item.type === "expense" ? "-" : "+"}${item.amount.toFixed(2)}
-      </Text>
-      <Text style={styles.expenseDate}>
-        {new Date(item.date).toLocaleDateString()}
-      </Text>
-    </View>
+    </Pressable>
   );
 
   if (isLoading) {
@@ -70,41 +89,54 @@ function TransactionsScreenContent() {
 
   return (
     <ScrollView style={safeAreaStyles.container}>
-      <Text style={styles.title}>Transaction History</Text>
-      
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.title}>Transactions</Text>
+          <Text style={styles.subtitle}>{expenses.length} total transactions</Text>
+        </View>
+        <Pressable
+          style={styles.addButtonHeader}
+          onPress={() => setShowExpenseForm(!showExpenseForm)}
+        >
+          <Ionicons
+            name={showExpenseForm ? "close" : "add"}
+            size={24}
+            color="#fff"
+          />
+        </Pressable>
+      </View>
+
       {budget && (
-        <DailySpendingTracker 
+        <DailySpendingTracker
           budget={budget}
           categories={categories}
           expenses={expenses}
         />
       )}
-      
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Add Transaction</Text>
-          <Pressable 
-            style={styles.addButton}
-            onPress={() => setShowExpenseForm(!showExpenseForm)}
-          >
-            <Text style={styles.addButtonText}>
-              {showExpenseForm ? "Cancel" : "+ Add"}
-            </Text>
-          </Pressable>
+
+      {showExpenseForm && (
+        <View style={styles.formContainer}>
+          <NewExpenseForm />
         </View>
-        
-        {showExpenseForm && <NewExpenseForm />}
-      </View>
-      
+      )}
+
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Recent Transactions</Text>
-        <FlatList
-          data={expenses || []}
-          keyExtractor={(item) => item._id}
-          renderItem={renderExpense}
-          style={styles.list}
-          scrollEnabled={false}
-        />
+        {expenses.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Ionicons name="receipt-outline" size={48} color="#4b5563" />
+            <Text style={styles.emptyStateText}>No transactions yet</Text>
+            <Text style={styles.emptyStateSubtext}>Add your first transaction to get started</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={expenses || []}
+            keyExtractor={(item) => item._id}
+            renderItem={renderExpense}
+            style={styles.list}
+            scrollEnabled={false}
+          />
+        )}
       </View>
     </ScrollView>
   );
@@ -125,81 +157,130 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: "#888",
+    color: "#64748b",
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 24,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 20,
+    color: "#0f172a",
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: "#64748b",
+  },
+  addButtonHeader: {
+    backgroundColor: "#6366f1",
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#6366f1",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  formContainer: {
+    backgroundColor: "#ffffff",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   section: {
     marginBottom: 24,
   },
-  sectionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#fff",
-  },
-  addButton: {
-    backgroundColor: "#4ade80",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-  },
-  addButtonText: {
-    color: "#000",
-    fontSize: 14,
-    fontWeight: "600",
+    color: "#0f172a",
+    marginBottom: 16,
   },
   list: {
     flex: 1,
   },
   expenseCard: {
-    backgroundColor: "#111",
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 12,
-  },
-  expenseHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 8,
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  expenseLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  expenseDetails: {
+    flex: 1,
   },
   expenseDescription: {
     fontSize: 16,
-    color: "#fff",
+    color: "#0f172a",
     fontWeight: "500",
-    flex: 1,
-  },
-  deleteButton: {
-    backgroundColor: "#ef4444",
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-    marginLeft: 8,
-  },
-  deleteButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  expenseAmount: {
-    fontSize: 18,
-    fontWeight: "600",
     marginBottom: 4,
   },
   expenseDate: {
-    fontSize: 12,
-    color: "#888",
+    fontSize: 13,
+    color: "#64748b",
+  },
+  expenseRight: {
+    alignItems: "flex-end",
+    marginLeft: 12,
+  },
+  expenseAmount: {
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 4,
+  },
+  deleteButton: {
+    padding: 4,
+  },
+  emptyState: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 48,
+  },
+  emptyStateText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#64748b",
+    marginTop: 16,
+  },
+  emptyStateSubtext: {
+    fontSize: 14,
+    color: "#94a3b8",
+    marginTop: 8,
   },
 });

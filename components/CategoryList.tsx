@@ -7,6 +7,7 @@ import { useBudget } from "../src/api/hooks/useBudgets";
 import { useTheme } from "../src/theme/ThemeContext";
 import { SPACING, BORDER_RADIUS, FONT_SIZES, FONT_WEIGHTS, SHADOW } from "../src/theme/layout";
 import NewCategoryForm from "./NewCategoryForm";
+import CategoryItem from "./CategoryItem";
 
 interface Category {
   _id?: string;
@@ -48,48 +49,6 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   list: {
     flex: 1,
-  },
-  categoryCard: {
-    backgroundColor: theme.cardBackground,
-    padding: SPACING.lg,
-    borderRadius: BORDER_RADIUS.lg,
-    marginBottom: SPACING.md,
-    borderWidth: 1,
-    borderColor: theme.cardBorder,
-    shadowColor: theme.shadow,
-    ...SHADOW.md,
-    shadowOpacity: theme.shadowOpacity,
-  },
-  categoryHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: SPACING.sm,
-  },
-  categoryName: {
-    fontSize: FONT_SIZES.lg,
-    fontWeight: FONT_WEIGHTS.medium,
-    color: theme.text,
-  },
-  categoryAmount: {
-    fontSize: FONT_SIZES.md,
-    color: theme.textSecondary,
-  },
-  progressBar: {
-    height: 6,
-    backgroundColor: theme.surfaceSecondary,
-    borderRadius: BORDER_RADIUS.sm - 1,
-    marginBottom: SPACING.sm,
-    overflow: "hidden",
-  },
-  progressFill: {
-    height: "100%",
-    backgroundColor: theme.success,
-    borderRadius: BORDER_RADIUS.sm - 1,
-  },
-  remainingText: {
-    fontSize: FONT_SIZES.xs,
-    color: theme.textSecondary,
   },
   emptyStateContainer: {
     backgroundColor: theme.cardBackground,
@@ -147,25 +106,10 @@ export default function CategoryList() {
   const styles = createStyles(theme);
 
   const renderCategory = ({ item }: { item: Category }) => (
-    <View style={styles.categoryCard}>
-      <View style={styles.categoryHeader}>
-        <Text style={styles.categoryName}>{item.name}</Text>
-        <Text style={styles.categoryAmount}>
-          ${item.budgeted} / ${item.spent}
-        </Text>
-      </View>
-      <View style={styles.progressBar}>
-        <View 
-          style={[
-            styles.progressFill, 
-            { width: `${Math.min((item.spent / item.budgeted) * 100, 100)}%` }
-          ]} 
-        />
-      </View>
-      <Text style={styles.remainingText}>
-        ${item.budgeted - item.spent} remaining
-      </Text>
-    </View>
+    <CategoryItem 
+      category={item} 
+      totalAvailable={budget?.totalAvailable || 0}
+    />
   );
 
   if (isLoading) {

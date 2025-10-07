@@ -51,7 +51,7 @@ export const useCreateCategory = () => {
       queryClient.invalidateQueries({ queryKey: ["budgets"] });
       console.log("Category created successfully");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Failed to create category:", error);
       console.error("Error details:", {
         message: error.message,
@@ -73,6 +73,8 @@ export const useUpdateCategory = () => {
     onSuccess: (data, variables) => {
       // Invalidate all category queries
       queryClient.invalidateQueries({ queryKey: categoryKeys.all });
+      // Also invalidate budget queries since category updates affect budget totals
+      queryClient.invalidateQueries({ queryKey: ["budgets"] });
       console.log("Category updated successfully");
     },
     onError: (error) => {
@@ -93,6 +95,8 @@ export const useDeleteCategory = () => {
       queryClient.removeQueries({ queryKey: categoryKeys.detail(id) });
       // Invalidate lists
       queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
+      // Also invalidate budget queries since category deletion affects budget totals
+      queryClient.invalidateQueries({ queryKey: ["budgets"] });
       console.log("Category deleted successfully");
     },
     onError: (error) => {

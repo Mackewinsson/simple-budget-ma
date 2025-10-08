@@ -1,11 +1,12 @@
 import React from "react";
 import { View, Text, StyleSheet, ScrollView, Pressable, Alert } from "react-native";
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useBudget } from "../../src/api/hooks/useBudgets";
 import { useCategories } from "../../src/api/hooks/useCategories";
 import { useExpenses } from "../../src/api/hooks/useExpenses";
 import { useAuthStore } from "../../src/store/authStore";
-import { useSafeAreaStyles } from "../../src/hooks/useSafeAreaStyles";
 import { useTheme } from "../../src/theme/ThemeContext";
 import { SPACING, BORDER_RADIUS, FONT_SIZES, FONT_WEIGHTS, SHADOW } from "../../src/theme/layout";
 
@@ -14,7 +15,7 @@ function ReportsScreenContent() {
   const { data: budget, isLoading: budgetLoading } = useBudget(session?.user?.id || "");
   const { data: categories = [], isLoading: categoriesLoading } = useCategories(session?.user?.id || "");
   const { data: expenses = [], isLoading: expensesLoading } = useExpenses(session?.user?.id || "");
-  const safeAreaStyles = useSafeAreaStyles();
+  const insets = useSafeAreaInsets();
   const { theme } = useTheme();
 
   const isLoading = budgetLoading || categoriesLoading || expensesLoading;
@@ -39,7 +40,7 @@ function ReportsScreenContent() {
 
   if (isLoading) {
     return (
-      <View style={safeAreaStyles.container}>
+      <View style={{ flex: 1, backgroundColor: theme.background, paddingTop: insets.top }}>
         <View style={styles.loadingContainer}>
           <Ionicons name="bar-chart-outline" size={48} color={theme.textSecondary} />
           <Text style={styles.loadingText}>Loading reports...</Text>
@@ -50,7 +51,7 @@ function ReportsScreenContent() {
 
   if (!budget) {
     return (
-      <View style={safeAreaStyles.container}>
+      <View style={{ flex: 1, backgroundColor: theme.background, paddingTop: insets.top }}>
         <View style={styles.emptyContainer}>
           <Ionicons name="bar-chart-outline" size={64} color={theme.textSecondary} />
           <Text style={styles.emptyTitle}>No reports yet</Text>
@@ -95,14 +96,23 @@ function ReportsScreenContent() {
   }).sort((a, b) => b.spent - a.spent);
 
   return (
-    <ScrollView style={safeAreaStyles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Reports</Text>
-        <View style={styles.periodBadge}>
-          <Ionicons name="time-outline" size={16} color={theme.textSecondary} />
-          <Text style={styles.periodText}>This month</Text>
+    <View style={{ flex: 1 }}>
+      <LinearGradient
+        colors={[theme.primary, theme.primaryDark || theme.primary]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.headerGradient, { paddingTop: insets.top + 16 }]}
+      >
+        <View style={styles.header}>
+          <Text style={styles.title}>Reports</Text>
+          <View style={styles.periodBadge}>
+            <Ionicons name="time-outline" size={16} color="rgba(255, 255, 255, 0.9)" />
+            <Text style={styles.periodText}>This month</Text>
+          </View>
         </View>
-      </View>
+      </LinearGradient>
+
+      <ScrollView style={styles.scrollContent}>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Budget Overview</Text>
@@ -130,7 +140,7 @@ function ReportsScreenContent() {
             </Text>
           </View>
           <View style={styles.overviewCard}>
-            <Ionicons name="pie-chart-outline" size={24} color={theme.purple} />
+            <Ionicons name="pie-chart-outline" size={24} color={theme.primary} />
             <Text style={styles.overviewLabel}>Usage</Text>
             <Text style={styles.overviewValue}>{spendingPercentage.toFixed(1)}%</Text>
           </View>
@@ -192,18 +202,19 @@ function ReportsScreenContent() {
         )}
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Actions</Text>
-        <Pressable style={styles.actionButton} onPress={handleExportData}>
-          <Ionicons name="download-outline" size={20} color={theme.buttonText} />
-          <Text style={styles.actionButtonText}>Export Data</Text>
-        </Pressable>
-        <Pressable style={styles.actionButton} onPress={handleGenerateReport}>
-          <Ionicons name="document-text-outline" size={20} color={theme.buttonText} />
-          <Text style={styles.actionButtonText}>Generate Report</Text>
-        </Pressable>
-      </View>
-    </ScrollView>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Actions</Text>
+          <Pressable style={styles.actionButton} onPress={handleExportData}>
+            <Ionicons name="download-outline" size={20} color="#FFFFFF" />
+            <Text style={styles.actionButtonText}>Export Data</Text>
+          </Pressable>
+          <Pressable style={styles.actionButton} onPress={handleGenerateReport}>
+            <Ionicons name="document-text-outline" size={20} color="#FFFFFF" />
+            <Text style={styles.actionButtonText}>Generate Report</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -239,32 +250,42 @@ const createStyles = (theme: any) => StyleSheet.create({
     color: theme.textSecondary,
     textAlign: "center",
   },
+  headerGradient: {
+    paddingBottom: 24,
+    paddingHorizontal: 20,
+    marginBottom: 24,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: SPACING.xxl,
   },
   title: {
     fontSize: FONT_SIZES.huge,
     fontWeight: FONT_WEIGHTS.bold,
-    color: theme.text,
+    color: '#FFFFFF',
+    letterSpacing: 0.3,
   },
   periodBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: theme.surfaceSecondary,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.xs + 2,
     borderRadius: BORDER_RADIUS.xl,
     gap: SPACING.xs + 2,
     borderWidth: 1,
-    borderColor: theme.cardBorder,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   periodText: {
     fontSize: FONT_SIZES.sm,
-    color: theme.textSecondary,
+    color: 'rgba(255, 255, 255, 0.9)',
     fontWeight: FONT_WEIGHTS.medium,
+  },
+  scrollContent: {
+    paddingHorizontal: 16,
   },
   section: {
     marginBottom: 24,
@@ -426,7 +447,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     elevation: 3,
   },
   actionButtonText: {
-    color: theme.buttonText,
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: "600",
   },

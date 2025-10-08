@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { View, Text, Pressable, StyleSheet, Alert, ScrollView, Switch } from "react-native";
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useUserCurrency, useUpdateUserCurrency } from "../../src/api/hooks/useUsers";
 import { useAuthStore } from "../../src/store/authStore";
 import { useRouter } from "expo-router";
-import { useSafeAreaStyles } from "../../src/hooks/useSafeAreaStyles";
 import { useTheme } from "../../src/theme/ThemeContext";
 
 function SettingsScreenContent() {
@@ -12,7 +13,7 @@ function SettingsScreenContent() {
   const { data: currency } = useUserCurrency();
   const updateCurrency = useUpdateUserCurrency();
   const router = useRouter();
-  const safeAreaStyles = useSafeAreaStyles();
+  const insets = useSafeAreaInsets();
   const { theme, themeMode, isDark, setThemeMode } = useTheme();
 
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -89,13 +90,22 @@ function SettingsScreenContent() {
   };
 
   return (
-    <ScrollView style={safeAreaStyles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Settings</Text>
-        <View style={styles.profileBadge}>
-          <Ionicons name="person-circle-outline" size={24} color="#94a3b8" />
+    <View style={{ flex: 1 }}>
+      <LinearGradient
+        colors={[theme.primary, theme.primaryDark || theme.primary]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.headerGradient, { paddingTop: insets.top + 16 }]}
+      >
+        <View style={styles.header}>
+          <Text style={styles.title}>Settings</Text>
+          <View style={styles.profileBadge}>
+            <Ionicons name="person-circle-outline" size={24} color="rgba(255, 255, 255, 0.9)" />
+          </View>
         </View>
-      </View>
+      </LinearGradient>
+
+      <ScrollView style={styles.scrollContent}>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Account</Text>
@@ -226,13 +236,14 @@ function SettingsScreenContent() {
         </View>
       </View>
 
-      <View style={styles.section}>
-        <Pressable style={styles.signOutButton} onPress={handleSignOut}>
-          <Ionicons name="log-out-outline" size={20} color="#fff" />
-          <Text style={styles.signOutButtonText}>Sign Out</Text>
-        </Pressable>
-      </View>
-    </ScrollView>
+        <View style={styles.section}>
+          <Pressable style={styles.signOutButton} onPress={handleSignOut}>
+            <Ionicons name="log-out-outline" size={20} color="#fff" />
+            <Text style={styles.signOutButtonText}>Sign Out</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -242,26 +253,36 @@ export default function SettingsScreen() {
 
 function createStyles(theme: any) {
   return StyleSheet.create({
+    headerGradient: {
+      paddingBottom: 24,
+      paddingHorizontal: 20,
+      marginBottom: 24,
+      borderBottomLeftRadius: 24,
+      borderBottomRightRadius: 24,
+    },
     header: {
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
-      marginBottom: 24,
     },
     title: {
       fontSize: 28,
       fontWeight: "bold",
-      color: theme.text,
+      color: '#FFFFFF',
+      letterSpacing: 0.3,
     },
     profileBadge: {
       width: 40,
       height: 40,
       borderRadius: 20,
-      backgroundColor: theme.surfaceSecondary,
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
       justifyContent: "center",
       alignItems: "center",
       borderWidth: 1,
-      borderColor: theme.border,
+      borderColor: 'rgba(255, 255, 255, 0.3)',
+    },
+    scrollContent: {
+      paddingHorizontal: 16,
     },
     section: {
       marginBottom: 24,

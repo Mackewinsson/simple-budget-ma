@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, FlatList, StyleSheet, ScrollView, Pressable, Alert } from "react-native";
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useBudget } from "../../src/api/hooks/useBudgets";
 import { useCategoriesByBudget } from "../../src/api/hooks/useCategories";
 import { useExpenses } from "../../src/api/hooks/useExpenses";
 import { useAuthStore } from "../../src/store/authStore";
-import { useSafeAreaStyles } from "../../src/hooks/useSafeAreaStyles";
+import { useTheme } from "../../src/theme/ThemeContext";
 import CategoryList from "../../components/CategoryList";
 import BudgetSetupSection from "../../components/BudgetSetupSection";
 
@@ -16,7 +18,8 @@ function BudgetsScreenContent() {
   const { data: budget, isLoading: budgetLoading, error: budgetError } = useBudget(session?.user?.id || "");
   const { data: categories = [], isLoading: categoriesLoading, error: categoriesError } = useCategoriesByBudget(budget?._id || "");
   const { data: expenses = [], isLoading: expensesLoading, error: expensesError } = useExpenses(session?.user?.id || "");
-  const safeAreaStyles = useSafeAreaStyles();
+  const insets = useSafeAreaInsets();
+  const { theme } = useTheme();
 
   // Redirect to budget creation if no budget exists
   useEffect(() => {
@@ -31,7 +34,7 @@ function BudgetsScreenContent() {
 
   if (isLoading) {
     return (
-      <View style={safeAreaStyles.container}>
+      <View style={{ flex: 1, backgroundColor: theme.background, paddingTop: insets.top }}>
         <View style={styles.loadingContainer}>
           <Ionicons name="wallet-outline" size={48} color="#475569" />
           <Text style={styles.loadingText}>Loading your budget...</Text>
@@ -42,7 +45,7 @@ function BudgetsScreenContent() {
 
   if (hasError) {
     return (
-      <View style={safeAreaStyles.container}>
+      <View style={{ flex: 1, backgroundColor: theme.background, paddingTop: insets.top }}>
         <View style={styles.loadingContainer}>
           <Ionicons name="alert-circle-outline" size={48} color="#ef4444" />
           <Text style={styles.errorTitle}>Error loading data</Text>
@@ -53,30 +56,39 @@ function BudgetsScreenContent() {
   }
 
   return (
-    <ScrollView style={safeAreaStyles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Budget</Text>
+    <View style={{ flex: 1 }}>
+      <LinearGradient
+        colors={[theme.primary, theme.primaryDark || theme.primary]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.headerGradient, { paddingTop: insets.top + 16 }]}
+      >
+        <View style={styles.header}>
+          <Text style={styles.title}>Budgets</Text>
+          {budget && (
+            <View style={styles.budgetBadge}>
+              <Ionicons name="calendar-outline" size={16} color="rgba(255, 255, 255, 0.9)" />
+              <Text style={styles.budgetPeriod}>
+                {budget.month && budget.year ? `${budget.month}/${budget.year}` : 'Monthly'}
+              </Text>
+            </View>
+          )}
+        </View>
+      </LinearGradient>
+
+      <ScrollView style={styles.scrollContent}>
         {budget && (
-          <View style={styles.budgetBadge}>
-            <Ionicons name="calendar-outline" size={16} color="#94a3b8" />
-            <Text style={styles.budgetPeriod}>
-              {budget.month && budget.year ? `${budget.month}/${budget.year}` : 'Monthly'}
-            </Text>
-          </View>
+          <>
+            <BudgetSetupSection
+              budget={budget}
+              categories={categories}
+            />
+
+            <CategoryList />
+          </>
         )}
-      </View>
-
-      {budget && (
-        <>
-          <BudgetSetupSection
-            budget={budget}
-            categories={categories}
-          />
-
-          <CategoryList />
-        </>
-      )}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -85,9 +97,6 @@ export default function BudgetsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-  },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
@@ -110,32 +119,42 @@ const styles = StyleSheet.create({
     marginTop: 8,
     textAlign: "center",
   },
+  headerGradient: {
+    paddingBottom: 24,
+    paddingHorizontal: 20,
+    marginBottom: 24,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 24,
   },
   title: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#0f172a",
+    color: '#FFFFFF',
+    letterSpacing: 0.3,
   },
   budgetBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f1f5f9",
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
     gap: 6,
     borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   budgetPeriod: {
     fontSize: 13,
-    color: "#64748b",
+    color: 'rgba(255, 255, 255, 0.9)',
     fontWeight: "500",
+  },
+  scrollContent: {
+    paddingHorizontal: 16,
   },
   budgetCard: {
     backgroundColor: "#ffffff",

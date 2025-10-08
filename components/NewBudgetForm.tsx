@@ -451,7 +451,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     marginTop: 4,
   },
   button: {
-    backgroundColor: theme.success,
+    backgroundColor: theme.primary,
     padding: 16,
     borderRadius: 8,
     alignItems: "center",

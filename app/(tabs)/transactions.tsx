@@ -388,25 +388,25 @@ const createStyles = (theme: any) => StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: FONT_WEIGHTS.bold,
-    color: '#FFFFFF',
+    color: theme.onPrimary,
     letterSpacing: 0.3,
   },
   subtitle: {
     fontSize: FONT_SIZES.md,
-    color: 'rgba(255, 255, 255, 0.85)',
+    color: theme.onPrimaryMuted,
     fontWeight: FONT_WEIGHTS.medium,
   },
   balanceCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: theme.onPrimarySubtle,
     borderRadius: 16,
     padding: 16,
     gap: 8,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: theme.onPrimaryBorder,
   },
   balanceLabel: {
     fontSize: FONT_SIZES.sm,
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: theme.onPrimaryMuted,
     fontWeight: FONT_WEIGHTS.medium,
     letterSpacing: 0.5,
     textTransform: 'uppercase',
@@ -419,7 +419,7 @@ const createStyles = (theme: any) => StyleSheet.create({
   balanceAmount: {
     fontSize: 32,
     fontWeight: FONT_WEIGHTS.bold,
-    color: '#FFFFFF',
+    color: theme.onPrimary,
     letterSpacing: -0.5,
   },
   tabContainer: {

@@ -106,7 +106,7 @@ function ReportsScreenContent() {
         <View style={styles.header}>
           <Text style={styles.title}>Reports</Text>
           <View style={styles.periodBadge}>
-            <Ionicons name="time-outline" size={16} color="rgba(255, 255, 255, 0.9)" />
+            <Ionicons name="time-outline" size={16} color={theme.onPrimaryMuted} />
             <Text style={styles.periodText}>This month</Text>
           </View>
         </View>
@@ -265,23 +265,23 @@ const createStyles = (theme: any) => StyleSheet.create({
   title: {
     fontSize: FONT_SIZES.huge,
     fontWeight: FONT_WEIGHTS.bold,
-    color: '#FFFFFF',
+    color: theme.onPrimary,
     letterSpacing: 0.3,
   },
   periodBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: theme.onPrimarySubtle,
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.xs + 2,
     borderRadius: BORDER_RADIUS.xl,
     gap: SPACING.xs + 2,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: theme.onPrimaryBorder,
   },
   periodText: {
     fontSize: FONT_SIZES.sm,
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: theme.onPrimaryMuted,
     fontWeight: FONT_WEIGHTS.medium,
   },
   scrollContent: {

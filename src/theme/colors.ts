@@ -13,10 +13,16 @@ export const lightTheme = {
   border: '#e2e8f0',
   borderLight: '#f1f5f9',
 
-  // Primary colors
+  // Primary colors (Indigo - used for main brand/accent)
   primary: '#6366f1',
   primaryDark: '#4f46e5',
   primaryLight: '#818cf8',
+
+  // Text on primary (for buttons and headers with primary background)
+  onPrimary: '#ffffff',
+  onPrimaryMuted: 'rgba(255, 255, 255, 0.9)',
+  onPrimarySubtle: 'rgba(255, 255, 255, 0.2)',
+  onPrimaryBorder: 'rgba(255, 255, 255, 0.3)',
 
   // Success colors
   success: '#10b981',
@@ -63,10 +69,16 @@ export const darkTheme = {
   border: '#334155',
   borderLight: '#475569',
 
-  // Primary colors
+  // Primary colors (Indigo - used for main brand/accent)
   primary: '#818cf8',
   primaryDark: '#6366f1',
   primaryLight: '#a5b4fc',
+
+  // Text on primary (for buttons and headers with primary background)
+  onPrimary: '#ffffff',
+  onPrimaryMuted: 'rgba(255, 255, 255, 0.9)',
+  onPrimarySubtle: 'rgba(255, 255, 255, 0.2)',
+  onPrimaryBorder: 'rgba(255, 255, 255, 0.3)',
 
   // Success colors
   success: '#34d399',

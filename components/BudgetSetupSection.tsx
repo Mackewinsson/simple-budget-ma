@@ -62,7 +62,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     color: theme.textSecondary,
   },
   editButton: {
-    backgroundColor: theme.success,
+    backgroundColor: theme.primary,
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.xs + 2,
     borderRadius: BORDER_RADIUS.md,
@@ -88,7 +88,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     fontWeight: FONT_WEIGHTS.semibold,
   },
   saveButton: {
-    backgroundColor: theme.success,
+    backgroundColor: theme.primary,
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.xs + 2,
     borderRadius: BORDER_RADIUS.md,

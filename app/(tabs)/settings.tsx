@@ -100,7 +100,7 @@ function SettingsScreenContent() {
         <View style={styles.header}>
           <Text style={styles.title}>Settings</Text>
           <View style={styles.profileBadge}>
-            <Ionicons name="person-circle-outline" size={24} color="rgba(255, 255, 255, 0.9)" />
+            <Ionicons name="person-circle-outline" size={24} color={theme.onPrimaryMuted} />
           </View>
         </View>
       </LinearGradient>
@@ -268,18 +268,18 @@ function createStyles(theme: any) {
     title: {
       fontSize: 28,
       fontWeight: "bold",
-      color: '#FFFFFF',
+      color: theme.onPrimary,
       letterSpacing: 0.3,
     },
     profileBadge: {
       width: 40,
       height: 40,
       borderRadius: 20,
-      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      backgroundColor: theme.onPrimarySubtle,
       justifyContent: "center",
       alignItems: "center",
       borderWidth: 1,
-      borderColor: 'rgba(255, 255, 255, 0.3)',
+      borderColor: theme.onPrimaryBorder,
     },
     scrollContent: {
       paddingHorizontal: 16,

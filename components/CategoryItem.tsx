@@ -131,7 +131,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     gap: SPACING.sm,
   },
   saveButton: {
-    backgroundColor: theme.success,
+    backgroundColor: theme.primary,
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.xs,
     borderRadius: BORDER_RADIUS.sm,

@@ -81,7 +81,7 @@ export const useThemedStyles = () => {
       fontWeight: '600',
     },
     successButton: {
-      backgroundColor: theme.success,
+      backgroundColor: theme.primary,
       paddingHorizontal: 12,
       paddingVertical: 8,
       borderRadius: 8,

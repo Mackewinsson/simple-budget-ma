@@ -35,17 +35,22 @@ const createStyles = (theme: any) => StyleSheet.create({
     color: theme.text,
   },
   addButton: {
-    backgroundColor: theme.success,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
-    borderRadius: BORDER_RADIUS.md,
-    shadowColor: theme.success,
+    backgroundColor: theme.primary,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
+    borderRadius: BORDER_RADIUS.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.xs,
+    marginTop: SPACING.lg,
+    shadowColor: theme.primary,
     ...SHADOW.md,
     shadowOpacity: 0.2,
   },
   addButtonText: {
-    color: theme.buttonText,
-    fontSize: FONT_SIZES.md,
+    color: '#FFFFFF',
+    fontSize: FONT_SIZES.lg,
     fontWeight: FONT_WEIGHTS.semibold,
   },
   list: {
@@ -78,17 +83,21 @@ const createStyles = (theme: any) => StyleSheet.create({
     marginBottom: SPACING.lg,
   },
   emptyStateButton: {
-    backgroundColor: theme.success,
+    backgroundColor: theme.primary,
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.md,
-    borderRadius: BORDER_RADIUS.md,
-    shadowColor: theme.success,
+    borderRadius: BORDER_RADIUS.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.xs,
+    shadowColor: theme.primary,
     ...SHADOW.md,
     shadowOpacity: 0.2,
   },
   emptyStateButtonText: {
-    color: theme.buttonText,
-    fontSize: FONT_SIZES.md,
+    color: '#FFFFFF',
+    fontSize: FONT_SIZES.lg,
     fontWeight: FONT_WEIGHTS.semibold,
   },
 });
@@ -128,15 +137,10 @@ export default function CategoryList() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Categories</Text>
-        {categories.length > 0 && (
-          <Pressable style={styles.addButton} onPress={handleAddCategory}>
-            <Text style={styles.addButtonText}>+ Add Category</Text>
-          </Pressable>
-        )}
       </View>
-      
+
       {showCategoryForm ? (
-        <NewCategoryForm 
+        <NewCategoryForm
           onComplete={() => setShowCategoryForm(false)}
           onCancel={() => setShowCategoryForm(false)}
         />
@@ -149,17 +153,24 @@ export default function CategoryList() {
             No categories yet. Add your first category below.
           </Text>
           <Pressable style={styles.emptyStateButton} onPress={handleAddCategory}>
-            <Text style={styles.emptyStateButtonText}>+ Add Category</Text>
+            <Ionicons name="add" size={20} color="#FFFFFF" />
+            <Text style={styles.emptyStateButtonText}>Add Category</Text>
           </Pressable>
         </View>
       ) : (
-        <FlatList
-          data={categories}
-          keyExtractor={(item) => item._id || item.id || Math.random().toString()}
-          renderItem={renderCategory}
-          style={styles.list}
-          scrollEnabled={false}
-        />
+        <>
+          <FlatList
+            data={categories}
+            keyExtractor={(item) => item._id || item.id || Math.random().toString()}
+            renderItem={renderCategory}
+            style={styles.list}
+            scrollEnabled={false}
+          />
+          <Pressable style={styles.addButton} onPress={handleAddCategory}>
+            <Ionicons name="add" size={20} color="#FFFFFF" />
+            <Text style={styles.addButtonText}>Add Category</Text>
+          </Pressable>
+        </>
       )}
     </View>
   );

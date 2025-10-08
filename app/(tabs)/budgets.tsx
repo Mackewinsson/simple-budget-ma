@@ -31,6 +31,7 @@ function BudgetsScreenContent() {
   const isLoading = budgetLoading || categoriesLoading || expensesLoading;
   const hasError = budgetError || categoriesError || expensesError;
 
+  const styles = createStyles(theme);
 
   if (isLoading) {
     return (
@@ -67,7 +68,7 @@ function BudgetsScreenContent() {
           <Text style={styles.title}>Budgets</Text>
           {budget && (
             <View style={styles.budgetBadge}>
-              <Ionicons name="calendar-outline" size={16} color="rgba(255, 255, 255, 0.9)" />
+              <Ionicons name="calendar-outline" size={16} color={theme.onPrimaryMuted} />
               <Text style={styles.budgetPeriod}>
                 {budget.month && budget.year ? `${budget.month}/${budget.year}` : 'Monthly'}
               </Text>
@@ -96,7 +97,7 @@ export default function BudgetsScreen() {
   return <BudgetsScreenContent />;
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: any) => StyleSheet.create({
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
@@ -134,23 +135,23 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "bold",
-    color: '#FFFFFF',
+    color: theme.onPrimary,
     letterSpacing: 0.3,
   },
   budgetBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: theme.onPrimarySubtle,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
     gap: 6,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: theme.onPrimaryBorder,
   },
   budgetPeriod: {
     fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: theme.onPrimaryMuted,
     fontWeight: "500",
   },
   scrollContent: {

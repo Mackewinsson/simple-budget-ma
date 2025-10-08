@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, FlatList, StyleSheet, ScrollView, Pressable, Alert, TextInput, RefreshControl } from "react-native";
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useExpenses } from "../../src/api/hooks/useExpenses";
@@ -184,35 +185,28 @@ function TransactionsScreenContent() {
         iconName="refresh"
       />
       {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Text style={styles.title}>Transaction History</Text>
-          <Text style={styles.subtitle}>Track your daily income and expenses</Text>
+      <LinearGradient
+        colors={[theme.primary, theme.primaryDark || theme.primary]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.headerGradient}
+      >
+        <View style={styles.header}>
+          <View style={styles.headerContent}>
+            <Text style={styles.title}>Transactions</Text>
+            <Text style={styles.subtitle}>Manage your finances</Text>
+          </View>
+          <View style={styles.balanceCard}>
+            <Text style={styles.balanceLabel}>Available to Spend</Text>
+            <View style={styles.balanceRow}>
+              <Ionicons name="wallet-outline" size={24} color={theme.surface} />
+              <Text style={styles.balanceAmount}>
+                ${remaining.toFixed(2)}
+              </Text>
+            </View>
+          </View>
         </View>
-        <View style={styles.headerRight}>
-          <Text style={[
-            styles.availableAmount,
-            { color: remaining < 0 ? theme.error : theme.text }
-          ]}>
-            ${remaining.toFixed(2)}
-          </Text>
-          <Text style={styles.availableLabel}>Available to Spend</Text>
-        </View>
-      </View>
-
-      {/* Expand/Collapse Button */}
-      <View style={styles.expandButtonContainer}>
-        <Pressable
-          style={styles.expandButton}
-          onPress={() => setIsExpanded(!isExpanded)}
-        >
-          <Ionicons
-            name={isExpanded ? "chevron-up" : "chevron-down"}
-            size={16}
-            color={theme.text}
-          />
-        </Pressable>
-      </View>
+      </LinearGradient>
 
       {/* Tabs - Only show if categories exist and not loading */}
       {budget && !categoriesLoading && categories.length > 0 && (
@@ -378,56 +372,58 @@ const createStyles = (theme: any) => StyleSheet.create({
     fontSize: FONT_SIZES.lg,
     color: theme.textSecondary,
   },
+  headerGradient: {
+    paddingTop: 16,
+    paddingBottom: 24,
+    paddingHorizontal: 20,
+    marginHorizontal: -16,
+    marginTop: -16,
+    marginBottom: 24,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+  },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 20, // Increased margin for better spacing
-    paddingHorizontal: 16,
+    gap: 16,
   },
-  headerLeft: {
-    flex: 1,
-  },
-  headerRight: {
-    alignItems: "flex-end",
+  headerContent: {
+    gap: 4,
   },
   title: {
-    fontSize: FONT_SIZES.xxl,
+    fontSize: 28,
     fontWeight: FONT_WEIGHTS.bold,
-    color: theme.text,
-    marginBottom: 4,
+    color: '#FFFFFF',
+    letterSpacing: 0.3,
   },
   subtitle: {
     fontSize: FONT_SIZES.md,
-    color: theme.textSecondary,
+    color: 'rgba(255, 255, 255, 0.85)',
+    fontWeight: FONT_WEIGHTS.medium,
   },
-  availableAmount: {
-    fontSize: FONT_SIZES.xl,
-    fontWeight: FONT_WEIGHTS.bold,
-    marginBottom: 2,
-  },
-  availableLabel: {
-    fontSize: FONT_SIZES.xs,
-    color: theme.textSecondary,
-  },
-  expandButtonContainer: {
-    alignItems: "center",
-    marginBottom: 20, // Increased margin for better spacing
-  },
-  expandButton: {
-    width: 32,
-    height: 32,
+  balanceCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     borderRadius: 16,
-    backgroundColor: theme.background,
+    padding: 16,
+    gap: 8,
     borderWidth: 1,
-    borderColor: theme.border,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: theme.shadow,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: theme.shadowOpacity,
-    shadowRadius: 2,
-    elevation: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  balanceLabel: {
+    fontSize: FONT_SIZES.sm,
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontWeight: FONT_WEIGHTS.medium,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
+  balanceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  balanceAmount: {
+    fontSize: 32,
+    fontWeight: FONT_WEIGHTS.bold,
+    color: '#FFFFFF',
+    letterSpacing: -0.5,
   },
   tabContainer: {
     flexDirection: "row",

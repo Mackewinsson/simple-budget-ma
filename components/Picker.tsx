@@ -74,7 +74,10 @@ export default function CustomPicker({
       <Text style={styles.label}>{label}</Text>
       
       <Pressable
-        style={styles.pickerButton}
+        style={({ pressed }) => [
+          styles.pickerButton,
+          pressed && styles.pickerButtonPressed
+        ]}
         onPress={handleOpen}
       >
         <Text style={[
@@ -93,9 +96,12 @@ export default function CustomPicker({
         transparent={true}
         animationType="slide"
         onRequestClose={handleClose}
+        statusBarTranslucent={true}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
+            {/* Modal Handle */}
+            <View style={styles.modalHandle} />
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{label}</Text>
               <Pressable onPress={handleClose}>
@@ -173,6 +179,10 @@ const createStyles = (theme: any) => StyleSheet.create({
     minHeight: 48,
     height: 48, // Fixed height for consistency
   },
+  pickerButtonPressed: {
+    backgroundColor: theme.backgroundSecondary,
+    borderColor: theme.primary,
+  },
   pickerText: {
     fontSize: FONT_SIZES.lg,
     flex: 1,
@@ -187,7 +197,7 @@ const createStyles = (theme: any) => StyleSheet.create({
   // Modal styles
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0, 0, 0, 0.3)", // Reduced opacity for lighter overlay
     justifyContent: "flex-end",
   },
   modalContent: {
@@ -195,6 +205,20 @@ const createStyles = (theme: any) => StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 8, // Add elevation for Android
+  },
+  modalHandle: {
+    width: 40,
+    height: 4,
+    backgroundColor: theme.border,
+    borderRadius: 2,
+    alignSelf: "center",
+    marginTop: 8,
+    marginBottom: 8,
   },
   modalHeader: {
     flexDirection: "row",
@@ -203,6 +227,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     padding: 20,
     borderBottomWidth: 1,
     borderBottomColor: theme.border,
+    backgroundColor: theme.cardBackground,
   },
   modalTitle: {
     fontSize: FONT_SIZES.xl,
@@ -220,14 +245,19 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   modalActions: {
     flexDirection: "row",
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
     gap: 16,
     paddingHorizontal: 20,
     paddingBottom: Platform.OS === "ios" ? 30 : 20,
+    paddingTop: 16,
   },
   modalActionButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: "center",
+    backgroundColor: theme.surfaceSecondary,
   },
   modalActionText: {
     fontSize: FONT_SIZES.lg,

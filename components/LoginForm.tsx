@@ -3,6 +3,7 @@ import { View, Text, TextInput, Pressable, StyleSheet, Alert, ActivityIndicator 
 import { useAuthStore } from '../src/store/authStore';
 import { useSafeAreaStyles } from '../src/hooks/useSafeAreaStyles';
 import { useRouter } from 'expo-router';
+import { useTheme } from '../src/theme/ThemeContext';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('mackewinsson@gmail.com');
@@ -11,6 +12,8 @@ export default function LoginForm() {
   const { signIn, loading } = useAuthStore();
   const safeAreaStyles = useSafeAreaStyles();
   const router = useRouter();
+  const { theme } = useTheme();
+  const styles = createStyles(theme);
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -49,7 +52,7 @@ export default function LoginForm() {
             value={email}
             onChangeText={setEmail}
             placeholder="Enter your email"
-            placeholderTextColor="#666"
+            placeholderTextColor={theme.textMuted}
             autoCapitalize="none"
             autoCorrect={false}
             keyboardType="email-address"
@@ -64,7 +67,7 @@ export default function LoginForm() {
             value={password}
             onChangeText={setPassword}
             placeholder="Enter your password"
-            placeholderTextColor="#666"
+            placeholderTextColor={theme.textMuted}
             secureTextEntry
             autoCapitalize="none"
             autoCorrect={false}
@@ -78,7 +81,7 @@ export default function LoginForm() {
           disabled={isLoading || loading}
         >
           {(isLoading || loading) ? (
-            <ActivityIndicator color="#000" />
+            <ActivityIndicator color={theme.onPrimary} />
           ) : (
             <Text style={styles.buttonText}>Sign In</Text>
           )}
@@ -91,64 +94,64 @@ export default function LoginForm() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  form: {
-    width: '100%',
-    maxWidth: 400,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#888',
-    marginBottom: 40,
-    textAlign: 'center',
-  },
-  inputContainer: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    color: '#fff',
-    marginBottom: 8,
-    fontWeight: '500',
-  },
-  input: {
-    backgroundColor: '#1a1a1a',
-    borderWidth: 1,
-    borderColor: '#333',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: '#fff',
-  },
-  button: {
-    backgroundColor: '#4ade80',
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  buttonDisabled: {
-    backgroundColor: '#666',
-  },
-  buttonText: {
-    color: '#000',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  // Google styles removed
-});
-
+const createStyles = (theme: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 20,
+    },
+    form: {
+      width: '100%',
+      maxWidth: 400,
+      gap: 16,
+    },
+    title: {
+      fontSize: 32,
+      fontWeight: 'bold',
+      color: theme.text,
+      marginBottom: 8,
+      textAlign: 'center',
+    },
+    subtitle: {
+      fontSize: 16,
+      color: theme.textSecondary,
+      marginBottom: 16,
+      textAlign: 'center',
+    },
+    inputContainer: {
+      marginBottom: 4,
+    },
+    label: {
+      fontSize: 16,
+      color: theme.text,
+      marginBottom: 8,
+      fontWeight: '500',
+    },
+    input: {
+      backgroundColor: theme.surfaceSecondary,
+      borderWidth: 1,
+      borderColor: theme.border,
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+      fontSize: 16,
+      color: theme.text,
+    },
+    button: {
+      backgroundColor: theme.primary,
+      paddingVertical: 14,
+      borderRadius: 12,
+      alignItems: 'center',
+      marginTop: 24,
+    },
+    buttonDisabled: {
+      backgroundColor: theme.textMuted,
+    },
+    buttonText: {
+      color: theme.onPrimary,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+  });

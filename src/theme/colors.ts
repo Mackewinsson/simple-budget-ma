@@ -1,13 +1,15 @@
 export const lightTheme = {
   // Background colors
   background: '#f8fafc',
+  backgroundSecondary: '#f1f5f9',
   surface: '#ffffff',
   surfaceSecondary: '#f1f5f9',
 
   // Text colors
   text: '#0f172a',
-  textSecondary: '#64748b',
-  textMuted: '#94a3b8',
+  textSecondary: '#475569',
+  textMuted: '#64748b',
+  textTertiary: '#94a3b8',
 
   // Border colors
   border: '#e2e8f0',
@@ -56,18 +58,20 @@ export const lightTheme = {
 
 export const darkTheme = {
   // Background colors
-  background: '#0f172a',
-  surface: '#1e293b',
-  surfaceSecondary: '#334155',
+  background: '#0b1120',
+  backgroundSecondary: '#111a2e',
+  surface: '#131c34',
+  surfaceSecondary: '#1d2845',
 
   // Text colors
-  text: '#f8fafc',
-  textSecondary: '#cbd5e1',
-  textMuted: '#94a3b8',
+  text: '#e2e8f0',
+  textSecondary: '#b8c1d6',
+  textMuted: '#7c8cab',
+  textTertiary: '#506089',
 
   // Border colors
-  border: '#334155',
-  borderLight: '#475569',
+  border: '#1f2a44',
+  borderLight: '#25324d',
 
   // Primary colors (Indigo - used for main brand/accent)
   primary: '#818cf8',
@@ -96,18 +100,18 @@ export const darkTheme = {
   warningLight: '#fcd34d',
 
   // Tab bar
-  tabBarBackground: '#1e293b',
-  tabBarBorder: '#334155',
+  tabBarBackground: '#0b1120',
+  tabBarBorder: '#1f2a44',
   tabBarActive: '#818cf8',
-  tabBarInactive: '#94a3b8',
+  tabBarInactive: '#7c8cab',
 
   // Card colors
-  cardBackground: '#1e293b',
-  cardBorder: '#334155',
+  cardBackground: '#131c34',
+  cardBorder: '#1f2a44',
 
   // Shadow
   shadow: '#000000',
-  shadowOpacity: 0.3,
+  shadowOpacity: 0.35,
 };
 
 export type Theme = typeof lightTheme;

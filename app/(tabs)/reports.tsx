@@ -96,7 +96,7 @@ function ReportsScreenContent() {
   }).sort((a, b) => b.spent - a.spent);
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: theme.background }}>
       <LinearGradient
         colors={[theme.primary, theme.primaryDark || theme.primary]}
         start={{ x: 0, y: 0 }}
@@ -112,7 +112,10 @@ function ReportsScreenContent() {
         </View>
       </LinearGradient>
 
-      <ScrollView style={styles.scrollContent}>
+      <ScrollView
+        style={styles.scrollContent}
+        contentContainerStyle={{ paddingBottom: 32 }}
+      >
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Budget Overview</Text>
@@ -286,6 +289,7 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 16,
+    backgroundColor: theme.background,
   },
   section: {
     marginBottom: 24,

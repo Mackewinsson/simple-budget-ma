@@ -90,7 +90,7 @@ function SettingsScreenContent() {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: theme.background }}>
       <LinearGradient
         colors={[theme.primary, theme.primaryDark || theme.primary]}
         start={{ x: 0, y: 0 }}
@@ -105,7 +105,10 @@ function SettingsScreenContent() {
         </View>
       </LinearGradient>
 
-      <ScrollView style={styles.scrollContent}>
+      <ScrollView
+        style={styles.scrollContent}
+        contentContainerStyle={{ paddingBottom: 32 }}
+      >
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Account</Text>
@@ -162,17 +165,17 @@ function SettingsScreenContent() {
         </View>
 
         <View style={styles.settingItem}>
-          <View style={styles.settingLeft}>
-            <Ionicons name="notifications-outline" size={20} color={theme.textMuted} />
-            <Text style={styles.settingLabel}>Notifications</Text>
-          </View>
-          <Switch
-            value={notificationsEnabled}
-            onValueChange={setNotificationsEnabled}
-            trackColor={{ false: "#334155", true: "#3b82f6" }}
-            thumbColor="#fff"
-          />
+        <View style={styles.settingLeft}>
+          <Ionicons name="notifications-outline" size={20} color={theme.textMuted} />
+          <Text style={styles.settingLabel}>Notifications</Text>
         </View>
+        <Switch
+          value={notificationsEnabled}
+          onValueChange={setNotificationsEnabled}
+          trackColor={{ false: theme.border, true: theme.primary }}
+          thumbColor={theme.onPrimary}
+        />
+      </View>
 
         <View style={styles.settingItem}>
           <View style={styles.settingLeft}>
@@ -283,6 +286,7 @@ function createStyles(theme: any) {
     },
     scrollContent: {
       paddingHorizontal: 16,
+      backgroundColor: theme.background,
     },
     section: {
       marginBottom: 24,

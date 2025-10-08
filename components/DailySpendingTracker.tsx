@@ -48,6 +48,7 @@ export default function DailySpendingTracker({ budget, categories, expenses }: D
   }, 0);
 
   const remaining = budget?.totalAvailable || 0;
+  const totalBudgeted = budget?.totalBudgeted || 0;
 
   const styles = createStyles(theme);
 
@@ -59,10 +60,12 @@ export default function DailySpendingTracker({ budget, categories, expenses }: D
           <Text style={styles.subtitle}>Track your daily expenses</Text>
         </View>
         <View style={styles.amountContainer}>
-          <Text style={[
-            styles.remainingAmount,
-            { color: remaining < 0 ? "#ef4444" : "#4ade80" }
-          ]}>
+          <Text
+            style={[
+              styles.remainingAmount,
+              { color: remaining < 0 ? theme.error : theme.success }
+            ]}
+          >
             ${remaining.toFixed(2)}
           </Text>
           <Text style={styles.remainingLabel}>Available to Spend</Text>
@@ -88,7 +91,7 @@ export default function DailySpendingTracker({ budget, categories, expenses }: D
             
             <View style={styles.summaryCard}>
               <Text style={styles.summaryLabel}>Total Spent</Text>
-              <Text style={[styles.summaryValue, { color: "#ef4444" }]}>
+              <Text style={[styles.summaryValue, { color: theme.error }]}>
                 ${totalSpent.toFixed(2)}
               </Text>
             </View>
@@ -116,19 +119,21 @@ export default function DailySpendingTracker({ budget, categories, expenses }: D
                   <View style={styles.progressBar}>
                     <View 
                       style={[
-                        styles.progressFill, 
-                        { 
+                        styles.progressFill,
+                        {
                           width: `${Math.min(percentage, 100)}%`,
-                          backgroundColor: percentage > 100 ? "#ef4444" : "#4ade80"
+                          backgroundColor: percentage > 100 ? theme.error : theme.success
                         }
-                      ]} 
+                      ]}
                     />
                   </View>
                   
-                  <Text style={[
-                    styles.categoryRemaining,
-                    { color: categoryRemaining >= 0 ? "#4ade80" : "#ef4444" }
-                  ]}>
+                  <Text
+                    style={[
+                      styles.categoryRemaining,
+                      { color: categoryRemaining >= 0 ? theme.success : theme.error }
+                    ]}
+                  >
                     ${categoryRemaining.toFixed(2)} remaining
                   </Text>
                 </View>

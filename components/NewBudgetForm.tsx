@@ -163,7 +163,11 @@ export default function NewBudgetForm() {
           style={[styles.tab, activeTab === 'ai' && styles.activeTab]}
           onPress={() => setActiveTab('ai')}
         >
-          <Ionicons name="sparkles" size={16} color={activeTab === 'ai' ? theme.success : theme.textSecondary} />
+          <Ionicons
+            name="sparkles"
+            size={16}
+            color={activeTab === 'ai' ? theme.onPrimary : theme.textSecondary}
+          />
           <Text style={[styles.tabText, activeTab === 'ai' && styles.activeTabText]}>
             AI Assistant
           </Text>
@@ -368,7 +372,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     gap: 6,
   },
   activeTab: {
-    backgroundColor: "#4ade80",
+    backgroundColor: theme.primary,
   },
   tabText: {
     fontSize: 14,
@@ -376,7 +380,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     color: theme.textSecondary,
   },
   activeTabText: {
-    color: theme.surface,
+    color: theme.onPrimary,
   },
   tabContent: {
     // Content styles

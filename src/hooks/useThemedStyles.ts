@@ -76,18 +76,18 @@ export const useThemedStyles = () => {
       elevation: 3,
     },
     primaryButtonText: {
-      color: '#ffffff',
+      color: theme.onPrimary,
       fontSize: 16,
       fontWeight: '600',
     },
     successButton: {
-      backgroundColor: theme.primary,
+      backgroundColor: theme.success,
       paddingHorizontal: 12,
       paddingVertical: 8,
       borderRadius: 8,
     },
     successButtonText: {
-      color: '#ffffff',
+      color: theme.onPrimary,
       fontSize: 14,
       fontWeight: '600',
     },

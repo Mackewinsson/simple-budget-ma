@@ -176,7 +176,7 @@ function TransactionsScreenContent() {
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: theme.background }}>
       {/* Loading Overlay for Pull-to-Refresh */}
       <BeautifulLoadingOverlay
         visible={isRefreshing}
@@ -424,12 +424,14 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   tabContainer: {
     flexDirection: "row",
-    backgroundColor: "#f5f5f5", // Light gray background
-    borderRadius: 8,
+    backgroundColor: theme.backgroundSecondary,
+    borderRadius: 10,
     padding: 4,
     marginHorizontal: 16,
     marginBottom: 16,
-    gap: 2, // Add gap between tabs
+    gap: 4,
+    borderWidth: 1,
+    borderColor: theme.border,
   },
   tab: {
     flex: 1,
@@ -441,11 +443,11 @@ const createStyles = (theme: any) => StyleSheet.create({
     minHeight: 44, // Ensure minimum touch target
   },
   activeTab: {
-    backgroundColor: "#ffffff", // White background for selected tab
-    shadowColor: "#000",
+    backgroundColor: theme.surface,
+    shadowColor: theme.shadow,
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    shadowOpacity: theme.shadowOpacity,
+    shadowRadius: 4,
     elevation: 2,
   },
   tabText: {
@@ -465,10 +467,12 @@ const createStyles = (theme: any) => StyleSheet.create({
   tabContent: {
     paddingHorizontal: 16,
     flex: 1, // Ensure tab content takes available space
+    backgroundColor: theme.background,
   },
   historyContainer: {
     flex: 1,
     overflow: "hidden",
+    backgroundColor: theme.background,
   },
   searchContainer: {
     marginBottom: 20, // Increased margin for better spacing
@@ -521,6 +525,7 @@ const createStyles = (theme: any) => StyleSheet.create({
   transactionList: {
     flex: 1,
     minHeight: 200,
+    backgroundColor: theme.background,
   },
   expenseCard: {
     flexDirection: "row",

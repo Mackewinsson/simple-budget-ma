@@ -57,7 +57,7 @@ function BudgetsScreenContent() {
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: theme.background }}>
       <LinearGradient
         colors={[theme.primary, theme.primaryDark || theme.primary]}
         start={{ x: 0, y: 0 }}
@@ -77,7 +77,10 @@ function BudgetsScreenContent() {
         </View>
       </LinearGradient>
 
-      <ScrollView style={styles.scrollContent}>
+      <ScrollView
+        style={styles.scrollContent}
+        contentContainerStyle={{ paddingBottom: 32 }}
+      >
         {budget && (
           <>
             <BudgetSetupSection
@@ -156,6 +159,7 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 16,
+    backgroundColor: theme.background,
   },
   budgetCard: {
     backgroundColor: theme.cardBackground,

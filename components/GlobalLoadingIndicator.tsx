@@ -13,6 +13,7 @@ export default function GlobalLoadingIndicator({
   showMutations = true,
   position = 'top-right' // Keep for backward compatibility but not used
 }: GlobalLoadingIndicatorProps) {
+  // Detect all fetching states including manual refetches
   const isFetching = useIsFetching();
   const isMutating = useIsMutating();
   

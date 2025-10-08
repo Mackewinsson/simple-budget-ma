@@ -196,7 +196,7 @@ export default function NewExpenseForm() {
       </View>
 
       {/* Description Field */}
-      <View style={styles.field}>
+      <View style={styles.descriptionField}>
         <Text style={styles.label}>Description</Text>
         <Controller
           control={control}
@@ -340,17 +340,21 @@ const createStyles = (theme: any) => StyleSheet.create({
   grid: {
     flexDirection: "row",
     gap: 12,
-    marginBottom: 16,
+    marginBottom: 20, // Increased margin for better spacing
   },
   field: {
     flex: 1,
-    marginBottom: 16,
+    marginBottom: 20, // Increased margin to prevent overlap
+  },
+  descriptionField: {
+    marginBottom: 24, // Extra margin for description field to prevent overlap
   },
   label: {
     fontSize: FONT_SIZES.md,
     color: theme.text,
     marginBottom: 8,
     fontWeight: FONT_WEIGHTS.medium,
+    lineHeight: 20, // Consistent line height
   },
   input: {
     backgroundColor: theme.surfaceSecondary,
@@ -361,12 +365,14 @@ const createStyles = (theme: any) => StyleSheet.create({
     borderWidth: 1,
     borderColor: theme.border,
     minHeight: 48,
-    height: 48,
+    height: 48, // Fixed height for consistency
+    lineHeight: 24, // Consistent line height for text
   },
   error: {
     color: theme.error,
     fontSize: FONT_SIZES.xs,
     marginTop: 4,
+    lineHeight: 16, // Consistent line height for error text
   },
   button: {
     backgroundColor: theme.primary,
@@ -399,11 +405,12 @@ const createStyles = (theme: any) => StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     minHeight: 48,
-    height: 48,
+    height: 48, // Fixed height for consistency
   },
   selectText: {
     fontSize: FONT_SIZES.lg,
     color: theme.text,
+    lineHeight: 24, // Consistent line height for text
   },
   modalOverlay: {
     flex: 1,

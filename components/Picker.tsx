@@ -152,13 +152,14 @@ export default function CustomPicker({
 
 const createStyles = (theme: any) => StyleSheet.create({
   container: {
-    marginBottom: 16,
+    marginBottom: 0, // Remove margin to prevent conflicts with parent field margins
   },
   label: {
     fontSize: FONT_SIZES.md,
     color: theme.text,
     marginBottom: 8,
     fontWeight: FONT_WEIGHTS.medium,
+    lineHeight: 20, // Consistent line height
   },
   pickerButton: {
     backgroundColor: theme.surfaceSecondary,
@@ -170,16 +171,18 @@ const createStyles = (theme: any) => StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     minHeight: 48,
-    height: 48,
+    height: 48, // Fixed height for consistency
   },
   pickerText: {
     fontSize: FONT_SIZES.lg,
     flex: 1,
+    lineHeight: 24, // Consistent line height for text
   },
   error: {
     color: theme.error,
     fontSize: FONT_SIZES.xs,
     marginTop: 4,
+    lineHeight: 16, // Consistent line height for error text
   },
   // Modal styles
   modalOverlay: {

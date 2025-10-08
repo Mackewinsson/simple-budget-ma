@@ -30,7 +30,7 @@ function TransactionsScreenContent() {
   const [searchTerm, setSearchTerm] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [refreshing, setRefreshing] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Redirect to budget creation if no budget exists
   useEffect(() => {
@@ -101,9 +101,9 @@ function TransactionsScreenContent() {
   };
 
   const onRefresh = async () => {
-    setRefreshing(true);
+    setIsRefreshing(true);
     try {
-      // Refetch all data
+      // Refetch all data - this will trigger the global loading indicator
       await Promise.all([
         refetchBudget(),
         refetchCategories(),
@@ -112,7 +112,7 @@ function TransactionsScreenContent() {
     } catch (error) {
       console.error('Error refreshing data:', error);
     } finally {
-      setRefreshing(false);
+      setIsRefreshing(false);
     }
   };
 
@@ -176,9 +176,9 @@ function TransactionsScreenContent() {
 
   return (
     <View style={safeAreaStyles.container}>
-      {/* Custom Loading Overlay */}
+      {/* Loading Overlay for Pull-to-Refresh */}
       <BeautifulLoadingOverlay
-        visible={refreshing}
+        visible={isRefreshing}
         title="Refreshing..."
         subtitle="Getting latest data"
         iconName="refresh"
@@ -281,10 +281,7 @@ function TransactionsScreenContent() {
             )}
 
             {activeTab === 'history' && (
-          <View style={[
-            styles.historyContainer,
-            { height: isExpanded ? 500 : 300 }
-          ]}>
+          <View style={styles.historyContainer}>
             {/* Search and Filters */}
             <View style={styles.searchContainer}>
               <View style={styles.searchInputContainer}>
@@ -328,7 +325,7 @@ function TransactionsScreenContent() {
               showsVerticalScrollIndicator={false}
               refreshControl={
                 <RefreshControl
-                  refreshing={refreshing}
+                  refreshing={isRefreshing}
                   onRefresh={onRefresh}
                   tintColor="transparent"
                   colors={['transparent']}
@@ -338,6 +335,7 @@ function TransactionsScreenContent() {
                   progressViewOffset={0}
                 />
               }
+              contentContainerStyle={{ flexGrow: 1 }}
             >
               {filteredExpenses.length === 0 ? (
                 <View style={styles.emptyState}>
@@ -384,7 +382,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 16,
+    marginBottom: 20, // Increased margin for better spacing
     paddingHorizontal: 16,
   },
   headerLeft: {
@@ -414,7 +412,7 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   expandButtonContainer: {
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 20, // Increased margin for better spacing
   },
   expandButton: {
     width: 32,
@@ -438,14 +436,16 @@ const createStyles = (theme: any) => StyleSheet.create({
     padding: 4,
     marginHorizontal: 16,
     marginBottom: 16,
+    gap: 2, // Add gap between tabs
   },
   tab: {
     flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: 14, // Increased padding
+    paddingHorizontal: 12, // Reduced horizontal padding to fit better
     borderRadius: 6,
     alignItems: "center",
     justifyContent: "center",
+    minHeight: 44, // Ensure minimum touch target
   },
   activeTab: {
     backgroundColor: "#ffffff", // White background for selected tab
@@ -456,23 +456,29 @@ const createStyles = (theme: any) => StyleSheet.create({
     elevation: 2,
   },
   tabText: {
-    fontSize: FONT_SIZES.xs,
+    fontSize: FONT_SIZES.sm, // Increased from xs to sm
     fontWeight: FONT_WEIGHTS.medium,
     color: "#666666", // Gray text for unselected tabs
+    textAlign: "center",
+    lineHeight: 16, // Add line height for better text rendering
   },
   activeTabText: {
     color: "#000000", // Black text for selected tab
     fontWeight: FONT_WEIGHTS.semibold,
-    fontSize: FONT_SIZES.xs, // Keep same font size
+    fontSize: FONT_SIZES.sm, // Increased from xs to sm
+    textAlign: "center",
+    lineHeight: 16,
   },
   tabContent: {
     paddingHorizontal: 16,
+    flex: 1, // Ensure tab content takes available space
   },
   historyContainer: {
+    flex: 1,
     overflow: "hidden",
   },
   searchContainer: {
-    marginBottom: 16,
+    marginBottom: 20, // Increased margin for better spacing
   },
   searchInputContainer: {
     flexDirection: "row",
@@ -480,7 +486,8 @@ const createStyles = (theme: any) => StyleSheet.create({
     backgroundColor: theme.surfaceSecondary,
     borderRadius: 8,
     paddingHorizontal: 12,
-    marginBottom: 12,
+    marginBottom: 16, // Increased margin
+    minHeight: 48, // Ensure consistent height
   },
   searchIcon: {
     marginRight: 8,
@@ -490,18 +497,21 @@ const createStyles = (theme: any) => StyleSheet.create({
     paddingVertical: 12,
     fontSize: FONT_SIZES.lg,
     color: theme.text,
+    minHeight: 24, // Ensure text doesn't get cut off
   },
   dateFilterContainer: {
     flexDirection: "row",
-    gap: 12,
+    gap: 16, // Increased gap between date inputs
+    marginTop: 8, // Add top margin for better separation
   },
   dateInputContainer: {
     flex: 1,
+    minWidth: 120, // Ensure minimum width to prevent overlap
   },
   dateLabel: {
-    fontSize: FONT_SIZES.xs,
+    fontSize: FONT_SIZES.sm, // Increased from xs to sm for better readability
     color: theme.text,
-    marginBottom: 4,
+    marginBottom: 6, // Increased margin
     fontWeight: FONT_WEIGHTS.medium,
   },
   dateInput: {
@@ -513,9 +523,11 @@ const createStyles = (theme: any) => StyleSheet.create({
     color: theme.text,
     borderWidth: 1,
     borderColor: theme.border,
+    minHeight: 48, // Ensure consistent height with search input
   },
   transactionList: {
     flex: 1,
+    minHeight: 200,
   },
   expenseCard: {
     flexDirection: "row",
@@ -524,9 +536,10 @@ const createStyles = (theme: any) => StyleSheet.create({
     backgroundColor: theme.cardBackground,
     padding: 16,
     borderRadius: 8,
-    marginBottom: 8,
+    marginBottom: 12, // Increased margin for better separation
     borderWidth: 1,
     borderColor: theme.cardBorder,
+    minHeight: 72, // Ensure consistent card height
   },
   expenseLeft: {
     flex: 1,
@@ -547,7 +560,8 @@ const createStyles = (theme: any) => StyleSheet.create({
   expenseRight: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 12, // Increased gap for better spacing
+    minWidth: 100, // Ensure minimum width for amount and action buttons
   },
   amountContainer: {
     flexDirection: "row",

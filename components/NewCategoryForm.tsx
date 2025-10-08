@@ -6,6 +6,8 @@ import { z } from "zod";
 import { useCreateCategory } from "../src/api/hooks/useCategories";
 import { useAuthStore } from "../src/store/authStore";
 import { useBudget } from "../src/api/hooks/useBudgets";
+import { useTheme } from "../src/theme/ThemeContext";
+import { SPACING, BORDER_RADIUS, FONT_SIZES, FONT_WEIGHTS } from "../src/theme/layout";
 
 const categorySchema = z.object({
   name: z.string().min(1, "Category name is required"),
@@ -23,6 +25,9 @@ export default function NewCategoryForm({ onComplete, onCancel }: NewCategoryFor
   const { session } = useAuthStore();
   const { data: budget } = useBudget(session?.user?.id || "");
   const createCategory = useCreateCategory();
+  const { theme } = useTheme();
+
+  const styles = createStyles(theme);
 
   const {
     control,
@@ -81,6 +86,7 @@ export default function NewCategoryForm({ onComplete, onCancel }: NewCategoryFor
               onChangeText={onChange}
               value={value}
               placeholder="Enter category name"
+              placeholderTextColor={theme.textMuted}
             />
           )}
         />
@@ -101,6 +107,7 @@ export default function NewCategoryForm({ onComplete, onCancel }: NewCategoryFor
               onChangeText={(text) => onChange(parseFloat(text) || 0)}
               value={value.toString()}
               placeholder="0.00"
+              placeholderTextColor={theme.textMuted}
               keyboardType="numeric"
             />
           )}
@@ -131,68 +138,88 @@ export default function NewCategoryForm({ onComplete, onCancel }: NewCategoryFor
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: any) => StyleSheet.create({
   container: {
-    padding: 16,
-    backgroundColor: "#111",
-    borderRadius: 8,
-    marginBottom: 16,
+    padding: SPACING.lg,
+    backgroundColor: theme.cardBackground,
+    borderRadius: BORDER_RADIUS.lg,
+    marginBottom: SPACING.lg,
+    borderWidth: 1,
+    borderColor: theme.cardBorder,
+    shadowColor: theme.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: theme.shadowOpacity,
+    shadowRadius: 4,
+    elevation: 2,
   },
   title: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#fff",
-    marginBottom: 16,
+    fontSize: FONT_SIZES.xl,
+    fontWeight: FONT_WEIGHTS.semibold,
+    color: theme.text,
+    marginBottom: SPACING.lg,
   },
   field: {
-    marginBottom: 16,
+    marginBottom: SPACING.lg,
   },
   label: {
-    fontSize: 14,
-    color: "#fff",
-    marginBottom: 8,
+    fontSize: FONT_SIZES.md,
+    color: theme.text,
+    marginBottom: SPACING.sm,
+    fontWeight: FONT_WEIGHTS.medium,
   },
   input: {
-    backgroundColor: "#333",
-    color: "#fff",
-    padding: 12,
-    borderRadius: 8,
-    fontSize: 16,
+    backgroundColor: theme.surfaceSecondary,
+    color: theme.text,
+    padding: SPACING.md,
+    borderRadius: BORDER_RADIUS.md,
+    fontSize: FONT_SIZES.lg,
+    borderWidth: 1,
+    borderColor: theme.border,
   },
   error: {
-    color: "#ef4444",
-    fontSize: 12,
-    marginTop: 4,
+    color: theme.error,
+    fontSize: FONT_SIZES.sm,
+    marginTop: SPACING.xs,
   },
   buttonRow: {
     flexDirection: "row",
-    gap: 12,
+    gap: SPACING.md,
+    marginTop: SPACING.sm,
   },
   button: {
-    backgroundColor: "#4ade80",
-    padding: 12,
-    borderRadius: 8,
+    backgroundColor: theme.primary,
+    padding: SPACING.md,
+    borderRadius: BORDER_RADIUS.md,
     alignItems: "center",
+    justifyContent: "center",
     flex: 1,
+    shadowColor: theme.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   buttonDisabled: {
-    backgroundColor: "#666",
+    backgroundColor: theme.textMuted,
   },
   buttonText: {
-    color: "#000",
-    fontSize: 16,
-    fontWeight: "600",
+    color: theme.onPrimary,
+    fontSize: FONT_SIZES.lg,
+    fontWeight: FONT_WEIGHTS.semibold,
   },
   cancelButton: {
-    backgroundColor: "#666",
-    padding: 12,
-    borderRadius: 8,
+    backgroundColor: theme.surfaceSecondary,
+    padding: SPACING.md,
+    borderRadius: BORDER_RADIUS.md,
     alignItems: "center",
+    justifyContent: "center",
     flex: 1,
+    borderWidth: 1,
+    borderColor: theme.border,
   },
   cancelButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
+    color: theme.text,
+    fontSize: FONT_SIZES.lg,
+    fontWeight: FONT_WEIGHTS.semibold,
   },
 });

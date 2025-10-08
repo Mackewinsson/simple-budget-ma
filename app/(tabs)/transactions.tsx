@@ -3,12 +3,12 @@ import { View, Text, FlatList, StyleSheet, ScrollView, Pressable, Alert, TextInp
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useExpenses } from "../../src/api/hooks/useExpenses";
 import { useBudget } from "../../src/api/hooks/useBudgets";
 import { useCategoriesByBudget } from "../../src/api/hooks/useCategories";
 import { useAuthStore } from "../../src/store/authStore";
 import { useDeleteExpense } from "../../src/api/hooks/useExpenses";
-import { useSafeAreaStyles } from "../../src/hooks/useSafeAreaStyles";
 import { useTheme } from "../../src/theme/ThemeContext";
 import { FONT_SIZES, FONT_WEIGHTS } from "../../src/theme/layout";
 import NewExpenseForm from "../../components/NewExpenseForm";
@@ -22,7 +22,7 @@ function TransactionsScreenContent() {
   const { data: categories = [], isLoading: categoriesLoading, refetch: refetchCategories } = useCategoriesByBudget(budget?._id || "");
   const { data: expenses = [], isLoading: expensesLoading, refetch: refetchExpenses } = useExpenses(session?.user?.id || "");
   const deleteExpense = useDeleteExpense();
-  const safeAreaStyles = useSafeAreaStyles();
+  const insets = useSafeAreaInsets();
   const { theme } = useTheme();
 
   const isLoading = budgetLoading || categoriesLoading || expensesLoading;
@@ -167,7 +167,7 @@ function TransactionsScreenContent() {
 
   if (isLoading) {
     return (
-      <View style={safeAreaStyles.container}>
+      <View style={{ flex: 1, backgroundColor: theme.background, paddingTop: insets.top }}>
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>Loading transactions...</Text>
         </View>
@@ -176,7 +176,7 @@ function TransactionsScreenContent() {
   }
 
   return (
-    <View style={safeAreaStyles.container}>
+    <View style={{ flex: 1 }}>
       {/* Loading Overlay for Pull-to-Refresh */}
       <BeautifulLoadingOverlay
         visible={isRefreshing}
@@ -189,7 +189,7 @@ function TransactionsScreenContent() {
         colors={[theme.primary, theme.primaryDark || theme.primary]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={styles.headerGradient}
+        style={[styles.headerGradient, { paddingTop: insets.top + 16 }]}
       >
         <View style={styles.header}>
           <View style={styles.headerContent}>
@@ -373,11 +373,8 @@ const createStyles = (theme: any) => StyleSheet.create({
     color: theme.textSecondary,
   },
   headerGradient: {
-    paddingTop: 16,
     paddingBottom: 24,
     paddingHorizontal: 20,
-    marginHorizontal: -16,
-    marginTop: -16,
     marginBottom: 24,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,

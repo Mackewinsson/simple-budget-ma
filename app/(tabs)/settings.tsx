@@ -111,14 +111,14 @@ function SettingsScreenContent() {
         <Text style={styles.sectionTitle}>Account</Text>
         <View style={styles.settingItem}>
           <View style={styles.settingLeft}>
-            <Ionicons name="person-outline" size={20} color="#94a3b8" />
+            <Ionicons name="person-outline" size={20} color={theme.textMuted} />
             <Text style={styles.settingLabel}>Name</Text>
           </View>
           <Text style={styles.settingValue}>{session?.user?.name || "Loading..."}</Text>
         </View>
         <View style={styles.settingItem}>
           <View style={styles.settingLeft}>
-            <Ionicons name="mail-outline" size={20} color="#94a3b8" />
+            <Ionicons name="mail-outline" size={20} color={theme.textMuted} />
             <Text style={styles.settingLabel}>Email</Text>
           </View>
           <Text style={styles.settingValue}>{session?.user?.email || "Loading..."}</Text>
@@ -130,7 +130,7 @@ function SettingsScreenContent() {
 
         <View style={styles.settingItem}>
           <View style={styles.settingLeft}>
-            <Ionicons name="cash-outline" size={20} color="#94a3b8" />
+            <Ionicons name="cash-outline" size={20} color={theme.textMuted} />
             <Text style={styles.settingLabel}>Currency</Text>
           </View>
           <View style={styles.currencyContainer}>
@@ -163,7 +163,7 @@ function SettingsScreenContent() {
 
         <View style={styles.settingItem}>
           <View style={styles.settingLeft}>
-            <Ionicons name="notifications-outline" size={20} color="#94a3b8" />
+            <Ionicons name="notifications-outline" size={20} color={theme.textMuted} />
             <Text style={styles.settingLabel}>Notifications</Text>
           </View>
           <Switch
@@ -184,19 +184,19 @@ function SettingsScreenContent() {
               style={[styles.themeButton, themeMode === "light" && styles.themeButtonActive]}
               onPress={() => setThemeMode("light")}
             >
-              <Ionicons name="sunny-outline" size={16} color={themeMode === "light" ? "#fff" : theme.textSecondary} />
+              <Ionicons name="sunny-outline" size={16} color={themeMode === "light" ? theme.onPrimary : theme.textSecondary} />
             </Pressable>
             <Pressable
               style={[styles.themeButton, themeMode === "system" && styles.themeButtonActive]}
               onPress={() => setThemeMode("system")}
             >
-              <Ionicons name="phone-portrait-outline" size={16} color={themeMode === "system" ? "#fff" : theme.textSecondary} />
+              <Ionicons name="phone-portrait-outline" size={16} color={themeMode === "system" ? theme.onPrimary : theme.textSecondary} />
             </Pressable>
             <Pressable
               style={[styles.themeButton, themeMode === "dark" && styles.themeButtonActive]}
               onPress={() => setThemeMode("dark")}
             >
-              <Ionicons name="moon-outline" size={16} color={themeMode === "dark" ? "#fff" : theme.textSecondary} />
+              <Ionicons name="moon-outline" size={16} color={themeMode === "dark" ? theme.onPrimary : theme.textSecondary} />
             </Pressable>
           </View>
         </View>
@@ -206,12 +206,12 @@ function SettingsScreenContent() {
         <Text style={styles.sectionTitle}>Data Management</Text>
 
         <Pressable style={styles.actionButton} onPress={handleExportData}>
-          <Ionicons name="download-outline" size={20} color="#fff" />
+          <Ionicons name="download-outline" size={20} color={theme.onPrimary} />
           <Text style={styles.actionButtonText}>Export Data</Text>
         </Pressable>
 
         <Pressable style={[styles.actionButton, styles.dangerButton]} onPress={handleClearData}>
-          <Ionicons name="trash-outline" size={20} color="#fff" />
+          <Ionicons name="trash-outline" size={20} color={theme.onPrimary} />
           <Text style={styles.actionButtonText}>Clear All Data</Text>
         </Pressable>
       </View>
@@ -221,15 +221,15 @@ function SettingsScreenContent() {
 
         <Pressable style={styles.aboutButton} onPress={handleAbout}>
           <View style={styles.aboutLeft}>
-            <Ionicons name="information-circle-outline" size={20} color="#94a3b8" />
+            <Ionicons name="information-circle-outline" size={20} color={theme.textMuted} />
             <Text style={styles.aboutButtonText}>About Simple Budget Mobile</Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color="#64748b" />
+          <Ionicons name="chevron-forward" size={20} color={theme.textSecondary} />
         </Pressable>
 
         <View style={styles.settingItem}>
           <View style={styles.settingLeft}>
-            <Ionicons name="code-outline" size={20} color="#94a3b8" />
+            <Ionicons name="code-outline" size={20} color={theme.textMuted} />
             <Text style={styles.settingLabel}>Version</Text>
           </View>
           <Text style={styles.settingValue}>1.0.0</Text>
@@ -238,7 +238,7 @@ function SettingsScreenContent() {
 
         <View style={styles.section}>
           <Pressable style={styles.signOutButton} onPress={handleSignOut}>
-            <Ionicons name="log-out-outline" size={20} color="#fff" />
+            <Ionicons name="log-out-outline" size={20} color={theme.onPrimary} />
             <Text style={styles.signOutButtonText}>Sign Out</Text>
           </Pressable>
         </View>
@@ -345,7 +345,7 @@ function createStyles(theme: any) {
       fontWeight: "600",
     },
     currencyButtonTextActive: {
-      color: "#fff",
+      color: theme.onPrimary,
     },
     actionButton: {
       flexDirection: "row",
@@ -367,7 +367,7 @@ function createStyles(theme: any) {
       shadowColor: theme.error,
     },
     actionButtonText: {
-      color: "#fff",
+      color: theme.onPrimary,
       fontSize: 16,
       fontWeight: "600",
     },
@@ -412,7 +412,7 @@ function createStyles(theme: any) {
       elevation: 3,
     },
     signOutButtonText: {
-      color: "#fff",
+      color: theme.onPrimary,
       fontSize: 16,
       fontWeight: "600",
     },

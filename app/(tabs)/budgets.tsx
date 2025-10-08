@@ -37,7 +37,7 @@ function BudgetsScreenContent() {
     return (
       <View style={{ flex: 1, backgroundColor: theme.background, paddingTop: insets.top }}>
         <View style={styles.loadingContainer}>
-          <Ionicons name="wallet-outline" size={48} color="#475569" />
+          <Ionicons name="wallet-outline" size={48} color={theme.textSecondary} />
           <Text style={styles.loadingText}>Loading your budget...</Text>
         </View>
       </View>
@@ -48,7 +48,7 @@ function BudgetsScreenContent() {
     return (
       <View style={{ flex: 1, backgroundColor: theme.background, paddingTop: insets.top }}>
         <View style={styles.loadingContainer}>
-          <Ionicons name="alert-circle-outline" size={48} color="#ef4444" />
+          <Ionicons name="alert-circle-outline" size={48} color={theme.error} />
           <Text style={styles.errorTitle}>Error loading data</Text>
           <Text style={styles.errorText}>Please try again later</Text>
         </View>
@@ -106,17 +106,17 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: "#64748b",
+    color: theme.textSecondary,
   },
   errorTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#ef4444",
+    color: theme.error,
     marginTop: 12,
   },
   errorText: {
     fontSize: 14,
-    color: "#64748b",
+    color: theme.textSecondary,
     marginTop: 8,
     textAlign: "center",
   },
@@ -158,26 +158,26 @@ const createStyles = (theme: any) => StyleSheet.create({
     paddingHorizontal: 16,
   },
   budgetCard: {
-    backgroundColor: "#ffffff",
+    backgroundColor: theme.cardBackground,
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: "#e2e8f0",
-    shadowColor: "#000",
+    borderColor: theme.cardBorder,
+    shadowColor: theme.shadow,
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOpacity: theme.shadowOpacity,
     shadowRadius: 4,
     elevation: 2,
   },
   budgetAmount: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#0f172a",
+    color: theme.text,
   },
   budgetLabel: {
     fontSize: 14,
-    color: "#64748b",
+    color: theme.textSecondary,
     marginTop: 4,
   },
 });

@@ -49,7 +49,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     shadowOpacity: 0.2,
   },
   addButtonText: {
-    color: '#FFFFFF',
+    color: theme.onPrimary,
     fontSize: FONT_SIZES.lg,
     fontWeight: FONT_WEIGHTS.semibold,
   },
@@ -96,7 +96,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     shadowOpacity: 0.2,
   },
   emptyStateButtonText: {
-    color: '#FFFFFF',
+    color: theme.onPrimary,
     fontSize: FONT_SIZES.lg,
     fontWeight: FONT_WEIGHTS.semibold,
   },
@@ -153,7 +153,7 @@ export default function CategoryList() {
             No categories yet. Add your first category below.
           </Text>
           <Pressable style={styles.emptyStateButton} onPress={handleAddCategory}>
-            <Ionicons name="add" size={20} color="#FFFFFF" />
+            <Ionicons name="add" size={20} color={theme.onPrimary} />
             <Text style={styles.emptyStateButtonText}>Add Category</Text>
           </Pressable>
         </View>
@@ -167,7 +167,7 @@ export default function CategoryList() {
             scrollEnabled={false}
           />
           <Pressable style={styles.addButton} onPress={handleAddCategory}>
-            <Ionicons name="add" size={20} color="#FFFFFF" />
+            <Ionicons name="add" size={20} color={theme.onPrimary} />
             <Text style={styles.addButtonText}>Add Category</Text>
           </Pressable>
         </>

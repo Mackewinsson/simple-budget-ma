@@ -449,16 +449,16 @@ const createStyles = (theme: any) => StyleSheet.create({
     elevation: 2,
   },
   tabText: {
-    fontSize: FONT_SIZES.sm, // Increased from xs to sm
+    fontSize: FONT_SIZES.sm,
     fontWeight: FONT_WEIGHTS.medium,
-    color: "#666666", // Gray text for unselected tabs
+    color: theme.textSecondary,
     textAlign: "center",
-    lineHeight: 16, // Add line height for better text rendering
+    lineHeight: 16,
   },
   activeTabText: {
-    color: "#000000", // Black text for selected tab
+    color: theme.text,
     fontWeight: FONT_WEIGHTS.semibold,
-    fontSize: FONT_SIZES.sm, // Increased from xs to sm
+    fontSize: FONT_SIZES.sm,
     textAlign: "center",
     lineHeight: 16,
   },

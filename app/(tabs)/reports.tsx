@@ -205,11 +205,11 @@ function ReportsScreenContent() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Actions</Text>
           <Pressable style={styles.actionButton} onPress={handleExportData}>
-            <Ionicons name="download-outline" size={20} color="#FFFFFF" />
+            <Ionicons name="download-outline" size={20} color={theme.onPrimary} />
             <Text style={styles.actionButtonText}>Export Data</Text>
           </Pressable>
           <Pressable style={styles.actionButton} onPress={handleGenerateReport}>
-            <Ionicons name="document-text-outline" size={20} color="#FFFFFF" />
+            <Ionicons name="document-text-outline" size={20} color={theme.onPrimary} />
             <Text style={styles.actionButtonText}>Generate Report</Text>
           </Pressable>
         </View>
@@ -447,7 +447,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     elevation: 3,
   },
   actionButtonText: {
-    color: '#FFFFFF',
+    color: theme.onPrimary,
     fontSize: 16,
     fontWeight: "600",
   },

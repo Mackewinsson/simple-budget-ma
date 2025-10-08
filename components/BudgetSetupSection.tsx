@@ -279,7 +279,7 @@ export default function BudgetSetupSection({ budget, categories }: BudgetSetupSe
             onPress={handleDeleteBudget}
             disabled={deleteBudget.isPending}
           >
-            <Ionicons name="trash-outline" size={16} color="#fff" />
+            <Ionicons name="trash-outline" size={16} color={theme.onPrimary} />
           </Pressable>
         </View>
       </View>

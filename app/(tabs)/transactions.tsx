@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, FlatList, StyleSheet, ScrollView, Pressable, Alert, TextInput } from "react-native";
+import { View, Text, FlatList, StyleSheet, ScrollView, Pressable, Alert, TextInput, RefreshControl } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useExpenses } from "../../src/api/hooks/useExpenses";
@@ -12,13 +12,14 @@ import { useTheme } from "../../src/theme/ThemeContext";
 import { FONT_SIZES, FONT_WEIGHTS } from "../../src/theme/layout";
 import NewExpenseForm from "../../components/NewExpenseForm";
 import AITransactionInput from "../../components/AITransactionInput";
+import BeautifulLoadingOverlay from "../../components/BeautifulLoadingOverlay";
 
 function TransactionsScreenContent() {
   const { session } = useAuthStore();
   const router = useRouter();
-  const { data: budget, isLoading: budgetLoading } = useBudget(session?.user?.id || "");
-  const { data: categories = [], isLoading: categoriesLoading } = useCategoriesByBudget(budget?._id || "");
-  const { data: expenses = [], isLoading: expensesLoading } = useExpenses(session?.user?.id || "");
+  const { data: budget, isLoading: budgetLoading, refetch: refetchBudget } = useBudget(session?.user?.id || "");
+  const { data: categories = [], isLoading: categoriesLoading, refetch: refetchCategories } = useCategoriesByBudget(budget?._id || "");
+  const { data: expenses = [], isLoading: expensesLoading, refetch: refetchExpenses } = useExpenses(session?.user?.id || "");
   const deleteExpense = useDeleteExpense();
   const safeAreaStyles = useSafeAreaStyles();
   const { theme } = useTheme();
@@ -29,6 +30,7 @@ function TransactionsScreenContent() {
   const [searchTerm, setSearchTerm] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
 
   // Redirect to budget creation if no budget exists
   useEffect(() => {
@@ -98,6 +100,22 @@ function TransactionsScreenContent() {
     );
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      // Refetch all data
+      await Promise.all([
+        refetchBudget(),
+        refetchCategories(),
+        refetchExpenses(),
+      ]);
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   const renderExpense = ({ item }: { item: any }) => {
     const category = categories.find(
       (cat) => cat._id === item.categoryId || cat.id === item.categoryId
@@ -157,7 +175,14 @@ function TransactionsScreenContent() {
   }
 
   return (
-    <ScrollView style={safeAreaStyles.container}>
+    <View style={safeAreaStyles.container}>
+      {/* Custom Loading Overlay */}
+      <BeautifulLoadingOverlay
+        visible={refreshing}
+        title="Refreshing..."
+        subtitle="Getting latest data"
+        iconName="refresh"
+      />
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
@@ -298,7 +323,22 @@ function TransactionsScreenContent() {
             </View>
 
             {/* Transaction List */}
-            <ScrollView style={styles.transactionList} showsVerticalScrollIndicator={false}>
+            <ScrollView 
+              style={styles.transactionList} 
+              showsVerticalScrollIndicator={false}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                  tintColor="transparent"
+                  colors={['transparent']}
+                  progressBackgroundColor="transparent"
+                  title=""
+                  titleColor="transparent"
+                  progressViewOffset={0}
+                />
+              }
+            >
               {filteredExpenses.length === 0 ? (
                 <View style={styles.emptyState}>
                   <Text style={styles.emptyStateText}>
@@ -319,7 +359,7 @@ function TransactionsScreenContent() {
           </>
         )}
       </View>
-    </ScrollView>
+    </View>
   );
 }
 

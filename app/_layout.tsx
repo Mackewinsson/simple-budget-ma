@@ -5,9 +5,13 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "../src/query/queryClient";
 import GlobalLoadingIndicator from "../components/GlobalLoadingIndicator";
 import { ThemeProvider, useTheme } from "../src/theme/ThemeContext";
+import { useBackgroundSync } from "../src/hooks/useBackgroundSync";
 
 function RootLayoutContent() {
   const { theme } = useTheme();
+  
+  // Initialize background sync
+  useBackgroundSync();
 
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: theme.background }}>

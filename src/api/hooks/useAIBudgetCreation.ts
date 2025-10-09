@@ -78,12 +78,19 @@ export const useAIBudgetCreation = () => {
     onSuccess: async (data, variables) => {
       console.log('[AI Budget Creation] Success! Budget and categories created:', data);
       
-      // Invalidate and refetch budget and category queries
-      queryClient.invalidateQueries({ queryKey: budgetKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: budgetKeys.list(variables.userId) });
-      queryClient.invalidateQueries({ queryKey: ['categories'] });
-      // Force refetch the budget for the user and wait for it to complete
-      await queryClient.refetchQueries({ queryKey: budgetKeys.list(variables.userId) });
+      // Update cache directly instead of invalidating
+      queryClient.setQueryData(budgetKeys.list(variables.userId), data.budget);
+      queryClient.setQueryData(budgetKeys.lists(), (old: any) => {
+        if (!old) return [data.budget];
+        return [...old, data.budget];
+      });
+      
+      // Only invalidate category queries since they're related but separate
+      queryClient.invalidateQueries({ 
+        queryKey: ['categories'],
+        exact: false 
+      });
+      
       console.log('[AI Budget Creation] Budget cache updated successfully');
     },
     onError: (error) => {

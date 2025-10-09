@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { AppState, AppStateStatus } from 'react-native';
 
 export interface NetworkStatus {
   isConnected: boolean;
@@ -12,35 +13,55 @@ export function useNetworkStatus(): NetworkStatus {
   });
 
   useEffect(() => {
+    let isMounted = true;
+
     // Simple network status check using fetch
     const checkNetworkStatus = async () => {
       try {
         // Try to fetch a small resource to check connectivity
-        const response = await fetch('https://www.google.com/favicon.ico', {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+        await fetch('https://www.google.com/favicon.ico', {
           method: 'HEAD',
           mode: 'no-cors',
           cache: 'no-cache',
+          signal: controller.signal,
         });
-        setNetworkStatus({
-          isConnected: true,
-          isOffline: false,
-        });
+
+        clearTimeout(timeoutId);
+
+        if (isMounted) {
+          setNetworkStatus({
+            isConnected: true,
+            isOffline: false,
+          });
+        }
       } catch (error) {
-        setNetworkStatus({
-          isConnected: false,
-          isOffline: true,
-        });
+        if (isMounted) {
+          setNetworkStatus({
+            isConnected: false,
+            isOffline: true,
+          });
+        }
       }
     };
 
     // Check network status on mount
     checkNetworkStatus();
 
-    // Set up periodic checks
-    const interval = setInterval(checkNetworkStatus, 30000); // Check every 30 seconds
+    // Only check when app becomes active, not every 30 seconds
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      if (nextAppState === 'active') {
+        checkNetworkStatus();
+      }
+    };
+
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
 
     return () => {
-      clearInterval(interval);
+      isMounted = false;
+      subscription?.remove();
     };
   }, []);
 

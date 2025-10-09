@@ -40,51 +40,129 @@ export const useBudgetsCollection = (
   });
 };
 
-// Create budget mutation
+// Create budget mutation with optimistic updates
 export const useCreateBudget = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: createBudget,
-    onSuccess: async (data, variables) => {
-      console.log("Budget created successfully, updating cache...");
-      // Invalidate and refetch budget queries
-      queryClient.invalidateQueries({ queryKey: budgetKeys.lists() });
-      // Also invalidate the specific user's budget query
-      queryClient.invalidateQueries({ queryKey: budgetKeys.list(variables.user) });
-      // Force refetch the budget for the user and wait for it to complete
-      await queryClient.refetchQueries({ queryKey: budgetKeys.list(variables.user) });
-      console.log("Budget cache updated successfully");
+    onMutate: async (newBudget) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: budgetKeys.lists() });
+
+      // Snapshot previous value
+      const previousBudgets = queryClient.getQueryData(budgetKeys.lists());
+
+      // Optimistically update the cache
+      const optimisticBudget = {
+        ...newBudget,
+        _id: `temp-${Date.now()}`,
+        isOptimistic: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      queryClient.setQueryData(budgetKeys.list(newBudget.user), optimisticBudget);
+      queryClient.setQueryData(budgetKeys.lists(), (old: any) => {
+        if (!old) return [optimisticBudget];
+        return [...old, optimisticBudget];
+      });
+
+      return { previousBudgets };
     },
-    onError: (error) => {
+    onSuccess: (data, variables) => {
+      // Update cache with real data from server
+      queryClient.setQueryData(budgetKeys.list(variables.user), data);
+      queryClient.setQueryData(budgetKeys.lists(), (old: any) => {
+        if (!old) return [data];
+        return old.map((budget: any) => 
+          budget.isOptimistic && budget.user === variables.user
+            ? { ...data, isOptimistic: false }
+            : budget
+        );
+      });
+      
+      console.log("Budget created successfully");
+    },
+    onError: (error, variables, context) => {
+      // Rollback optimistic update on error
+      if (context?.previousBudgets) {
+        queryClient.setQueryData(budgetKeys.lists(), context.previousBudgets);
+        queryClient.removeQueries({ queryKey: budgetKeys.list(variables.user) });
+      }
+      
       logError("Budget Creation", error);
       const errorInfo = categorizeError(error);
       console.error("Failed to create budget:", errorInfo.message);
     },
+    onSettled: () => {
+      // Ensure we have the latest data
+      queryClient.invalidateQueries({ queryKey: budgetKeys.lists() });
+    },
   });
 };
 
-// Update budget mutation
+// Update budget mutation with optimistic updates
 export const useUpdateBudget = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ id, updates }: { id: string; updates: Partial<Budget> }) =>
       updateBudget(id, updates),
-    onSuccess: (data, variables) => {
-      // Force refetch all budget queries to ensure fresh data
-      queryClient.invalidateQueries({ queryKey: budgetKeys.all });
+    onMutate: async ({ id, updates }) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: budgetKeys.all });
+
+      // Snapshot previous values
+      const previousBudgets = queryClient.getQueryData(budgetKeys.lists());
+      const previousBudget = queryClient.getQueryData(budgetKeys.detail(id));
+
+      // Optimistically update the cache
+      queryClient.setQueryData(budgetKeys.detail(id), (old: any) => 
+        old ? { ...old, ...updates, isOptimistic: true } : old
+      );
       
-      // Also refetch any specific budget queries
-      queryClient.refetchQueries({ queryKey: budgetKeys.detail(variables.id) });
-      queryClient.refetchQueries({ queryKey: budgetKeys.lists() });
+      queryClient.setQueryData(budgetKeys.lists(), (old: any) => {
+        if (!old) return old;
+        return old.map((budget: any) => 
+          budget._id === id 
+            ? { ...budget, ...updates, isOptimistic: true }
+            : budget
+        );
+      });
+
+      return { previousBudgets, previousBudget };
+    },
+    onSuccess: (data, variables) => {
+      // Update cache with real data from server
+      queryClient.setQueryData(budgetKeys.detail(variables.id), { ...data, isOptimistic: false });
+      queryClient.setQueryData(budgetKeys.lists(), (old: any) => {
+        if (!old) return old;
+        return old.map((budget: any) => 
+          budget._id === variables.id 
+            ? { ...data, isOptimistic: false }
+            : budget
+        );
+      });
       
       console.log("Budget updated successfully");
     },
-    onError: (error) => {
+    onError: (error, variables, context) => {
+      // Rollback optimistic update on error
+      if (context?.previousBudgets) {
+        queryClient.setQueryData(budgetKeys.lists(), context.previousBudgets);
+      }
+      if (context?.previousBudget) {
+        queryClient.setQueryData(budgetKeys.detail(variables.id), context.previousBudget);
+      }
+      
       logError("Budget Update", error);
       const errorInfo = categorizeError(error);
       console.error("Failed to update budget:", errorInfo.message);
+    },
+    onSettled: () => {
+      // Ensure we have the latest data
+      queryClient.invalidateQueries({ queryKey: budgetKeys.all });
     },
   });
 };

@@ -10,6 +10,7 @@ import { useAuthStore } from "../src/store/authStore";
 import { useAIBudgetCreation } from "../src/api/hooks/useAIBudgetCreation";
 import { useTheme } from "../src/theme/ThemeContext";
 import AILoading from "./AILoading";
+import { useFeatureAccess } from "../src/hooks/useFeatureAccess";
 import CustomPicker from "./Picker";
 
 const budgetSchema = z.object({
@@ -26,6 +27,7 @@ export default function NewBudgetForm() {
   const { theme } = useTheme();
   const createBudget = useCreateBudget();
   const { createBudgetFromAI, isProcessing: isAICreating } = useAIBudgetCreation();
+  const { hasAccess, showUpgradeModal } = useFeatureAccess('aiBudgeting');
   
   const [activeTab, setActiveTab] = useState<'manual' | 'ai'>('manual');
   const [aiDescription, setAiDescription] = useState('');
@@ -78,6 +80,12 @@ export default function NewBudgetForm() {
   };
 
   const handleAIBudgetCreation = async () => {
+    // Check if user has pro access
+    if (!hasAccess) {
+      showUpgradeModal();
+      return;
+    }
+
     if (!session?.user?.id) {
       Alert.alert("Error", "Please log in to create a budget");
       return;
@@ -161,7 +169,13 @@ export default function NewBudgetForm() {
         </Pressable>
         <Pressable
           style={[styles.tab, activeTab === 'ai' && styles.activeTab]}
-          onPress={() => setActiveTab('ai')}
+          onPress={() => {
+            if (!hasAccess) {
+              showUpgradeModal();
+              return;
+            }
+            setActiveTab('ai');
+          }}
         >
           <Ionicons
             name="sparkles"

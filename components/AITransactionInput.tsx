@@ -3,6 +3,7 @@ import { View, Text, TextInput, Pressable, StyleSheet, Alert, ScrollView } from 
 import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "../src/store/authStore";
 import { useTheme } from "../src/theme/ThemeContext";
+import { useFeatureAccess } from "../src/hooks/useFeatureAccess";
 
 interface AITransactionInputProps {
   budgetId: string;
@@ -11,12 +12,19 @@ interface AITransactionInputProps {
 export default function AITransactionInput({ budgetId }: AITransactionInputProps) {
   const { session } = useAuthStore();
   const { theme } = useTheme();
+  const { hasAccess, showUpgradeModal } = useFeatureAccess('transactionTextInput');
   const [description, setDescription] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
   const styles = createStyles(theme);
 
   const handleParse = async () => {
+    // Check if user has pro access
+    if (!hasAccess) {
+      showUpgradeModal();
+      return;
+    }
+
     if (!description.trim()) {
       Alert.alert("Error", "Please enter a transaction description");
       return;

@@ -11,6 +11,7 @@ import { useAuthStore } from "../../src/store/authStore";
 import { useTheme } from "../../src/theme/ThemeContext";
 import CategoryList from "../../components/CategoryList";
 import BudgetSetupSection from "../../components/BudgetSetupSection";
+import ProBadge from "../../components/ProBadge";
 
 function BudgetsScreenContent() {
   const { session } = useAuthStore();
@@ -65,7 +66,10 @@ function BudgetsScreenContent() {
         style={[styles.headerGradient, { paddingTop: insets.top + 16 }]}
       >
         <View style={styles.header}>
-          <Text style={styles.title}>Budgets</Text>
+          <View style={styles.headerLeft}>
+            <Text style={styles.title}>Budgets</Text>
+            <ProBadge tone="light" />
+          </View>
           {budget && (
             <View style={styles.budgetBadge}>
               <Ionicons name="calendar-outline" size={16} color={theme.onPrimaryMuted} />
@@ -134,6 +138,11 @@ const createStyles = (theme: any) => StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   title: {
     fontSize: 28,

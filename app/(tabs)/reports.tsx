@@ -9,6 +9,7 @@ import { useExpenses } from "../../src/api/hooks/useExpenses";
 import { useAuthStore } from "../../src/store/authStore";
 import { useTheme } from "../../src/theme/ThemeContext";
 import { SPACING, BORDER_RADIUS, FONT_SIZES, FONT_WEIGHTS, SHADOW } from "../../src/theme/layout";
+import ProBadge from "../../components/ProBadge";
 
 function ReportsScreenContent() {
   const { session } = useAuthStore();
@@ -104,7 +105,10 @@ function ReportsScreenContent() {
         style={[styles.headerGradient, { paddingTop: insets.top + 16 }]}
       >
         <View style={styles.header}>
-          <Text style={styles.title}>Reports</Text>
+          <View style={styles.headerLeft}>
+            <Text style={styles.title}>Reports</Text>
+            <ProBadge tone="light" />
+          </View>
           <View style={styles.periodBadge}>
             <Ionicons name="time-outline" size={16} color={theme.onPrimaryMuted} />
             <Text style={styles.periodText}>This month</Text>
@@ -264,6 +268,11 @@ const createStyles = (theme: any) => StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   title: {
     fontSize: FONT_SIZES.huge,

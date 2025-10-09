@@ -14,6 +14,7 @@ import { FONT_SIZES, FONT_WEIGHTS } from "../../src/theme/layout";
 import NewExpenseForm from "../../components/NewExpenseForm";
 import AITransactionInput from "../../components/AITransactionInput";
 import BeautifulLoadingOverlay from "../../components/BeautifulLoadingOverlay";
+import ProBadge from "../../components/ProBadge";
 
 function TransactionsScreenContent() {
   const { session } = useAuthStore();
@@ -202,7 +203,10 @@ function TransactionsScreenContent() {
       >
         <View style={styles.header}>
           <View style={styles.headerContent}>
-            <Text style={styles.title}>Transactions</Text>
+            <View style={styles.headerTitleRow}>
+              <Text style={styles.title}>Transactions</Text>
+              <ProBadge tone="light" />
+            </View>
             <Text style={styles.subtitle}>Manage your finances</Text>
           </View>
           <View style={styles.balanceCard}>
@@ -393,6 +397,11 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   headerContent: {
     gap: 4,
+  },
+  headerTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   title: {
     fontSize: 28,

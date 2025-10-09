@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { useSafeAreaStyles } from "../src/hooks/useSafeAreaStyles";
 import { useTheme } from "../src/theme/ThemeContext";
 import NewBudgetForm from "../components/NewBudgetForm";
+import ProBadge from "../components/ProBadge";
 
 export default function CreateBudgetScreen() {
   const router = useRouter();
@@ -18,7 +19,10 @@ export default function CreateBudgetScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          <Text style={styles.headerTitle}>Create Budget</Text>
+          <View style={styles.headerTitleRow}>
+            <Text style={styles.headerTitle}>Create Budget</Text>
+            <ProBadge tone="dark" />
+          </View>
           <Text style={styles.headerSubtitle}>Set up your financial plan</Text>
         </View>
       </View>
@@ -45,6 +49,12 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   headerContent: {
     alignItems: "center",
+  },
+  headerTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
   },
   headerTitle: {
     fontSize: 20,

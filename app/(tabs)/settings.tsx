@@ -7,6 +7,7 @@ import { useUserCurrency, useUpdateUserCurrency } from "../../src/api/hooks/useU
 import { useAuthStore } from "../../src/store/authStore";
 import { useRouter } from "expo-router";
 import { useTheme } from "../../src/theme/ThemeContext";
+import ProBadge from "../../components/ProBadge";
 
 function SettingsScreenContent() {
   const { session, signOut } = useAuthStore();
@@ -98,7 +99,10 @@ function SettingsScreenContent() {
         style={[styles.headerGradient, { paddingTop: insets.top + 16 }]}
       >
         <View style={styles.header}>
-          <Text style={styles.title}>Settings</Text>
+          <View style={styles.headerLeft}>
+            <Text style={styles.title}>Settings</Text>
+            <ProBadge tone="light" />
+          </View>
           <View style={styles.profileBadge}>
             <Ionicons name="person-circle-outline" size={24} color={theme.onPrimaryMuted} />
           </View>
@@ -267,6 +271,11 @@ function createStyles(theme: any) {
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
+    },
+    headerLeft: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
     },
     title: {
       fontSize: 28,

@@ -164,7 +164,7 @@ function SettingsScreenContent() {
           </View>
         </View>
 
-        <View style={styles.settingItem}>
+        {/* <View style={styles.settingItem}>
         <View style={styles.settingLeft}>
           <Ionicons name="notifications-outline" size={20} color={theme.textMuted} />
           <Text style={styles.settingLabel}>Notifications</Text>
@@ -175,7 +175,7 @@ function SettingsScreenContent() {
           trackColor={{ false: theme.border, true: theme.primary }}
           thumbColor={theme.onPrimary}
         />
-      </View>
+      </View> */}
 
         <View style={styles.settingItem}>
           <View style={styles.settingLeft}>
@@ -205,7 +205,7 @@ function SettingsScreenContent() {
         </View>
       </View>
 
-      <View style={styles.section}>
+      {/* <View style={styles.section}>
         <Text style={styles.sectionTitle}>Data Management</Text>
 
         <Pressable style={styles.actionButton} onPress={handleExportData}>
@@ -217,7 +217,7 @@ function SettingsScreenContent() {
           <Ionicons name="trash-outline" size={20} color={theme.onPrimary} />
           <Text style={styles.actionButtonText}>Clear All Data</Text>
         </Pressable>
-      </View>
+      </View> */}
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>About</Text>

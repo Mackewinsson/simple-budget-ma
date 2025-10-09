@@ -15,7 +15,7 @@ export const useUserCurrency = () => {
   return useQuery({
     queryKey: userKeys.currency(),
     queryFn: getUserCurrency,
-    enabled: false, // Temporarily disabled due to backend 401 issue
+    enabled: isAuthenticated && !!session?.token, // Only run if user is authenticated AND has a token
     retry: false, // Don't retry on failure to avoid multiple 401s
     staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
   });

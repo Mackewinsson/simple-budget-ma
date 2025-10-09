@@ -1,11 +1,11 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, Pressable, StyleSheet, Alert, ScrollView } from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import { View, Text, TextInput, Pressable, StyleSheet, ScrollView } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useCreateBudget } from "../src/api/hooks/useBudgets";
+import { useBudgetsCollection, useCreateBudget } from "../src/api/hooks/useBudgets";
 import { useAuthStore } from "../src/store/authStore";
 import { useAIBudgetCreation } from "../src/api/hooks/useAIBudgetCreation";
 import { useTheme } from "../src/theme/ThemeContext";
@@ -16,10 +16,41 @@ import ErrorScreen from "./ErrorScreen";
 import { categorizeError, logError } from "../src/lib/errorUtils";
 import { useNetworkStatus } from "../src/hooks/useNetworkStatus";
 
+const MONTH_NAMES = [
+  "",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+const CURRENT_YEAR = new Date().getFullYear();
+const MIN_YEAR = Math.max(2020, CURRENT_YEAR - 5);
+const MAX_YEAR = Math.min(2030, CURRENT_YEAR + 5);
+
+const formatBudgetPeriod = (month: number, year: number) => {
+  const monthName = MONTH_NAMES[month] || `Month ${month}`;
+  return `${monthName} ${year}`;
+};
+
 const budgetSchema = z.object({
-  totalBudgeted: z.coerce.number().min(0.01, "Budget amount must be greater than 0"),
+  totalBudgeted: z.coerce
+    .number()
+    .min(0.01, "Budget amount must be greater than 0")
+    .refine((value) => Number.isFinite(value), "Budget amount must be a valid number"),
   month: z.coerce.number().min(1).max(12),
-  year: z.coerce.number().min(2020).max(2030),
+  year: z.coerce.number().refine(
+    (value) => value >= MIN_YEAR && value <= MAX_YEAR,
+    `Year must be between ${MIN_YEAR} and ${MAX_YEAR}`,
+  ),
 });
 
 type BudgetFormData = z.infer<typeof budgetSchema>;
@@ -29,6 +60,21 @@ export default function NewBudgetForm() {
   const router = useRouter();
   const { theme } = useTheme();
   const createBudget = useCreateBudget();
+  const {
+    data: existingBudgets = [],
+    isLoading: budgetsLoading,
+    error: budgetsError,
+    refetch: refetchExistingBudgets,
+  } = useBudgetsCollection(session?.user?.id || "", {
+    enabled: !!session?.user?.id,
+  });
+  const existingBudgetPeriods = useMemo(() => {
+    return new Set(
+      existingBudgets
+        .filter((budget) => budget?.month && budget?.year)
+        .map((budget) => `${budget.month}-${budget.year}`)
+    );
+  }, [existingBudgets]);
   const { createBudgetFromAI, isProcessing: isAICreating } = useAIBudgetCreation();
   const { hasAccess, showUpgradeModal } = useFeatureAccess('aiBudgeting');
   const { isOffline } = useNetworkStatus();
@@ -43,9 +89,24 @@ export default function NewBudgetForm() {
     message: string;
     onRetry?: () => void;
   } | null>(null);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const styles = createStyles(theme);
+  const defaultMonth = Math.min(Math.max(new Date().getMonth() + 1, 1), 12);
+  const defaultYear = Math.min(Math.max(CURRENT_YEAR, MIN_YEAR), MAX_YEAR);
+  const yearOptions = useMemo(() => {
+    const range = Math.max(0, MAX_YEAR - MIN_YEAR + 1);
+    return Array.from({ length: range }, (_, index) => MIN_YEAR + index);
+  }, []);
+
+  useEffect(() => {
+    if (!successMessage) {
+      return;
+    }
+
+    const timeoutId = setTimeout(() => setSuccessMessage(null), 3000);
+    return () => clearTimeout(timeoutId);
+  }, [successMessage]);
 
   const {
     control,
@@ -56,8 +117,8 @@ export default function NewBudgetForm() {
     resolver: zodResolver(budgetSchema),
     defaultValues: {
       totalBudgeted: 0,
-      month: new Date().getMonth() + 1,
-      year: new Date().getFullYear(),
+      month: defaultMonth,
+      year: defaultYear,
     },
   });
 
@@ -66,6 +127,7 @@ export default function NewBudgetForm() {
     logError(context, error);
     const errorInfo = categorizeError(error);
     console.log('[NewBudgetForm] Error info:', errorInfo);
+    setSuccessMessage(null);
     
     setErrorState({
       show: true,
@@ -79,6 +141,8 @@ export default function NewBudgetForm() {
           handleSubmit(onSubmit)();
         } else if (context === 'AI Budget Creation') {
           handleAIBudgetCreation();
+        } else if (context === 'Existing Budget Lookup') {
+          refetchExistingBudgets();
         }
       } : undefined,
     });
@@ -86,6 +150,7 @@ export default function NewBudgetForm() {
   };
 
   const onSubmit = async (data: BudgetFormData) => {
+    setSuccessMessage(null);
     // Check network connectivity first
     if (isOffline) {
       setErrorState({
@@ -112,8 +177,35 @@ export default function NewBudgetForm() {
       return;
     }
 
-    // Validate budget amount
-    if (data.totalBudgeted <= 0) {
+    if (budgetsLoading) {
+      setErrorState({
+        show: true,
+        type: 'generic',
+        title: 'Almost Ready',
+        message: 'We are still loading your existing budgets. Please try again in a moment.',
+        onRetry: () => setErrorState(null),
+      });
+      return;
+    }
+
+    if (budgetsError) {
+      handleError(budgetsError, 'Existing Budget Lookup');
+      return;
+    }
+
+    const normalizedTotal = Math.round((data.totalBudgeted + Number.EPSILON) * 100) / 100;
+    if (!Number.isFinite(normalizedTotal)) {
+      setErrorState({
+        show: true,
+        type: 'validation',
+        title: 'Invalid Budget Amount',
+        message: 'Please enter a valid number for your budget amount.',
+        onRetry: () => setErrorState(null),
+      });
+      return;
+    }
+
+    if (normalizedTotal <= 0) {
       setErrorState({
         show: true,
         type: 'validation',
@@ -124,8 +216,7 @@ export default function NewBudgetForm() {
       return;
     }
 
-    // Check for reasonable budget limits
-    if (data.totalBudgeted > 1000000) {
+    if (normalizedTotal > 1000000) {
       setErrorState({
         show: true,
         type: 'validation',
@@ -136,21 +227,31 @@ export default function NewBudgetForm() {
       return;
     }
 
+    const periodKey = `${data.month}-${data.year}`;
+    if (existingBudgetPeriods.has(periodKey)) {
+      setErrorState({
+        show: true,
+        type: 'validation',
+        title: 'Budget Already Exists',
+        message: `You already have a budget for ${formatBudgetPeriod(data.month, data.year)}. Try updating that budget instead.`,
+        onRetry: () => setErrorState(null),
+      });
+      return;
+    }
+
     try {
       const result = await createBudget.mutateAsync({
         month: data.month,
         year: data.year,
-        totalBudgeted: data.totalBudgeted,
-        totalAvailable: data.totalBudgeted, // Initially, all budgeted amount is available
+        totalBudgeted: normalizedTotal,
+        totalAvailable: normalizedTotal, // Initially, all budgeted amount is available
         user: session.user.id,
       });
 
       console.log('[NewBudgetForm] Budget created successfully:', result);
       reset();
-      setIsSuccess(true);
-      
-      // Show success message briefly, then navigate
-      Alert.alert("Success", "Budget created successfully");
+      setSuccessMessage('Budget created successfully');
+      refetchExistingBudgets();
       
       // Navigate to transactions screen after successful creation
       console.log('[NewBudgetForm] Navigating to transactions screen...');
@@ -166,6 +267,7 @@ export default function NewBudgetForm() {
   };
 
   const handleAIBudgetCreation = async () => {
+    setSuccessMessage(null);
     // Check network connectivity first
     if (isOffline) {
       setErrorState({
@@ -231,6 +333,36 @@ export default function NewBudgetForm() {
       return;
     }
 
+    if (budgetsLoading) {
+      setErrorState({
+        show: true,
+        type: 'generic',
+        title: 'Almost Ready',
+        message: 'We are still loading your existing budgets. Please try again in a moment.',
+        onRetry: () => setErrorState(null),
+      });
+      return;
+    }
+
+    if (budgetsError) {
+      handleError(budgetsError, 'Existing Budget Lookup');
+      return;
+    }
+
+    const aiMonth = defaultMonth;
+    const aiYear = defaultYear;
+    const aiPeriodKey = `${aiMonth}-${aiYear}`;
+    if (existingBudgetPeriods.has(aiPeriodKey)) {
+      setErrorState({
+        show: true,
+        type: 'validation',
+        title: 'Budget Already Exists',
+        message: `You already have a budget for ${formatBudgetPeriod(aiMonth, aiYear)}. Delete or update the existing budget before creating a new one with AI.`,
+        onRetry: () => setErrorState(null),
+      });
+      return;
+    }
+
     try {
       setCurrentStep('analyzing');
       
@@ -241,20 +373,18 @@ export default function NewBudgetForm() {
       const result = await createBudgetFromAI({
         description: aiDescription,
         userId: session.user.id,
-        month: new Date().getMonth() + 1,
-        year: new Date().getFullYear(),
+        month: aiMonth,
+        year: aiYear,
       });
 
       setCurrentStep('complete');
       setTimeout(() => {
         setAiDescription('');
         setCurrentStep('analyzing');
-        setIsSuccess(true);
+        setSuccessMessage(`Budget created with AI! Created ${result.categories.length} categories.`);
+        refetchExistingBudgets();
         
         console.log('[NewBudgetForm] AI Budget created successfully:', result);
-        
-        // Show success message briefly, then navigate
-        Alert.alert("Success", `Budget created successfully with AI! Created ${result.categories.length} categories.`);
         
         // Navigate to transactions screen after successful creation
         console.log('[NewBudgetForm] Navigating to transactions screen after AI creation...');
@@ -291,6 +421,13 @@ export default function NewBudgetForm() {
   return (
     <View style={styles.container}>
       <AILoading isProcessing={isAICreating} currentStep={currentStep} />
+      
+      {successMessage && (
+        <View style={styles.successBanner}>
+          <Ionicons name="checkmark-circle" size={20} color={theme.successDark} style={styles.successIcon} />
+          <Text style={styles.successText}>{successMessage}</Text>
+        </View>
+      )}
       
       <View style={styles.header}>
         <View style={styles.titleContainer}>
@@ -346,7 +483,7 @@ export default function NewBudgetForm() {
                   onChangeText={(text) => onChange(parseFloat(text) || 0)}
                   value={value.toString()}
                   placeholder="0.00"
-                  keyboardType="numeric"
+                  keyboardType="decimal-pad"
                 />
               )}
             />
@@ -390,35 +527,37 @@ export default function NewBudgetForm() {
               <Controller
                 control={control}
                 name="year"
-                render={({ field: { onChange, value } }) => {
-                  const currentYear = new Date().getFullYear();
-                  const years = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i);
-                  
-                  return (
-                    <CustomPicker
-                      label="Year"
-                      value={value}
-                      onValueChange={onChange}
-                      items={years.map(year => ({
-                        label: year.toString(),
-                        value: year
-                      }))}
-                      placeholder="Select year"
-                      error={errors.year?.message}
-                    />
-                  );
-                }}
+                render={({ field: { onChange, value } }) => (
+                  <CustomPicker
+                    label="Year"
+                    value={value}
+                    onValueChange={onChange}
+                    items={yearOptions.map((year) => ({
+                      label: year.toString(),
+                      value: year,
+                    }))}
+                    placeholder="Select year"
+                    error={errors.year?.message}
+                  />
+                )}
               />
             </View>
           </View>
 
           <Pressable
-            style={[styles.button, createBudget.isPending && styles.buttonDisabled]}
+            style={[
+              styles.button,
+              (createBudget.isPending || budgetsLoading) && styles.buttonDisabled
+            ]}
             onPress={handleSubmit(onSubmit)}
-            disabled={createBudget.isPending}
+            disabled={createBudget.isPending || budgetsLoading}
           >
             <Text style={styles.buttonText}>
-              {createBudget.isPending ? "Creating..." : "Create Budget"}
+              {budgetsLoading
+                ? "Checking budgets..."
+                : createBudget.isPending
+                  ? "Creating..."
+                  : "Create Budget"}
             </Text>
           </Pressable>
         </View>
@@ -468,11 +607,15 @@ export default function NewBudgetForm() {
           <Pressable
             style={[styles.button, styles.aiButton, (!aiDescription.trim() || isAICreating) && styles.buttonDisabled]}
             onPress={handleAIBudgetCreation}
-            disabled={!aiDescription.trim() || isAICreating}
+            disabled={!aiDescription.trim() || isAICreating || budgetsLoading}
           >
             <Ionicons name="sparkles" size={20} color={theme.surface} style={styles.buttonIcon} />
             <Text style={styles.buttonText}>
-              {isAICreating ? "Creating with AI..." : "Create Budget with AI"}
+              {budgetsLoading
+                ? "Checking budgets..."
+                : isAICreating
+                  ? "Creating with AI..."
+                  : "Create Budget with AI"}
             </Text>
           </Pressable>
         </View>
@@ -541,6 +684,26 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   tabContent: {
     // Content styles
+  },
+  successBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: theme.successLight,
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: theme.success,
+    gap: 8,
+  },
+  successText: {
+    flex: 1,
+    fontSize: 14,
+    color: theme.successDark,
+    fontWeight: "500",
+  },
+  successIcon: {
+    marginRight: 4,
   },
   field: {
     marginBottom: 16,

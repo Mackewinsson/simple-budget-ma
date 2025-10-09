@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
   getBudget, 
+  listBudgets,
   createBudget, 
   updateBudget, 
   deleteBudget, 
@@ -24,6 +25,18 @@ export const useBudget = (userId: string) => {
     queryKey: budgetKeys.list(userId),
     queryFn: () => getBudget(userId),
     enabled: !!userId,
+  });
+};
+
+// Get all budgets for a user (used for duplicate/period checks)
+export const useBudgetsCollection = (
+  userId: string,
+  options?: { enabled?: boolean }
+) => {
+  return useQuery<Budget[]>({
+    queryKey: [...budgetKeys.list(userId), "collection"],
+    queryFn: () => listBudgets(userId),
+    enabled: !!userId && (options?.enabled ?? true),
   });
 };
 

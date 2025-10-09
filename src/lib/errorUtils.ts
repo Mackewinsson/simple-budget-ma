@@ -39,6 +39,17 @@ export function categorizeError(error: any): ErrorInfo {
       };
     }
 
+    if (status === 409) {
+      const message = data?.message || data?.error || 'This item already exists.';
+      return {
+        type: 'validation',
+        title: 'Duplicate Entry',
+        message,
+        canRetry: false,
+        originalError: error,
+      };
+    }
+
     // Validation errors
     if (status === 400 || status === 422) {
       const message = data?.message || data?.error || 'Please check your input and try again.';

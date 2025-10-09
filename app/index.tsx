@@ -24,7 +24,7 @@ export default function Index() {
         console.log('[Index] Authenticated, navigating to main app');
         // Add a small delay to ensure state is fully updated
         setTimeout(() => {
-          router.replace('/(tabs)/budgets');
+          router.replace('/(tabs)/transactions');
         }, 100);
       }
     }

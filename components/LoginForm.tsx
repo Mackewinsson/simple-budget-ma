@@ -27,7 +27,7 @@ export default function LoginForm() {
       await signIn(email.trim(), password);
       console.log('[LoginForm] Login successful!');
       console.log('[LoginForm] Navigating to main app...');
-      router.replace('/(tabs)/budgets');
+      router.replace('/(tabs)/transactions');
     } catch (error: any) {
       console.error('Login error:', error);
       const errorMessage = error.response?.data?.message || 'Login failed. Please try again.';

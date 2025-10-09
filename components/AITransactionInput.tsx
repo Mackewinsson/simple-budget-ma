@@ -117,6 +117,7 @@ export default function AITransactionInput({ budgetId }: AITransactionInputProps
         )}
       </Pressable>
 
+
       <View style={styles.examplesContainer}>
         <Text style={styles.examplesTitle}>
           <Ionicons name="sparkles" size={16} color={theme.primary} /> Try these examples:

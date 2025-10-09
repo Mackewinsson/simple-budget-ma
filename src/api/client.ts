@@ -3,6 +3,7 @@ import * as SecureStore from "expo-secure-store";
 import { Alert } from "react-native";
 import { ENV } from "../lib/env";
 import { useAuthStore } from "../store/authStore";
+import { isNetworkError, categorizeError } from "../lib/errorUtils";
 
 // Extend Axios config to include metadata
 interface ExtendedAxiosRequestConfig extends InternalAxiosRequestConfig {
@@ -24,14 +25,7 @@ const client = axios.create({
   timeout: 30000 // Increased timeout to 30 seconds
 });
 
-// Helper function to detect network errors
-const isNetworkError = (error: any): boolean => {
-  return !error.response && (
-    error.code === 'NETWORK_ERROR' || 
-    error.message.includes('Network Error') ||
-    error.message.includes('timeout')
-  );
-};
+// Helper function to detect network errors (now imported from errorUtils)
 
 client.interceptors.request.use(async (config: ExtendedAxiosRequestConfig) => {
   try {
@@ -149,10 +143,13 @@ client.interceptors.response.use(
     } else if (isNetworkError(error)) {
       // Network error
       console.log('[API Client] Network error detected');
-      // You could show a network error message here if needed
+      const errorInfo = categorizeError(error);
+      console.log('[API Client] Network error details:', errorInfo.message);
     } else if (error.response?.status >= 500) {
       // Server error
       console.log('[API Client] Server error:', error.response.status);
+      const errorInfo = categorizeError(error);
+      console.log('[API Client] Server error details:', errorInfo.message);
     }
     
     return Promise.reject(error);

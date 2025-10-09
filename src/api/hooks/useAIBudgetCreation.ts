@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createBudget } from '../budgets';
 import { createCategory } from '../categories';
 import client from '../client';
+import { logError, categorizeError } from '../../lib/errorUtils';
 
 export interface AIBudgetCreationRequest {
   description: string;
@@ -80,7 +81,9 @@ export const useAIBudgetCreation = () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
     },
     onError: (error) => {
-      console.error('[AI Budget Creation] Error:', error);
+      logError('AI Budget Creation', error);
+      const errorInfo = categorizeError(error);
+      console.error('[AI Budget Creation] Error:', errorInfo.message);
     },
   });
 

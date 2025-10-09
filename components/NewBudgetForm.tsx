@@ -12,6 +12,9 @@ import { useTheme } from "../src/theme/ThemeContext";
 import AILoading from "./AILoading";
 import { useFeatureAccess } from "../src/hooks/useFeatureAccess";
 import CustomPicker from "./Picker";
+import ErrorScreen from "./ErrorScreen";
+import { categorizeError, logError } from "../src/lib/errorUtils";
+import { useNetworkStatus } from "../src/hooks/useNetworkStatus";
 
 const budgetSchema = z.object({
   totalBudgeted: z.coerce.number().min(0.01, "Budget amount must be greater than 0"),
@@ -28,10 +31,18 @@ export default function NewBudgetForm() {
   const createBudget = useCreateBudget();
   const { createBudgetFromAI, isProcessing: isAICreating } = useAIBudgetCreation();
   const { hasAccess, showUpgradeModal } = useFeatureAccess('aiBudgeting');
+  const { isOffline } = useNetworkStatus();
   
   const [activeTab, setActiveTab] = useState<'manual' | 'ai'>('manual');
   const [aiDescription, setAiDescription] = useState('');
   const [currentStep, setCurrentStep] = useState<'analyzing' | 'parsing' | 'creating' | 'complete'>('analyzing');
+  const [errorState, setErrorState] = useState<{
+    show: boolean;
+    type: 'network' | 'server' | 'validation' | 'auth' | 'generic';
+    title: string;
+    message: string;
+    onRetry?: () => void;
+  } | null>(null);
 
   const styles = createStyles(theme);
 
@@ -49,9 +60,75 @@ export default function NewBudgetForm() {
     },
   });
 
+  const handleError = (error: any, context: string) => {
+    logError(context, error);
+    const errorInfo = categorizeError(error);
+    
+    setErrorState({
+      show: true,
+      type: errorInfo.type,
+      title: errorInfo.title,
+      message: errorInfo.message,
+      onRetry: errorInfo.canRetry ? () => {
+        setErrorState(null);
+        // Retry the last action based on context
+        if (context === 'Manual Budget Creation') {
+          handleSubmit(onSubmit)();
+        } else if (context === 'AI Budget Creation') {
+          handleAIBudgetCreation();
+        }
+      } : undefined,
+    });
+  };
+
   const onSubmit = async (data: BudgetFormData) => {
+    // Check network connectivity first
+    if (isOffline) {
+      setErrorState({
+        show: true,
+        type: 'network',
+        title: 'No Internet Connection',
+        message: 'Please check your internet connection and try again.',
+        onRetry: () => setErrorState(null),
+      });
+      return;
+    }
+
     if (!session?.user?.id) {
-      Alert.alert("Error", "Please log in to create a budget");
+      setErrorState({
+        show: true,
+        type: 'auth',
+        title: 'Authentication Required',
+        message: 'Please log in to create a budget',
+        onRetry: () => {
+          setErrorState(null);
+          router.replace('/auth/login');
+        },
+      });
+      return;
+    }
+
+    // Validate budget amount
+    if (data.totalBudgeted <= 0) {
+      setErrorState({
+        show: true,
+        type: 'validation',
+        title: 'Invalid Budget Amount',
+        message: 'Please enter a budget amount greater than 0',
+        onRetry: () => setErrorState(null),
+      });
+      return;
+    }
+
+    // Check for reasonable budget limits
+    if (data.totalBudgeted > 1000000) {
+      setErrorState({
+        show: true,
+        type: 'validation',
+        title: 'Budget Amount Too Large',
+        message: 'Please enter a budget amount less than $1,000,000',
+        onRetry: () => setErrorState(null),
+      });
       return;
     }
 
@@ -75,11 +152,23 @@ export default function NewBudgetForm() {
         }
       ]);
     } catch (error) {
-      Alert.alert("Error", "Failed to create budget");
+      handleError(error, 'Manual Budget Creation');
     }
   };
 
   const handleAIBudgetCreation = async () => {
+    // Check network connectivity first
+    if (isOffline) {
+      setErrorState({
+        show: true,
+        type: 'network',
+        title: 'No Internet Connection',
+        message: 'Please check your internet connection and try again.',
+        onRetry: () => setErrorState(null),
+      });
+      return;
+    }
+
     // Check if user has pro access
     if (!hasAccess) {
       showUpgradeModal();
@@ -87,17 +176,49 @@ export default function NewBudgetForm() {
     }
 
     if (!session?.user?.id) {
-      Alert.alert("Error", "Please log in to create a budget");
+      setErrorState({
+        show: true,
+        type: 'auth',
+        title: 'Authentication Required',
+        message: 'Please log in to create a budget',
+        onRetry: () => {
+          setErrorState(null);
+          router.replace('/auth/login');
+        },
+      });
       return;
     }
 
     if (!aiDescription.trim()) {
-      Alert.alert("Error", "Please enter a budget description");
+      setErrorState({
+        show: true,
+        type: 'validation',
+        title: 'Description Required',
+        message: 'Please enter a budget description',
+        onRetry: () => setErrorState(null),
+      });
       return;
     }
 
     if (aiDescription.trim().length < 10) {
-      Alert.alert("Error", "Please provide a more detailed description (at least 10 characters)");
+      setErrorState({
+        show: true,
+        type: 'validation',
+        title: 'Description Too Short',
+        message: 'Please provide a more detailed description (at least 10 characters)',
+        onRetry: () => setErrorState(null),
+      });
+      return;
+    }
+
+    if (aiDescription.trim().length > 1000) {
+      setErrorState({
+        show: true,
+        type: 'validation',
+        title: 'Description Too Long',
+        message: 'Please keep your description under 1000 characters',
+        onRetry: () => setErrorState(null),
+      });
       return;
     }
 
@@ -131,19 +252,25 @@ export default function NewBudgetForm() {
       }, 1000);
       
     } catch (error: any) {
-      console.error("AI Budget Creation Error:", error);
       setCurrentStep('analyzing');
-      
-      let errorMessage = "Failed to create budget with AI";
-      if (error?.response?.data?.error) {
-        errorMessage = error.response.data.error;
-      } else if (error?.message) {
-        errorMessage = error.message;
-      }
-      
-      Alert.alert("Error", errorMessage);
+      handleError(error, 'AI Budget Creation');
     }
   };
+
+  // Show error screen if there's an error
+  if (errorState?.show) {
+    return (
+      <ErrorScreen
+        title={errorState.title}
+        message={errorState.message}
+        errorType={errorState.type}
+        onRetry={errorState.onRetry}
+        onGoBack={() => setErrorState(null)}
+        showRetry={!!errorState.onRetry}
+        showGoBack={true}
+      />
+    );
+  }
 
   return (
     <View style={styles.container}>

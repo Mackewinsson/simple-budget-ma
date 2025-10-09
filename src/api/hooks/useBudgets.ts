@@ -7,6 +7,7 @@ import {
   resetBudget 
 } from "../budgets";
 import type { Budget } from "../../lib/api";
+import { logError, categorizeError } from "../../lib/errorUtils";
 
 // Query keys
 export const budgetKeys = {
@@ -35,13 +36,12 @@ export const useCreateBudget = () => {
     onSuccess: (data, variables) => {
       // Invalidate and refetch budget queries
       queryClient.invalidateQueries({ queryKey: budgetKeys.lists() });
-      // TODO: Replace toast with React Native alternative
       console.log("Budget created successfully");
     },
     onError: (error) => {
-      console.error("Failed to create budget:", error);
-      // TODO: Replace toast with React Native alternative
-      console.error("Failed to create budget");
+      logError("Budget Creation", error);
+      const errorInfo = categorizeError(error);
+      console.error("Failed to create budget:", errorInfo.message);
     },
   });
 };
@@ -64,8 +64,9 @@ export const useUpdateBudget = () => {
       console.log("Budget updated successfully");
     },
     onError: (error) => {
-      console.error("Failed to update budget:", error);
-      console.error("Failed to update budget");
+      logError("Budget Update", error);
+      const errorInfo = categorizeError(error);
+      console.error("Failed to update budget:", errorInfo.message);
     },
   });
 };
@@ -84,8 +85,9 @@ export const useDeleteBudget = () => {
       console.log("Budget deleted successfully");
     },
     onError: (error) => {
-      console.error("Failed to delete budget:", error);
-      console.error("Failed to delete budget");
+      logError("Budget Delete", error);
+      const errorInfo = categorizeError(error);
+      console.error("Failed to delete budget:", errorInfo.message);
     },
   });
 };
@@ -108,8 +110,9 @@ export const useResetBudget = () => {
       console.log("Budget reset successfully");
     },
     onError: (error) => {
-      console.error("Failed to reset budget:", error);
-      console.error("Failed to reset budget");
+      logError("Budget Reset", error);
+      const errorInfo = categorizeError(error);
+      console.error("Failed to reset budget:", errorInfo.message);
     },
   });
 };

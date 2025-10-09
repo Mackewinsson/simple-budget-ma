@@ -3,6 +3,7 @@ import { createBudget } from '../budgets';
 import { createCategory } from '../categories';
 import client from '../client';
 import { logError, categorizeError } from '../../lib/errorUtils';
+import { budgetKeys } from './useBudgets';
 
 export interface AIBudgetCreationRequest {
   description: string;
@@ -63,6 +64,7 @@ export const useAIBudgetCreation = () => {
           name: categoryData.name,
           budgeted: categoryData.amount,
           budgetId: budget._id,
+          userId: userId,
         });
         createdCategories.push(category);
         console.log('[AI Budget Creation] Category created:', category);
@@ -73,12 +75,16 @@ export const useAIBudgetCreation = () => {
         categories: createdCategories,
       };
     },
-    onSuccess: (data) => {
+    onSuccess: async (data, variables) => {
       console.log('[AI Budget Creation] Success! Budget and categories created:', data);
       
       // Invalidate and refetch budget and category queries
-      queryClient.invalidateQueries({ queryKey: ['budgets'] });
+      queryClient.invalidateQueries({ queryKey: budgetKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: budgetKeys.list(variables.userId) });
       queryClient.invalidateQueries({ queryKey: ['categories'] });
+      // Force refetch the budget for the user and wait for it to complete
+      await queryClient.refetchQueries({ queryKey: budgetKeys.list(variables.userId) });
+      console.log('[AI Budget Creation] Budget cache updated successfully');
     },
     onError: (error) => {
       logError('AI Budget Creation', error);

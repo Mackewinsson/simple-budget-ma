@@ -35,7 +35,16 @@ function TransactionsScreenContent() {
 
   // Redirect to budget creation if no budget exists
   useEffect(() => {
+    console.log('[Transactions] Budget check:', {
+      isLoading,
+      hasBudget: !!budget,
+      budgetId: budget?._id,
+      hasSession: !!session?.user?.id,
+      userId: session?.user?.id
+    });
+    
     if (!isLoading && !budget && session?.user?.id) {
+      console.log('[Transactions] No budget found, redirecting to create-budget');
       router.replace("/create-budget");
     }
   }, [budget, isLoading, session?.user?.id, router]);

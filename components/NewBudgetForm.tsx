@@ -43,6 +43,7 @@ export default function NewBudgetForm() {
     message: string;
     onRetry?: () => void;
   } | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const styles = createStyles(theme);
 
@@ -61,8 +62,10 @@ export default function NewBudgetForm() {
   });
 
   const handleError = (error: any, context: string) => {
+    console.log('[NewBudgetForm] handleError called with:', { context, error });
     logError(context, error);
     const errorInfo = categorizeError(error);
+    console.log('[NewBudgetForm] Error info:', errorInfo);
     
     setErrorState({
       show: true,
@@ -79,6 +82,7 @@ export default function NewBudgetForm() {
         }
       } : undefined,
     });
+    console.log('[NewBudgetForm] Error state set:', { show: true, type: errorInfo.type });
   };
 
   const onSubmit = async (data: BudgetFormData) => {
@@ -133,7 +137,7 @@ export default function NewBudgetForm() {
     }
 
     try {
-      await createBudget.mutateAsync({
+      const result = await createBudget.mutateAsync({
         month: data.month,
         year: data.year,
         totalBudgeted: data.totalBudgeted,
@@ -141,17 +145,22 @@ export default function NewBudgetForm() {
         user: session.user.id,
       });
 
+      console.log('[NewBudgetForm] Budget created successfully:', result);
       reset();
-      Alert.alert("Success", "Budget created successfully", [
-        {
-          text: "OK",
-          onPress: () => {
-            // Always redirect to budget tab after successful creation
-            router.replace("/(tabs)/budgets");
-          }
-        }
-      ]);
+      setIsSuccess(true);
+      
+      // Show success message briefly, then navigate
+      Alert.alert("Success", "Budget created successfully");
+      
+      // Navigate to transactions screen after successful creation
+      console.log('[NewBudgetForm] Navigating to transactions screen...');
+      // Add a small delay to ensure cache invalidation completes
+      setTimeout(() => {
+        router.push("/(tabs)/transactions");
+      }, 1000);
+      
     } catch (error) {
+      console.log('[NewBudgetForm] Caught error in onSubmit:', error);
       handleError(error, 'Manual Budget Creation');
     }
   };
@@ -240,18 +249,24 @@ export default function NewBudgetForm() {
       setTimeout(() => {
         setAiDescription('');
         setCurrentStep('analyzing');
-        Alert.alert("Success", `Budget created successfully with AI! Created ${result.categories.length} categories.`, [
-          {
-            text: "OK",
-            onPress: () => {
-              // Always redirect to budget tab after successful creation
-              router.replace("/(tabs)/budgets");
-            }
-          }
-        ]);
+        setIsSuccess(true);
+        
+        console.log('[NewBudgetForm] AI Budget created successfully:', result);
+        
+        // Show success message briefly, then navigate
+        Alert.alert("Success", `Budget created successfully with AI! Created ${result.categories.length} categories.`);
+        
+        // Navigate to transactions screen after successful creation
+        console.log('[NewBudgetForm] Navigating to transactions screen after AI creation...');
+        // Add a small delay to ensure cache invalidation completes
+        setTimeout(() => {
+          router.push("/(tabs)/transactions");
+        }, 1000);
+        
       }, 1000);
       
     } catch (error: any) {
+      console.log('[NewBudgetForm] Caught error in handleAIBudgetCreation:', error);
       setCurrentStep('analyzing');
       handleError(error, 'AI Budget Creation');
     }
@@ -259,6 +274,7 @@ export default function NewBudgetForm() {
 
   // Show error screen if there's an error
   if (errorState?.show) {
+    console.log('[NewBudgetForm] Rendering error screen with state:', errorState);
     return (
       <ErrorScreen
         title={errorState.title}

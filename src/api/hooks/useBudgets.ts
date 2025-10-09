@@ -33,10 +33,15 @@ export const useCreateBudget = () => {
 
   return useMutation({
     mutationFn: createBudget,
-    onSuccess: (data, variables) => {
+    onSuccess: async (data, variables) => {
+      console.log("Budget created successfully, updating cache...");
       // Invalidate and refetch budget queries
       queryClient.invalidateQueries({ queryKey: budgetKeys.lists() });
-      console.log("Budget created successfully");
+      // Also invalidate the specific user's budget query
+      queryClient.invalidateQueries({ queryKey: budgetKeys.list(variables.user) });
+      // Force refetch the budget for the user and wait for it to complete
+      await queryClient.refetchQueries({ queryKey: budgetKeys.list(variables.user) });
+      console.log("Budget cache updated successfully");
     },
     onError: (error) => {
       logError("Budget Creation", error);

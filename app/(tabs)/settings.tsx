@@ -10,7 +10,7 @@ import { useTheme } from "../../src/theme/ThemeContext";
 
 function SettingsScreenContent() {
   const { session, signOut } = useAuthStore();
-  const { data: currency } = useUserCurrency();
+  const { data: currency, error: currencyError } = useUserCurrency();
   const updateCurrency = useUpdateUserCurrency();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -138,26 +138,26 @@ function SettingsScreenContent() {
           </View>
           <View style={styles.currencyContainer}>
             <Pressable
-              style={[styles.currencyButton, currency === "USD" && styles.currencyButtonActive]}
+              style={[styles.currencyButton, (currency || "USD") === "USD" && styles.currencyButtonActive]}
               onPress={() => handleCurrencyChange("USD")}
             >
-              <Text style={[styles.currencyButtonText, currency === "USD" && styles.currencyButtonTextActive]}>
+              <Text style={[styles.currencyButtonText, (currency || "USD") === "USD" && styles.currencyButtonTextActive]}>
                 USD
               </Text>
             </Pressable>
             <Pressable
-              style={[styles.currencyButton, currency === "EUR" && styles.currencyButtonActive]}
+              style={[styles.currencyButton, (currency || "USD") === "EUR" && styles.currencyButtonActive]}
               onPress={() => handleCurrencyChange("EUR")}
             >
-              <Text style={[styles.currencyButtonText, currency === "EUR" && styles.currencyButtonTextActive]}>
+              <Text style={[styles.currencyButtonText, (currency || "USD") === "EUR" && styles.currencyButtonTextActive]}>
                 EUR
               </Text>
             </Pressable>
             <Pressable
-              style={[styles.currencyButton, currency === "GBP" && styles.currencyButtonActive]}
+              style={[styles.currencyButton, (currency || "USD") === "GBP" && styles.currencyButtonActive]}
               onPress={() => handleCurrencyChange("GBP")}
             >
-              <Text style={[styles.currencyButtonText, currency === "GBP" && styles.currencyButtonTextActive]}>
+              <Text style={[styles.currencyButtonText, (currency || "USD") === "GBP" && styles.currencyButtonTextActive]}>
                 GBP
               </Text>
             </Pressable>

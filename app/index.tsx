@@ -1,13 +1,20 @@
 import React, { useEffect } from 'react';
 import { useRouter } from "expo-router";
 import { useAuthStore } from "../src/store/authStore";
+import { useTokenExpiration } from "../src/hooks/useTokenExpiration";
 import LoadingScreen from "../components/LoadingScreen";
 
 export default function Index() {
   const { session, loading, isAuthenticated, loadSession } = useAuthStore();
   const router = useRouter();
+  const { isTokenExpiringSoon } = useTokenExpiration();
 
-  console.log('[Index] Auth state:', { loading, isAuthenticated, hasSession: !!session });
+  console.log('[Index] Auth state:', { 
+    loading, 
+    isAuthenticated, 
+    hasSession: !!session,
+    isTokenExpiringSoon 
+  });
 
   // Load session on app start
   useEffect(() => {

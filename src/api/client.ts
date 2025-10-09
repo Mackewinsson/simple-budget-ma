@@ -1,6 +1,8 @@
 import axios, { InternalAxiosRequestConfig } from "axios";
 import * as SecureStore from "expo-secure-store";
+import { Alert } from "react-native";
 import { ENV } from "../lib/env";
+import { useAuthStore } from "../store/authStore";
 
 // Extend Axios config to include metadata
 interface ExtendedAxiosRequestConfig extends InternalAxiosRequestConfig {
@@ -21,6 +23,15 @@ const client = axios.create({
   baseURL: ENV.API_BASE_URL, 
   timeout: 30000 // Increased timeout to 30 seconds
 });
+
+// Helper function to detect network errors
+const isNetworkError = (error: any): boolean => {
+  return !error.response && (
+    error.code === 'NETWORK_ERROR' || 
+    error.message.includes('Network Error') ||
+    error.message.includes('timeout')
+  );
+};
 
 client.interceptors.request.use(async (config: ExtendedAxiosRequestConfig) => {
   try {
@@ -99,15 +110,51 @@ client.interceptors.response.use(
       });
     }
     
+    // Handle different types of errors
     if (error.response?.status === 401) {
-      // Token expired or invalid, clear stored session
+      // Token expired or invalid
+      console.log('[API Client] 401 Unauthorized - clearing session');
       try {
+        // Check if there was actually a session before showing alert
+        const existingSession = await SecureStore.getItemAsync('auth_session');
+        const hadSession = !!existingSession;
+        
         await SecureStore.deleteItemAsync('auth_session');
-        console.log('Cleared expired auth session');
+        useAuthStore.getState().setLoading(false);
+        useAuthStore.setState({ 
+          session: null, 
+          isAuthenticated: false 
+        });
+        
+        // Only show alert if there was actually a session that expired
+        if (hadSession) {
+          Alert.alert(
+            'Session Expired',
+            'Your session has expired. Please log in again.',
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  // Navigation will be handled by the app's auth flow
+                }
+              }
+            ]
+          );
+        } else {
+          console.log('[API Client] No existing session found, not showing alert');
+        }
       } catch (clearError) {
         console.error('Error clearing auth session:', clearError);
       }
+    } else if (isNetworkError(error)) {
+      // Network error
+      console.log('[API Client] Network error detected');
+      // You could show a network error message here if needed
+    } else if (error.response?.status >= 500) {
+      // Server error
+      console.log('[API Client] Server error:', error.response.status);
     }
+    
     return Promise.reject(error);
   }
 );

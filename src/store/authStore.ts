@@ -8,13 +8,47 @@ import client from '../api/client';
 const getTokenExpiration = (token: string): string => {
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
+    console.log('[AuthStore] JWT payload:', payload);
+    
+    if (!payload.exp) {
+      console.log('[AuthStore] No expiration (exp) claim in JWT token');
+      // Fallback to 7 days from now
+      return new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    }
+    
     const exp = payload.exp * 1000; // Convert to milliseconds
-    return new Date(exp).toISOString();
+    const expirationDate = new Date(exp).toISOString();
+    console.log('[AuthStore] Token expiration from JWT:', expirationDate);
+    return expirationDate;
   } catch (error) {
     console.error('Error decoding JWT token:', error);
     // Fallback to 7 days from now
     return new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
   }
+};
+
+// Helper function to check if token is expired
+const isTokenExpired = (expires: string): boolean => {
+  const expirationDate = new Date(expires);
+  const now = new Date();
+  const isExpired = expirationDate <= now;
+  
+  console.log('[AuthStore] Token expiration check:', {
+    expires,
+    expirationDate: expirationDate.toISOString(),
+    now: now.toISOString(),
+    isExpired,
+    timeDifference: expirationDate.getTime() - now.getTime()
+  });
+  
+  return isExpired;
+};
+
+// Helper function to check if token is expiring soon
+const isTokenExpiringSoon = (expires: string, bufferMinutes: number = 5): boolean => {
+  const expirationTime = new Date(expires).getTime();
+  const bufferTime = bufferMinutes * 60 * 1000; // Convert to milliseconds
+  return Date.now() + bufferTime >= expirationTime;
 };
 
 // Custom storage for Expo SecureStore
@@ -66,6 +100,9 @@ interface AuthState {
   signOut: () => Promise<void>;
   loadSession: () => Promise<void>;
   setLoading: (loading: boolean) => void;
+  checkTokenExpiration: () => boolean;
+  isTokenExpiringSoon: () => boolean;
+  clearExpiredSession: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -91,7 +128,7 @@ export const useAuthStore = create<AuthState>()(
             console.log('[AuthStore] Found stored session:', parsedSession);
             
             // Check if session is still valid
-            if (new Date(parsedSession.expires) > new Date()) {
+            if (!isTokenExpired(parsedSession.expires)) {
               set({ 
                 session: parsedSession, 
                 isAuthenticated: true,
@@ -101,12 +138,7 @@ export const useAuthStore = create<AuthState>()(
             } else {
               // Session expired, clear it
               console.log('[AuthStore] Session expired, clearing it');
-              await SecureStore.deleteItemAsync('auth_session');
-              set({ 
-                session: null, 
-                isAuthenticated: false,
-                loading: false 
-              });
+              await get().clearExpiredSession();
             }
           } else {
             console.log('[AuthStore] No stored session found');
@@ -134,10 +166,12 @@ export const useAuthStore = create<AuthState>()(
           // Call the login endpoint
           const response = await login({ email, password });
           console.log('[AuthStore] Login response received:', response);
+          console.log('[AuthStore] Response has expires field:', !!response.expires);
+          console.log('[AuthStore] Response expires value:', response.expires);
           
           // Calculate expiration from JWT token if not provided
           const expires = response.expires || getTokenExpiration(response.token);
-          console.log('[AuthStore] Token expires at:', expires);
+          console.log('[AuthStore] Final token expires at:', expires);
           
           const newSession: Session = {
             user: response.user,
@@ -187,6 +221,44 @@ export const useAuthStore = create<AuthState>()(
           }
         } catch (error) {
           console.error('[AuthStore] Error signing out:', error);
+        }
+      },
+
+      checkTokenExpiration: () => {
+        const { session } = get();
+        if (!session) {
+          console.log('[AuthStore] No session found for expiration check');
+          return false;
+        }
+        
+        console.log('[AuthStore] Checking token expiration for session:', session.user.email);
+        const expired = isTokenExpired(session.expires);
+        if (expired) {
+          console.log('[AuthStore] Token expired, clearing session');
+          get().clearExpiredSession();
+        } else {
+          console.log('[AuthStore] Token is still valid');
+        }
+        return expired;
+      },
+
+      isTokenExpiringSoon: () => {
+        const { session } = get();
+        if (!session) return false;
+        return isTokenExpiringSoon(session.expires, 5); // 5 minutes buffer
+      },
+
+      clearExpiredSession: async () => {
+        try {
+          await SecureStore.deleteItemAsync('auth_session');
+          set({ 
+            session: null, 
+            isAuthenticated: false,
+            loading: false 
+          });
+          console.log('[AuthStore] Expired session cleared');
+        } catch (error) {
+          console.error('[AuthStore] Error clearing expired session:', error);
         }
       },
     }),

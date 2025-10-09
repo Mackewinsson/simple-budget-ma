@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getUserCurrency, updateUserCurrency } from "../users";
+import { useAuthStore } from "../../store/authStore";
 
 // Query keys
 export const userKeys = {
@@ -9,9 +10,14 @@ export const userKeys = {
 
 // Get user currency
 export const useUserCurrency = () => {
+  const { isAuthenticated, session } = useAuthStore();
+  
   return useQuery({
     queryKey: userKeys.currency(),
     queryFn: getUserCurrency,
+    enabled: false, // Temporarily disabled due to backend 401 issue
+    retry: false, // Don't retry on failure to avoid multiple 401s
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
   });
 };
 

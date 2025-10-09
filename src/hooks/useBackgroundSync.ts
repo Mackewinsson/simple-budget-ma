@@ -15,7 +15,7 @@ export function useBackgroundSync() {
       await queryClient.refetchQueries({
         predicate: (query) => {
           const isStale = Date.now() - (query.state.dataUpdatedAt || 0) > 5 * 60 * 1000; // 5 minutes
-          const isNotFetching = !query.state.isFetching;
+          const isNotFetching = !query.state.fetchStatus || query.state.fetchStatus !== 'fetching';
           const isUserData = query.queryKey.includes(session.user.id);
           const isCriticalData = query.queryKey.some(key => 
             typeof key === 'string' && ['budgets', 'expenses', 'categories'].includes(key)

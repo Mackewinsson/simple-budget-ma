@@ -7,26 +7,33 @@ import GlobalLoadingIndicator from "../components/GlobalLoadingIndicator";
 import { ThemeProvider, useTheme } from "../src/theme/ThemeContext";
 import { useBackgroundSync } from "../src/hooks/useBackgroundSync";
 
+function AppContent() {
+  // Initialize background sync inside QueryClientProvider
+  useBackgroundSync();
+
+  return (
+    <>
+      <Stack screenOptions={{
+        headerShown: false,
+      }}>
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="auth/login" options={{ title: "Sign In" }} />
+        <Stack.Screen name="test" options={{ title: "Test" }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      </Stack>
+      <GlobalLoadingIndicator />
+    </>
+  );
+}
+
 function RootLayoutContent() {
   const { theme } = useTheme();
-  
-  // Initialize background sync
-  useBackgroundSync();
 
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: theme.background }}>
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
-          <Stack screenOptions={{
-            headerShown: false,
-            contentStyle: { backgroundColor: theme.background }
-          }}>
-            <Stack.Screen name="index" options={{ headerShown: false }} />
-            <Stack.Screen name="auth/login" options={{ title: "Sign In" }} />
-            <Stack.Screen name="test" options={{ title: "Test" }} />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          </Stack>
-          <GlobalLoadingIndicator />
+          <AppContent />
         </QueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

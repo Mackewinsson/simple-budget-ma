@@ -60,8 +60,8 @@ export const exchangeGoogleCode = async (
   return {
     user: {
       id: data.user.id,
-      username: data.user.email || data.user.name || 'google-user',
-      email: data.user.email,
+      email: data.user.email || '',
+      name: data.user.name || data.user.email || 'google-user',
     },
     token: normalizedToken,
     expires: data.expires,

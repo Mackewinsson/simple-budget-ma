@@ -2,7 +2,7 @@ import { useIsFetching, useIsMutating } from '@tanstack/react-query';
 
 export const useSpecificQueryLoading = (queryKey?: string[]) => {
   const isFetching = useIsFetching(queryKey ? { queryKey } : undefined);
-  const isMutating = useIsMutating(queryKey ? { queryKey } : undefined);
+  const isMutating = useIsMutating();
   
   return {
     isFetching: isFetching > 0,

@@ -62,8 +62,11 @@ export const useCreateBudget = () => {
         updatedAt: new Date().toISOString()
       };
 
+      // Update the user-specific budget query (single budget)
       queryClient.setQueryData(budgetKeys.list(newBudget.user), optimisticBudget);
-      queryClient.setQueryData(budgetKeys.lists(), (old: any) => {
+      
+      // Update the budgets collection query (array of budgets)
+      queryClient.setQueryData([...budgetKeys.list(newBudget.user), "collection"], (old: any) => {
         if (!old) return [optimisticBudget];
         return [...old, optimisticBudget];
       });
@@ -73,10 +76,10 @@ export const useCreateBudget = () => {
     onSuccess: (data, variables) => {
       // Update cache with real data from server
       queryClient.setQueryData(budgetKeys.list(variables.user), data);
-      queryClient.setQueryData(budgetKeys.lists(), (old: any) => {
+      queryClient.setQueryData([...budgetKeys.list(variables.user), "collection"], (old: any) => {
         if (!old) return [data];
         return old.map((budget: any) => 
-          budget.isOptimistic && budget.user === variables.user
+          budget.isOptimistic && budget.user === variables.user && budget.month === variables.month && budget.year === variables.year
             ? { ...data, isOptimistic: false }
             : budget
         );
@@ -87,7 +90,7 @@ export const useCreateBudget = () => {
     onError: (error, variables, context) => {
       // Rollback optimistic update on error
       if (context?.previousBudgets) {
-        queryClient.setQueryData(budgetKeys.lists(), context.previousBudgets);
+        queryClient.setQueryData([...budgetKeys.list(variables.user), "collection"], context.previousBudgets);
         queryClient.removeQueries({ queryKey: budgetKeys.list(variables.user) });
       }
       

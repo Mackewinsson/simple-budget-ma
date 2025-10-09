@@ -4,7 +4,7 @@ export const queryClient = new QueryClient({
   defaultOptions: { 
     queries: { 
       staleTime: 5 * 60 * 1000, // 5 minutes instead of 30 seconds
-      cacheTime: 10 * 60 * 1000, // 10 minutes cache time
+      gcTime: 10 * 60 * 1000, // 10 minutes garbage collection time (replaces cacheTime)
       refetchOnWindowFocus: false,
       refetchOnMount: false, // Don't refetch on mount if data is fresh
       refetchOnReconnect: true, // Refetch when network reconnects

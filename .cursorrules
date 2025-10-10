@@ -1,0 +1,333 @@
+# Cursor Rules for Budgeting Mobile App
+
+## 🎯 Project Overview
+This is a React Native budgeting app built with Expo, using TypeScript, Zustand for state management, and TanStack Query for data fetching. The app includes subscription/IAP functionality and follows modern React Native best practices.
+
+## 🏗️ Architecture & Structure
+
+### File Organization
+- **Components**: Place reusable UI components in `/components/`
+- **Screens**: Place screen components in `/app/` following Expo Router conventions
+- **API**: Place API logic in `/src/api/` with separate files for each domain
+- **Hooks**: Place custom hooks in `/src/hooks/`
+- **Store**: Place Zustand stores in `/src/store/`
+- **Types**: Place TypeScript types in `/src/types/`
+- **Utils**: Place utility functions in `/src/lib/`
+- **Theme**: Place theme-related code in `/src/theme/`
+
+### Naming Conventions
+- **Files**: Use PascalCase for components (`UserProfile.tsx`), camelCase for utilities (`formatCurrency.ts`)
+- **Components**: Use PascalCase (`UserProfile`, `BudgetCard`)
+- **Functions**: Use camelCase (`getUserData`, `handleSubmit`)
+- **Constants**: Use UPPER_SNAKE_CASE (`API_BASE_URL`, `MAX_BUDGET_AMOUNT`)
+- **Types/Interfaces**: Use PascalCase (`User`, `BudgetData`)
+
+## 🎨 UI/UX Guidelines
+
+### Component Design
+- **Single Responsibility**: Each component should have one clear purpose
+- **Reusability**: Create reusable components for common UI patterns
+- **Accessibility**: Always include accessibility props (`accessibilityLabel`, `accessibilityHint`)
+- **Responsive**: Design for different screen sizes and orientations
+- **Theme Integration**: Always use the theme system for colors, fonts, and spacing
+
+### Styling
+- **StyleSheet**: Use `StyleSheet.create()` for all styles
+- **Theme Integration**: Use `useTheme()` hook for all colors and typography
+- **Dynamic Styles**: Create style functions that accept theme parameters
+- **Consistent Spacing**: Use theme spacing values (`theme.spacing.sm`, `theme.spacing.lg`)
+- **Safe Areas**: Always handle safe areas with `useSafeAreaInsets()`
+
+### Example Component Structure:
+```typescript
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { useTheme } from '../src/theme/ThemeContext';
+
+interface ComponentProps {
+  title: string;
+  onPress?: () => void;
+}
+
+export default function Component({ title, onPress }: ComponentProps) {
+  const { theme } = useTheme();
+  const styles = createStyles(theme);
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>{title}</Text>
+    </View>
+  );
+}
+
+const createStyles = (theme: any) => StyleSheet.create({
+  container: {
+    backgroundColor: theme.background,
+    padding: theme.spacing.md,
+  },
+  title: {
+    fontSize: theme.fontSizes.lg,
+    color: theme.text,
+    fontWeight: theme.fontWeights.semibold,
+  },
+});
+```
+
+## 🔄 State Management
+
+### Zustand Stores
+- **Single Source of Truth**: Each domain should have its own store
+- **Immutable Updates**: Always create new objects/arrays when updating state
+- **Type Safety**: Define proper TypeScript interfaces for all store state
+- **Actions**: Group related actions together in the store
+- **Persistence**: Use Zustand persist middleware for data that should survive app restarts
+
+### Example Store Structure:
+```typescript
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+
+interface StoreState {
+  data: DataType[];
+  loading: boolean;
+  error: string | null;
+}
+
+interface StoreActions {
+  setData: (data: DataType[]) => void;
+  setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
+}
+
+export const useStore = create<StoreState & StoreActions>()(
+  persist(
+    (set) => ({
+      // State
+      data: [],
+      loading: false,
+      error: null,
+      
+      // Actions
+      setData: (data) => set({ data }),
+      setLoading: (loading) => set({ loading }),
+      setError: (error) => set({ error }),
+    }),
+    {
+      name: 'store-name',
+      storage: createJSONStorage(() => secureStorage),
+    }
+  )
+);
+```
+
+## 🌐 API & Data Fetching
+
+### TanStack Query
+- **Query Keys**: Use consistent query key patterns (`['users', userId]`, `['budgets', 'list', userId]`)
+- **Error Handling**: Always handle errors gracefully with proper error boundaries
+- **Loading States**: Show appropriate loading indicators
+- **Optimistic Updates**: Use optimistic updates for better UX
+- **Cache Management**: Configure appropriate stale times and cache times
+
+### API Structure
+- **Client**: Use the centralized API client in `/src/api/client.ts`
+- **Hooks**: Create custom hooks for each API endpoint
+- **Error Handling**: Use consistent error handling patterns
+- **Type Safety**: Define proper TypeScript interfaces for all API responses
+
+### Example API Hook:
+```typescript
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiClient } from '../client';
+
+export const useGetBudgets = (userId: string) => {
+  return useQuery({
+    queryKey: ['budgets', 'list', userId],
+    queryFn: () => apiClient.get(`/budgets/${userId}`),
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+export const useCreateBudget = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (budgetData: CreateBudgetRequest) => 
+      apiClient.post('/budgets', budgetData),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['budgets'] });
+    },
+  });
+};
+```
+
+## 🔐 Authentication & Security
+
+### Auth Store
+- **Session Management**: Use secure storage for sensitive data
+- **Token Handling**: Implement proper token expiration checking
+- **Logout**: Clear all sensitive data on logout
+- **Error Handling**: Handle auth errors gracefully
+
+### Security Best Practices
+- **No Hardcoded Secrets**: Use environment variables for sensitive data
+- **Input Validation**: Validate all user inputs
+- **Error Messages**: Don't expose sensitive information in error messages
+- **Secure Storage**: Use Expo SecureStore for sensitive data
+
+## 💳 Subscription & IAP
+
+### Subscription Management
+- **Feature Access**: Use `useFeatureAccess` hook for feature gating
+- **Plan Checking**: Always check user plan before showing pro features
+- **Upgrade Flow**: Provide clear upgrade paths for pro features
+- **Analytics**: Track subscription-related events
+
+### IAP Implementation
+- **Mock First**: Implement mock purchase flow before real IAP
+- **Error Handling**: Handle purchase failures gracefully
+- **Receipt Validation**: Validate receipts on the server side
+- **Restore Purchases**: Provide restore purchases functionality
+
+## 🧪 Testing & Quality
+
+### Code Quality
+- **TypeScript**: Use strict TypeScript configuration
+- **ESLint**: Follow ESLint rules and fix all warnings
+- **Prettier**: Use consistent code formatting
+- **Error Boundaries**: Implement error boundaries for better error handling
+
+### Testing Strategy
+- **Unit Tests**: Write unit tests for utility functions
+- **Component Tests**: Test component behavior and props
+- **Integration Tests**: Test API integration and data flow
+- **E2E Tests**: Test critical user journeys
+
+## 📱 React Native Specific
+
+### Performance
+- **FlatList**: Use FlatList for large lists with proper optimization
+- **Image Optimization**: Optimize images and use appropriate formats
+- **Bundle Size**: Keep bundle size optimized
+- **Memory Management**: Avoid memory leaks with proper cleanup
+
+### Platform Considerations
+- **iOS/Android**: Test on both platforms
+- **Safe Areas**: Handle safe areas properly
+- **Keyboard**: Handle keyboard appearance/disappearance
+- **Permissions**: Request permissions appropriately
+
+### Navigation
+- **Expo Router**: Use Expo Router for navigation
+- **Deep Linking**: Implement proper deep linking
+- **Navigation State**: Manage navigation state properly
+- **Back Button**: Handle back button behavior on Android
+
+## 🚀 Development Workflow
+
+### Git Workflow
+- **Branch Naming**: Use descriptive branch names (`feature/subscription-ui`, `fix/auth-bug`)
+- **Commit Messages**: Write clear, descriptive commit messages
+- **Pull Requests**: Create detailed PR descriptions
+- **Code Review**: Review code for quality and consistency
+
+### Development Environment
+- **Expo Go**: Test in Expo Go when possible
+- **Dev Builds**: Use dev builds only when necessary
+- **Hot Reload**: Use hot reload for faster development
+- **Debugging**: Use proper debugging tools and techniques
+
+## 📊 Analytics & Monitoring
+
+### Event Tracking
+- **User Actions**: Track important user actions
+- **Performance**: Monitor app performance
+- **Errors**: Track and monitor errors
+- **Business Metrics**: Track subscription and usage metrics
+
+### Analytics Implementation
+- **Consistent Naming**: Use consistent event naming conventions
+- **Privacy**: Respect user privacy and data protection
+- **Performance**: Don't impact app performance with analytics
+- **Debugging**: Include debug information in development builds
+
+## 🔧 Common Patterns
+
+### Error Handling
+```typescript
+try {
+  const result = await apiCall();
+  return result;
+} catch (error) {
+  console.error('[Component] Error:', error);
+  // Handle error appropriately
+  throw error;
+}
+```
+
+### Loading States
+```typescript
+const { data, isLoading, error } = useQuery({
+  queryKey: ['data'],
+  queryFn: fetchData,
+});
+
+if (isLoading) return <LoadingSpinner />;
+if (error) return <ErrorMessage error={error} />;
+return <DataComponent data={data} />;
+```
+
+### Form Handling
+```typescript
+const { control, handleSubmit, formState: { errors } } = useForm({
+  resolver: zodResolver(schema),
+});
+
+const onSubmit = async (data: FormData) => {
+  try {
+    await submitData(data);
+    // Handle success
+  } catch (error) {
+    // Handle error
+  }
+};
+```
+
+## 🎯 Code Review Checklist
+
+Before submitting code, ensure:
+- [ ] TypeScript types are properly defined
+- [ ] Components are properly themed
+- [ ] Error handling is implemented
+- [ ] Loading states are shown
+- [ ] Accessibility props are included
+- [ ] Performance is optimized
+- [ ] Code is properly formatted
+- [ ] Tests are written (when applicable)
+- [ ] Documentation is updated (when applicable)
+
+## 🚨 Common Pitfalls to Avoid
+
+- **Don't** use hardcoded colors or sizes
+- **Don't** ignore TypeScript errors
+- **Don't** forget error handling
+- **Don't** use inline styles for complex components
+- **Don't** ignore accessibility requirements
+- **Don't** forget to handle loading states
+- **Don't** use deprecated APIs
+- **Don't** ignore performance implications
+- **Don't** commit sensitive data
+- **Don't** forget to test on both platforms
+
+## 📚 Resources
+
+- [React Native Documentation](https://reactnative.dev/)
+- [Expo Documentation](https://docs.expo.dev/)
+- [TanStack Query Documentation](https://tanstack.com/query)
+- [Zustand Documentation](https://zustand-demo.pmnd.rs/)
+- [TypeScript Documentation](https://www.typescriptlang.org/docs/)
+
+---
+
+**Remember**: Always prioritize user experience, code quality, and maintainability. When in doubt, ask for clarification or review existing code patterns in the project.

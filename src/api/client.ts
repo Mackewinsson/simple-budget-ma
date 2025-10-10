@@ -2,7 +2,6 @@ import axios, { InternalAxiosRequestConfig } from "axios";
 import * as SecureStore from "expo-secure-store";
 import { Alert } from "react-native";
 import { ENV } from "../lib/env";
-import { useAuthStore } from "../store/authStore";
 import { isNetworkError, categorizeError } from "../lib/errorUtils";
 
 // Extend Axios config to include metadata
@@ -114,11 +113,6 @@ client.interceptors.response.use(
         const hadSession = !!existingSession;
         
         await SecureStore.deleteItemAsync('auth_session');
-        useAuthStore.getState().setLoading(false);
-        useAuthStore.setState({ 
-          session: null, 
-          isAuthenticated: false 
-        });
         
         // Only show alert if there was actually a session that expired
         if (hadSession) {

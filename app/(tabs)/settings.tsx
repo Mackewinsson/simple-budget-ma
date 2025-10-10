@@ -133,6 +133,44 @@ function SettingsScreenContent() {
       </View>
 
       <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Subscription</Text>
+        <View style={styles.settingItem}>
+          <View style={styles.settingLeft}>
+            <Ionicons name="diamond-outline" size={20} color={theme.textMuted} />
+            <Text style={styles.settingLabel}>Plan</Text>
+          </View>
+          <View style={styles.planContainer}>
+            <Text style={styles.settingValue}>
+              {session?.user?.plan === 'pro' ? 'Pro' : 'Free'}
+            </Text>
+            {session?.user?.plan === 'pro' ? (
+              <ProBadge tone="light" showLabel={false} />
+            ) : null}
+          </View>
+        </View>
+        
+        {session?.user?.plan !== 'pro' ? (
+          <Pressable
+            style={styles.upgradeButton}
+            onPress={() => router.push('/upgrade')}
+          >
+            <Ionicons name="sparkles" size={20} color={theme.surface} />
+            <Text style={styles.upgradeButtonText}>Upgrade to Pro</Text>
+            <Ionicons name="chevron-forward" size={16} color={theme.surface} />
+          </Pressable>
+        ) : (
+          <Pressable
+            style={styles.manageButton}
+            onPress={() => router.push('/upgrade')}
+          >
+            <Ionicons name="settings-outline" size={20} color={theme.primary} />
+            <Text style={styles.manageButtonText}>Manage Subscription</Text>
+            <Ionicons name="chevron-forward" size={16} color={theme.primary} />
+          </Pressable>
+        )}
+      </View>
+
+      <View style={styles.section}>
         <Text style={styles.sectionTitle}>Preferences</Text>
 
         <View style={styles.settingItem}>
@@ -409,6 +447,50 @@ function createStyles(theme: any) {
       fontSize: 16,
       color: theme.text,
       fontWeight: "500",
+    },
+    planContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+    },
+    upgradeButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      backgroundColor: theme.primary,
+      padding: 16,
+      borderRadius: 12,
+      marginTop: 8,
+      shadowColor: theme.primary,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    upgradeButtonText: {
+      flex: 1,
+      color: theme.surface,
+      fontSize: 16,
+      fontWeight: "600",
+      marginLeft: 8,
+    },
+    manageButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      backgroundColor: theme.cardBackground,
+      padding: 16,
+      borderRadius: 12,
+      marginTop: 8,
+      borderWidth: 1,
+      borderColor: theme.primary,
+    },
+    manageButtonText: {
+      flex: 1,
+      color: theme.primary,
+      fontSize: 16,
+      fontWeight: "500",
+      marginLeft: 8,
     },
     signOutButton: {
       flexDirection: "row",

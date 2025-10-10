@@ -1,6 +1,7 @@
 import { useAuthStore } from '../store/authStore';
+import { useSubscriptionStore } from '../store/subscriptionStore';
 import { FEATURES, FeatureKey } from '../lib/features';
-import { Alert } from 'react-native';
+import { trackFeatureAccessDenied } from '../lib/analytics';
 
 export interface FeatureAccess {
   hasAccess: boolean;
@@ -9,30 +10,16 @@ export interface FeatureAccess {
 
 export const useFeatureAccess = (featureKey: FeatureKey): FeatureAccess => {
   const { session } = useAuthStore();
+  const { showUpgradeModal: openModal } = useSubscriptionStore();
   
   // Check if user has pro plan
-  const hasAccess = session?.user?.plan === "pro";
+  const hasAccess = session?.user?.plan === "pro" || session?.user?.isPaid === true;
   
   const showUpgradeModal = () => {
     const feature = FEATURES[featureKey];
-    Alert.alert(
-      "Pro Feature",
-      `This is a Pro feature! Upgrade to Pro to unlock ${feature.label.toLowerCase()}. ${feature.description}`,
-      [
-        {
-          text: "Maybe Later",
-          style: "cancel"
-        },
-        {
-          text: "Upgrade to Pro",
-          style: "default",
-          onPress: () => {
-            // TODO: Navigate to upgrade screen or open upgrade modal
-            console.log('Navigate to upgrade screen');
-          }
-        }
-      ]
-    );
+    trackFeatureAccessDenied(featureKey);
+    openModal();
+    console.log(`[FeatureAccess] Showing upgrade modal for: ${feature.label}`);
   };
 
   return {

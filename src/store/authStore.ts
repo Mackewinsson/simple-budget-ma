@@ -103,6 +103,8 @@ interface AuthState {
   checkTokenExpiration: () => boolean;
   isTokenExpiringSoon: () => boolean;
   clearExpiredSession: () => Promise<void>;
+  updateUserPlan: (plan: string) => void;
+  isProUser: () => boolean;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -260,6 +262,27 @@ export const useAuthStore = create<AuthState>()(
         } catch (error) {
           console.error('[AuthStore] Error clearing expired session:', error);
         }
+      },
+
+      updateUserPlan: (plan: string) => {
+        const { session } = get();
+        if (session) {
+          const updatedSession = {
+            ...session,
+            user: {
+              ...session.user,
+              plan,
+              isPaid: plan === 'pro'
+            }
+          };
+          set({ session: updatedSession });
+          console.log(`[AuthStore] User plan updated to: ${plan}`);
+        }
+      },
+
+      isProUser: () => {
+        const { session } = get();
+        return session?.user?.plan === 'pro' || session?.user?.isPaid === true;
       },
     }),
     {

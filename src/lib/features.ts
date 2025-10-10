@@ -1,48 +1,45 @@
 export const FEATURES = {
   aiBudgeting: {
-    label: "AI Budgeting",
-    description: "Create budgets using natural language with AI",
-    plans: ["pro"]
+    label: "AI Budget Creation",
+    description: "Create personalized budgets using natural language with AI assistance",
+    plans: ["pro"],
+    icon: "sparkles"
   },
   transactionTextInput: {
     label: "Text-to-Transaction Input",
     description: "Convert text descriptions into transactions with AI",
-    plans: ["pro"]
+    plans: ["pro"],
+    icon: "text"
   },
   exportCSV: {
     label: "CSV Export",
-    description: "Export your budget data to CSV format",
-    plans: ["free", "pro"]
+    description: "Export your budget data to CSV format for external analysis",
+    plans: ["free", "pro"],
+    icon: "download"
   },
   manualBudget: {
     label: "Manual Budget Setup",
     description: "Create budgets manually with categories and sections",
-    plans: ["free", "pro"]
+    plans: ["free", "pro"],
+    icon: "create"
   },
   advancedAnalytics: {
     label: "Advanced Analytics",
-    description: "Detailed spending insights and charts",
-    plans: ["pro"]
+    description: "Detailed spending insights, trends, and visual charts",
+    plans: ["pro"],
+    icon: "analytics"
   },
   unlimitedCategories: {
     label: "Unlimited Categories",
-    description: "Create unlimited budget categories",
-    plans: ["free", "pro"]
+    description: "Create unlimited budget categories for detailed tracking",
+    plans: ["free", "pro"],
+    icon: "list"
   },
-  // budgetTemplates: {
-  //   label: "Budget Templates",
-  //   description: "Save and reuse budget templates",
-  //   plans: ["pro"]
-  // },
-  // savingsGoals: {
-  //   label: "Savings Goals",
-  //   description: "Track progress towards savings targets",
-  //   plans: ["pro"]
-  // },
   prioritySupport: {
     label: "Priority Support",
-    description: "Get priority customer support",
-    plans: ["pro"]
+    description: "Get priority customer support with faster response times",
+    plans: ["pro"],
+    icon: "headset"
   }
 } as const;
 

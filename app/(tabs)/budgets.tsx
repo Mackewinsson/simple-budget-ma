@@ -9,6 +9,7 @@ import { useCategoriesByBudget } from "../../src/api/hooks/useCategories";
 import { useExpenses } from "../../src/api/hooks/useExpenses";
 import { useAuthStore } from "../../src/store/authStore";
 import { useTheme } from "../../src/theme/ThemeContext";
+import { useFeatureFlags } from "../../src/hooks/useFeatureFlags";
 import CategoryList from "../../components/CategoryList";
 import BudgetSetupSection from "../../components/BudgetSetupSection";
 import ProBadge from "../../components/ProBadge";
@@ -21,6 +22,9 @@ function BudgetsScreenContent() {
   const { data: expenses = [], isLoading: expensesLoading, error: expensesError } = useExpenses(session?.user?.id || "");
   const insets = useSafeAreaInsets();
   const { theme } = useTheme();
+  
+  // Feature flags
+  const { isAaEnabled } = useFeatureFlags();
 
   // Redirect to budget creation if no budget exists
   useEffect(() => {
@@ -70,14 +74,17 @@ function BudgetsScreenContent() {
             <Text style={styles.title}>Budgets</Text>
             <ProBadge tone="light" />
           </View>
-          {budget && (
-            <View style={styles.budgetBadge}>
-              <Ionicons name="calendar-outline" size={16} color={theme.onPrimaryMuted} />
-              <Text style={styles.budgetPeriod}>
-                {budget.month && budget.year ? `${budget.month}/${budget.year}` : 'Monthly'}
-              </Text>
-            </View>
-          )}
+          <View style={styles.headerRight}>
+            
+            {budget && (
+              <View style={styles.budgetBadge}>
+                <Ionicons name="calendar-outline" size={16} color={theme.onPrimaryMuted} />
+                <Text style={styles.budgetPeriod}>
+                  {budget.month && budget.year ? `${budget.month}/${budget.year}` : 'Monthly'}
+                </Text>
+              </View>
+            )}
+          </View>
         </View>
       </LinearGradient>
 
@@ -85,6 +92,7 @@ function BudgetsScreenContent() {
         style={styles.scrollContent}
         contentContainerStyle={{ paddingBottom: 32 }}
       >
+
         {budget && (
           <>
             <BudgetSetupSection
@@ -142,6 +150,11 @@ const createStyles = (theme: any) => StyleSheet.create({
   headerLeft: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 8,
+  },
+  headerRight: {
+    flexDirection: "column",
+    alignItems: "flex-end",
     gap: 8,
   },
   title: {

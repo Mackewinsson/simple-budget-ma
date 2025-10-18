@@ -19,6 +19,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     }
   },
   
+  plugins: [
+    "expo-secure-store",
+    "expo-dev-client"
+  ],
+  
   extra: {
     API_BASE_URL: process.env.EXPO_PUBLIC_API_BASE_URL || "http://localhost:3000",
     GOOGLE_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || "",

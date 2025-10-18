@@ -55,11 +55,11 @@ export interface SubscriptionState {
 }
 
 export interface SubscriptionActions {
-  showUpgradeModal: () => void;
+  showUpgradeModal: (featureContext?: string) => void;
   hideUpgradeModal: () => void;
   selectPlan: (plan: SubscriptionPlan) => void;
   startPurchase: () => void;
-  completePurchase: () => void;
+  completePurchase: (packageToPurchase?: any) => Promise<void>; // PurchasesPackage type
   setPurchaseError: (error: string | null) => void;
   restorePurchases: () => Promise<void>;
 }

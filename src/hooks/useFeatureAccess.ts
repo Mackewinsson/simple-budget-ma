@@ -1,9 +1,11 @@
 import { useAuthStore } from '../store/authStore';
 import { useSubscriptionStore } from '../store/subscriptionStore';
 import { useFeatureFlags } from './useFeatureFlags';
+import { useRevenueCat } from './useRevenueCat';
 import { FEATURES, FeatureKey } from '../lib/features';
 import { trackFeatureAccessDenied } from '../lib/analytics';
 import { FEATURE_FLAG_KEYS } from '../types/featureFlags';
+import { ENTITLEMENT_IDS } from '../lib/revenueCat';
 
 export interface FeatureAccess {
   hasAccess: boolean;
@@ -27,6 +29,7 @@ export const useFeatureAccess = (featureKey: FeatureKey): FeatureAccess => {
   const { session } = useAuthStore();
   const { showUpgradeModal: openModal } = useSubscriptionStore();
   const { isFeatureEnabled, isProUser } = useFeatureFlags();
+  const { hasProAccess: hasRevenueCatProAccess, isInitialized: isRevenueCatInitialized } = useRevenueCat();
   
   // Get the corresponding feature flag key
   const featureFlagKey = FEATURE_TO_FLAG_MAPPING[featureKey];
@@ -40,13 +43,16 @@ export const useFeatureAccess = (featureKey: FeatureKey): FeatureAccess => {
   // Check if user is pro user (from feature flags)
   const isProUserFromFlags = isProUser();
   
-  // Determine access: feature flag enabled OR pro user OR legacy pro check
-  const hasAccess = isFeatureFlagEnabled || isProUserFromFlags || isProUserLegacy;
+  // Check if user has pro access via RevenueCat
+  const isProUserFromRevenueCat = isRevenueCatInitialized && hasRevenueCatProAccess;
   
-  const showUpgradeModal = () => {
+  // Determine access: feature flag enabled OR pro user (any source)
+  const hasAccess = isFeatureFlagEnabled || isProUserFromFlags || isProUserLegacy || isProUserFromRevenueCat;
+  
+  const showUpgradeModal = (featureContext?: string) => {
     const feature = FEATURES[featureKey];
     trackFeatureAccessDenied(featureKey);
-    openModal();
+    openModal(featureContext || feature.label);
     console.log(`[FeatureAccess] Showing upgrade modal for: ${feature.label}`);
   };
 
@@ -54,6 +60,6 @@ export const useFeatureAccess = (featureKey: FeatureKey): FeatureAccess => {
     hasAccess,
     showUpgradeModal,
     isFeatureFlagEnabled,
-    isProUser: isProUserFromFlags || isProUserLegacy
+    isProUser: isProUserFromFlags || isProUserLegacy || isProUserFromRevenueCat
   };
 };

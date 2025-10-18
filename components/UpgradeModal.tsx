@@ -3,10 +3,12 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert, Modal, ScrollView } fr
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../src/theme/ThemeContext';
 import { useSubscriptionStore } from '../src/store/subscriptionStore';
+import { useRevenueCat } from '../src/hooks/useRevenueCat';
 import { SUBSCRIPTION_PLANS } from '../src/types/subscription';
 import SubscriptionPlanCard from './SubscriptionPlanCard';
 import FeatureList from './FeatureList';
 import { trackUpgradeModalViewed, trackPlanSelected, trackPurchaseInitiated, trackPurchaseCompleted, trackPurchaseFailed } from '../src/lib/analytics';
+import { logDev } from '../src/lib/devUtils';
 
 interface UpgradeModalProps {
   featureContext?: string;
@@ -28,6 +30,18 @@ export default function UpgradeModal({ featureContext }: UpgradeModalProps) {
     restorePurchases
   } = useSubscriptionStore();
 
+  const {
+    isInitialized: isRevenueCatInitialized,
+    currentOffering,
+    isLoadingOfferings,
+    purchasePackage: purchaseRevenueCatPackage,
+    restorePurchases: restoreRevenueCatPurchases,
+    purchaseError: revenueCatPurchaseError,
+    isPurchasing: isRevenueCatPurchasing,
+    isRestoring: isRevenueCatRestoring,
+    restoreError: revenueCatRestoreError,
+  } = useRevenueCat();
+
   const styles = createStyles(theme);
 
   // Track modal view when it becomes visible
@@ -48,31 +62,90 @@ export default function UpgradeModal({ featureContext }: UpgradeModalProps) {
       startPurchase();
       trackPurchaseInitiated(selectedPlan.id, selectedPlan.displayName, selectedPlan.price);
       
-      // Mock purchase flow
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Simulate success
-      completePurchase();
-      trackPurchaseCompleted(selectedPlan.id, selectedPlan.displayName, selectedPlan.price);
-      
-      Alert.alert(
-        'Welcome to Pro!',
-        `You've successfully upgraded to ${selectedPlan.displayName}. Enjoy all the premium features!`,
-        [{ text: 'Get Started', style: 'default' }]
-      );
+      // Try to use RevenueCat if available
+      if (isRevenueCatInitialized && currentOffering) {
+        logDev('[UpgradeModal] Using RevenueCat for purchase');
+        
+        // Find the matching package in RevenueCat offering
+        const matchingPackage = currentOffering.availablePackages.find(pkg => {
+          // Map our plan IDs to RevenueCat package identifiers
+          const packageId = selectedPlan.id === 'pro_monthly' ? 'monthly' : 'yearly';
+          return pkg.identifier === packageId;
+        });
+
+        if (matchingPackage) {
+          const result = await purchaseRevenueCatPackage(matchingPackage);
+          
+          if (result.success) {
+            await completePurchase(matchingPackage);
+            trackPurchaseCompleted(selectedPlan.id, selectedPlan.displayName, selectedPlan.price);
+            
+            Alert.alert(
+              'Welcome to Pro!',
+              `You've successfully upgraded to ${selectedPlan.displayName}. Enjoy all the premium features!`,
+              [{ text: 'Get Started', style: 'default' }]
+            );
+          } else {
+            const errorMessage = result.error || 'Purchase failed. Please try again.';
+            setPurchaseError(errorMessage);
+            trackPurchaseFailed(selectedPlan.id, errorMessage);
+          }
+        } else {
+          logDev('[UpgradeModal] No matching RevenueCat package found, falling back to mock purchase');
+          // Fallback to mock purchase
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          await completePurchase();
+          trackPurchaseCompleted(selectedPlan.id, selectedPlan.displayName, selectedPlan.price);
+          
+          Alert.alert(
+            'Welcome to Pro!',
+            `You've successfully upgraded to ${selectedPlan.displayName}. Enjoy all the premium features!`,
+            [{ text: 'Get Started', style: 'default' }]
+          );
+        }
+      } else {
+        logDev('[UpgradeModal] RevenueCat not initialized, using mock purchase');
+        // Fallback to mock purchase
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        await completePurchase();
+        trackPurchaseCompleted(selectedPlan.id, selectedPlan.displayName, selectedPlan.price);
+        
+        Alert.alert(
+          'Welcome to Pro!',
+          `You've successfully upgraded to ${selectedPlan.displayName}. Enjoy all the premium features!`,
+          [{ text: 'Get Started', style: 'default' }]
+        );
+      }
     } catch (error) {
-      const errorMessage = 'Purchase failed. Please try again.';
+      const errorMessage = error instanceof Error ? error.message : 'Purchase failed. Please try again.';
       setPurchaseError(errorMessage);
       trackPurchaseFailed(selectedPlan.id, errorMessage);
+      logDev('[UpgradeModal] Purchase failed:', error);
     }
   };
 
   const handleRestorePurchases = async () => {
     try {
-      await restorePurchases();
-      Alert.alert('Success', 'Purchases restored successfully!');
+      // Try to use RevenueCat if available
+      if (isRevenueCatInitialized) {
+        logDev('[UpgradeModal] Using RevenueCat for restore purchases');
+        const result = await restoreRevenueCatPurchases();
+        
+        if (result.success) {
+          await restorePurchases();
+          Alert.alert('Success', 'Purchases restored successfully!');
+        } else {
+          Alert.alert('Error', result.error || 'Failed to restore purchases. Please try again.');
+        }
+      } else {
+        logDev('[UpgradeModal] RevenueCat not initialized, using mock restore');
+        await restorePurchases();
+        Alert.alert('Success', 'Purchases restored successfully!');
+      }
     } catch (error) {
-      Alert.alert('Error', 'Failed to restore purchases. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to restore purchases. Please try again.';
+      Alert.alert('Error', errorMessage);
+      logDev('[UpgradeModal] Restore failed:', error);
     }
   };
 
@@ -127,22 +200,24 @@ export default function UpgradeModal({ featureContext }: UpgradeModalProps) {
             <Text style={styles.errorText}>{purchaseError}</Text>
           )}
           
-          <TouchableOpacity
-            style={[styles.purchaseButton, isPurchasing && styles.purchaseButtonDisabled]}
-            onPress={handlePurchase}
-            disabled={isPurchasing || !selectedPlan}
-          >
-            <Text style={styles.purchaseButtonText}>
-              {isPurchasing ? 'Processing...' : `Start ${selectedPlan?.displayName}`}
-            </Text>
-          </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.purchaseButton, (isPurchasing || isRevenueCatPurchasing) && styles.purchaseButtonDisabled]}
+                    onPress={handlePurchase}
+                    disabled={isPurchasing || isRevenueCatPurchasing || !selectedPlan}
+                  >
+                    <Text style={styles.purchaseButtonText}>
+                      {(isPurchasing || isRevenueCatPurchasing) ? 'Processing...' : `Start ${selectedPlan?.displayName}`}
+                    </Text>
+                  </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.restoreButton}
             onPress={handleRestorePurchases}
-            disabled={isPurchasing}
+            disabled={isPurchasing || isRevenueCatPurchasing || isRevenueCatRestoring}
           >
-            <Text style={styles.restoreButtonText}>Restore Purchases</Text>
+            <Text style={styles.restoreButtonText}>
+              {isRevenueCatRestoring ? 'Restoring...' : 'Restore Purchases'}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>

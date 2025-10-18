@@ -2,19 +2,32 @@ import type { ConfigContext, ExpoConfig } from "@expo/config";
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: "budgeting-mobile",
+  name: "Simple Budget",
   slug: "budgeting-mobile",
-  scheme: "budgetingmobile", // Use the original scheme that was working
+  version: "1.0.0",
+  orientation: "portrait",
+  icon: "./assets/icon.png",
+  userInterfaceStyle: "automatic",
+  scheme: "budgetingmobile",
+  
+  ios: {
+    bundleIdentifier: "com.simplebudget.app",
+    supportsTablet: true,
+    infoPlist: {
+      NSUserTrackingUsageDescription: "We use tracking to provide you with personalized features and improve your experience.",
+      ITSAppUsesNonExemptEncryption: false
+    }
+  },
+  
   extra: {
-    API_BASE_URL: process.env.EXPO_PUBLIC_API_BASE_URL || "http://localhost:3000", // Local development URL
+    API_BASE_URL: process.env.EXPO_PUBLIC_API_BASE_URL || "http://localhost:3000",
     GOOGLE_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || "",
     GOOGLE_CLIENT_SECRET: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_SECRET || "",
-    // Platform-specific Google OAuth client IDs (optional but recommended)
     GOOGLE_EXPO_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_EXPO_CLIENT_ID || "",
     GOOGLE_IOS_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || "",
     GOOGLE_ANDROID_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || "",
     GOOGLE_WEB_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || "",
-    // Optional: lock Expo proxy project name to avoid mismatched redirect (owner/slug)
     EXPO_PROJECT_NAME_FOR_PROXY: process.env.EXPO_PUBLIC_PROJECT_NAME_FOR_PROXY || "@mackewinsson/simple-budget",
+    REVENUECAT_API_KEY_IOS: process.env.EXPO_PUBLIC_REVENUECAT_API_KEY_IOS || "",
   },
 });

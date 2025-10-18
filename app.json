@@ -2,6 +2,8 @@
   "expo": {
     "name": "budgeting-mobile",
     "slug": "budgeting-mobile",
+    "owner": "mackewinsson-rentbird",
+    "projectId": "ab5f29eb-44ea-4752-ac52-88478edecd10",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -28,6 +30,20 @@
     },
     "plugins": [
       "expo-secure-store"
-    ]
+    ],
+    "extra": {
+      "API_BASE_URL": "http://localhost:3000",
+      "GOOGLE_CLIENT_ID": "",
+      "GOOGLE_CLIENT_SECRET": "",
+      "GOOGLE_EXPO_CLIENT_ID": "",
+      "GOOGLE_IOS_CLIENT_ID": "",
+      "GOOGLE_ANDROID_CLIENT_ID": "",
+      "GOOGLE_WEB_CLIENT_ID": "",
+      "EXPO_PROJECT_NAME_FOR_PROXY": "@mackewinsson/simple-budget",
+      "REVENUECAT_API_KEY_IOS": "",
+      "eas": {
+        "projectId": "ab5f29eb-44ea-4752-ac52-88478edecd10"
+      }
+    }
   }
 }

@@ -4,6 +4,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: "Simple Budget",
   slug: "budgeting-mobile",
+  owner: "mackewinsson",
   version: "1.0.0",
   orientation: "portrait",
   icon: "./assets/icon.png",
@@ -11,7 +12,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   scheme: "budgetingmobile",
   
   ios: {
-    bundleIdentifier: "com.simplebudget.app",
+    bundleIdentifier: "com.mackewinsson.budgetingmobile",
     supportsTablet: true,
     infoPlist: {
       NSUserTrackingUsageDescription: "We use tracking to provide you with personalized features and improve your experience.",
@@ -34,5 +35,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     GOOGLE_WEB_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || "",
     EXPO_PROJECT_NAME_FOR_PROXY: process.env.EXPO_PUBLIC_PROJECT_NAME_FOR_PROXY || "@mackewinsson/simple-budget",
     REVENUECAT_API_KEY_IOS: process.env.EXPO_PUBLIC_REVENUECAT_API_KEY_IOS || "",
+    eas: {
+      projectId: "e4ba31e1-acfd-4050-bf55-a26bdd9f5c86"
+    }
   },
 });

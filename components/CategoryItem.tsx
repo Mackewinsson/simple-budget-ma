@@ -87,7 +87,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     borderRadius: BORDER_RADIUS.sm,
   },
   editButtonText: {
-    color: theme.buttonText,
+    color: theme.onPrimary,
     fontSize: FONT_SIZES.xs,
     fontWeight: FONT_WEIGHTS.semibold,
   },
@@ -98,7 +98,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     borderRadius: BORDER_RADIUS.sm,
   },
   deleteButtonText: {
-    color: theme.buttonText,
+    color: theme.onPrimary,
     fontSize: FONT_SIZES.xs,
     fontWeight: FONT_WEIGHTS.semibold,
   },
@@ -137,7 +137,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     borderRadius: BORDER_RADIUS.sm,
   },
   saveButtonText: {
-    color: theme.buttonText,
+    color: theme.onPrimary,
     fontSize: FONT_SIZES.xs,
     fontWeight: FONT_WEIGHTS.semibold,
   },
@@ -148,7 +148,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     borderRadius: BORDER_RADIUS.sm,
   },
   cancelButtonText: {
-    color: theme.buttonText,
+    color: theme.onPrimary,
     fontSize: FONT_SIZES.xs,
     fontWeight: FONT_WEIGHTS.semibold,
   },
@@ -294,7 +294,7 @@ export default function CategoryItem({ category, totalAvailable, expenses }: Cat
       </View>
       <View style={styles.categoryHeader}>
         <Text style={styles.categoryAmount}>
-          ${category.budgeted.toFixed(2)} / ${spent.toFixed(2)}
+          ${spent.toFixed(2)} / ${category.budgeted.toFixed(2)}
         </Text>
       </View>
       <View style={styles.progressBar}>

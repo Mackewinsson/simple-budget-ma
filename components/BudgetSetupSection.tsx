@@ -68,7 +68,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     borderRadius: BORDER_RADIUS.md,
   },
   editButtonText: {
-    color: theme.buttonText,
+    color: theme.onPrimary,
     fontSize: FONT_SIZES.xs,
     fontWeight: FONT_WEIGHTS.semibold,
   },
@@ -83,7 +83,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     borderRadius: BORDER_RADIUS.md,
   },
   cancelButtonText: {
-    color: theme.buttonText,
+    color: theme.onPrimary,
     fontSize: FONT_SIZES.xs,
     fontWeight: FONT_WEIGHTS.semibold,
   },
@@ -94,7 +94,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     borderRadius: BORDER_RADIUS.md,
   },
   saveButtonText: {
-    color: theme.buttonText,
+    color: theme.onPrimary,
     fontSize: FONT_SIZES.xs,
     fontWeight: FONT_WEIGHTS.semibold,
   },
@@ -152,7 +152,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     justifyContent: "center",
   },
   deleteButtonText: {
-    color: theme.buttonText,
+    color: theme.onPrimary,
     fontSize: FONT_SIZES.xs,
     fontWeight: FONT_WEIGHTS.semibold,
   },

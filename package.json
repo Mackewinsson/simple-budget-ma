@@ -9,7 +9,9 @@
     "web": "expo start --web",
     "build:dev:ios": "eas build --profile development --platform ios",
     "build:dev:ios-local": "eas build --profile development --platform ios --local",
-    "build:local": "npx expo run:ios"
+    "build:local": "npx expo run:ios",
+    "build:prod:ios": "eas build --profile production --platform ios",
+    "submit:ios": "eas submit --platform ios"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",

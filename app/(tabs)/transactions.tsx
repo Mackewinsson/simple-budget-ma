@@ -11,6 +11,8 @@ import { useAuthStore } from "../../src/store/authStore";
 import { useDeleteExpense } from "../../src/api/hooks/useExpenses";
 import { useTheme } from "../../src/theme/ThemeContext";
 import { FONT_SIZES, FONT_WEIGHTS } from "../../src/theme/layout";
+import { useFeatureFlags } from "../../src/hooks/useFeatureFlags";
+import { FEATURE_FLAG_KEYS } from "../../src/types/featureFlags";
 import NewExpenseForm from "../../components/NewExpenseForm";
 import AITransactionInput from "../../components/AITransactionInput";
 import BeautifulLoadingOverlay from "../../components/BeautifulLoadingOverlay";
@@ -25,6 +27,10 @@ function TransactionsScreenContent() {
   const deleteExpense = useDeleteExpense();
   const insets = useSafeAreaInsets();
   const { theme } = useTheme();
+  const { isFeatureEnabled } = useFeatureFlags();
+
+  // Check if AI features are enabled via 'aa' feature flag
+  const isAIEnabled = isFeatureEnabled(FEATURE_FLAG_KEYS.AA, false);
 
   const isLoading = budgetLoading || categoriesLoading || expensesLoading;
   const [activeTab, setActiveTab] = useState<'add' | 'ai' | 'history'>('add');
@@ -232,14 +238,16 @@ function TransactionsScreenContent() {
               Add Transaction
             </Text>
           </Pressable>
-          <Pressable
-            style={[styles.tab, activeTab === 'ai' && styles.activeTab]}
-            onPress={() => setActiveTab('ai')}
-          >
-            <Text style={[styles.tabText, activeTab === 'ai' && styles.activeTabText]}>
-              AI Quick Input
-            </Text>
-          </Pressable>
+          {isAIEnabled && (
+            <Pressable
+              style={[styles.tab, activeTab === 'ai' && styles.activeTab]}
+              onPress={() => setActiveTab('ai')}
+            >
+              <Text style={[styles.tabText, activeTab === 'ai' && styles.activeTabText]}>
+                AI Quick Input
+              </Text>
+            </Pressable>
+          )}
           <Pressable
             style={[styles.tab, activeTab === 'history' && styles.activeTab]}
             onPress={() => setActiveTab('history')}
@@ -283,7 +291,7 @@ function TransactionsScreenContent() {
               <NewExpenseForm />
             )}
 
-            {activeTab === 'ai' && (
+            {isAIEnabled && activeTab === 'ai' && (
               <AITransactionInput budgetId={budget._id} />
             )}
 

@@ -9,6 +9,8 @@ import { useBudgetsCollection, useCreateBudget } from "../src/api/hooks/useBudge
 import { useAuthStore } from "../src/store/authStore";
 import { useAIBudgetCreation } from "../src/api/hooks/useAIBudgetCreation";
 import { useTheme } from "../src/theme/ThemeContext";
+import { useFeatureFlags } from "../src/hooks/useFeatureFlags";
+import { FEATURE_FLAG_KEYS } from "../src/types/featureFlags";
 import AILoading from "./AILoading";
 import { useFeatureAccess } from "../src/hooks/useFeatureAccess";
 import CustomPicker from "./Picker";
@@ -59,6 +61,7 @@ export default function NewBudgetForm() {
   const { session } = useAuthStore();
   const router = useRouter();
   const { theme } = useTheme();
+  const { isFeatureEnabled } = useFeatureFlags();
   const createBudget = useCreateBudget();
   const {
     data: existingBudgets = [],
@@ -78,6 +81,9 @@ export default function NewBudgetForm() {
   const { createBudgetFromAI, isProcessing: isAICreating } = useAIBudgetCreation();
   const { hasAccess, showUpgradeModal } = useFeatureAccess('aiBudgeting');
   const { isOffline } = useNetworkStatus();
+
+  // Check if AI features are enabled via 'aa' feature flag
+  const isAIEnabled = isFeatureEnabled(FEATURE_FLAG_KEYS.AA, false);
   
   const [activeTab, setActiveTab] = useState<'manual' | 'ai'>('manual');
   const [aiDescription, setAiDescription] = useState('');
@@ -447,25 +453,27 @@ export default function NewBudgetForm() {
             Manual Setup
           </Text>
         </Pressable>
-        <Pressable
-          style={[styles.tab, activeTab === 'ai' && styles.activeTab]}
-          onPress={() => {
-            if (!hasAccess) {
-              showUpgradeModal();
-              return;
-            }
-            setActiveTab('ai');
-          }}
-        >
-          <Ionicons
-            name="sparkles"
-            size={16}
-            color={activeTab === 'ai' ? theme.onPrimary : theme.textSecondary}
-          />
-          <Text style={[styles.tabText, activeTab === 'ai' && styles.activeTabText]}>
-            AI Assistant
-          </Text>
-        </Pressable>
+        {isAIEnabled && (
+          <Pressable
+            style={[styles.tab, activeTab === 'ai' && styles.activeTab]}
+            onPress={() => {
+              if (!hasAccess) {
+                showUpgradeModal();
+                return;
+              }
+              setActiveTab('ai');
+            }}
+          >
+            <Ionicons
+              name="sparkles"
+              size={16}
+              color={activeTab === 'ai' ? theme.onPrimary : theme.textSecondary}
+            />
+            <Text style={[styles.tabText, activeTab === 'ai' && styles.activeTabText]}>
+              AI Assistant
+            </Text>
+          </Pressable>
+        )}
       </View>
 
       {/* Manual Tab Content */}
@@ -564,7 +572,7 @@ export default function NewBudgetForm() {
       )}
 
       {/* AI Tab Content */}
-      {activeTab === 'ai' && (
+      {isAIEnabled && activeTab === 'ai' && (
         <View style={styles.tabContent}>
           <View style={styles.field}>
             <Text style={styles.label}>Describe your budget</Text>

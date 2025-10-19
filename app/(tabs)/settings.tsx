@@ -84,8 +84,8 @@ function SettingsScreenContent() {
 
   const handleAbout = () => {
     Alert.alert(
-      "About Simple Budget Mobile",
-      "Version 1.0.0\n\nA mobile companion to your Simple Budget web app. All data is synced with your web account.\n\nBuilt with React Native and Expo.",
+      "About PresuSimple",
+      "Version 1.0.0\n\nA simple and intuitive budgeting app to help you manage your finances.\n\nBuilt with React Native and Expo.",
       [{ text: "OK" }]
     );
   };
@@ -130,44 +130,6 @@ function SettingsScreenContent() {
           </View>
           <Text style={styles.settingValue}>{session?.user?.email || "Loading..."}</Text>
         </View>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Subscription</Text>
-        <View style={styles.settingItem}>
-          <View style={styles.settingLeft}>
-            <Ionicons name="diamond-outline" size={20} color={theme.textMuted} />
-            <Text style={styles.settingLabel}>Plan</Text>
-          </View>
-          <View style={styles.planContainer}>
-            <Text style={styles.settingValue}>
-              {session?.user?.plan === 'pro' ? 'Pro' : 'Free'}
-            </Text>
-            {session?.user?.plan === 'pro' ? (
-              <ProBadge tone="light" showLabel={false} />
-            ) : null}
-          </View>
-        </View>
-        
-        {session?.user?.plan !== 'pro' ? (
-          <Pressable
-            style={styles.upgradeButton}
-            onPress={() => router.push('/upgrade')}
-          >
-            <Ionicons name="sparkles" size={20} color={theme.surface} />
-            <Text style={styles.upgradeButtonText}>Upgrade to Pro</Text>
-            <Ionicons name="chevron-forward" size={16} color={theme.surface} />
-          </Pressable>
-        ) : (
-          <Pressable
-            style={styles.manageButton}
-            onPress={() => router.push('/upgrade')}
-          >
-            <Ionicons name="settings-outline" size={20} color={theme.primary} />
-            <Text style={styles.manageButtonText}>Manage Subscription</Text>
-            <Ionicons name="chevron-forward" size={16} color={theme.primary} />
-          </Pressable>
-        )}
       </View>
 
       <View style={styles.section}>
@@ -267,7 +229,7 @@ function SettingsScreenContent() {
         <Pressable style={styles.aboutButton} onPress={handleAbout}>
           <View style={styles.aboutLeft}>
             <Ionicons name="information-circle-outline" size={20} color={theme.textMuted} />
-            <Text style={styles.aboutButtonText}>About Simple Budget Mobile</Text>
+            <Text style={styles.aboutButtonText}>About PresuSimple</Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color={theme.textSecondary} />
         </Pressable>

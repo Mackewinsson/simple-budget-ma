@@ -145,8 +145,8 @@ const translations = {
 export type Locale = 'en' | 'es';
 export type TranslationKey = keyof typeof translations.en;
 
-// Context for current locale
-export const LocaleContext = createContext<Locale>('en');
+// Context for current locale - Changed to Spanish as default
+export const LocaleContext = createContext<Locale>('es');
 
 // Hook to get current locale
 export const useLocale = () => useContext(LocaleContext);

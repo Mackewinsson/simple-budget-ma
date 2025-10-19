@@ -5,6 +5,7 @@ import { useSafeAreaStyles } from "../src/hooks/useSafeAreaStyles";
 import { useTheme } from "../src/theme/ThemeContext";
 import NewBudgetForm from "../components/NewBudgetForm";
 import ProBadge from "../components/ProBadge";
+import { ES } from "../src/lib/spanish";
 
 export default function CreateBudgetScreen() {
   const router = useRouter();
@@ -20,10 +21,10 @@ export default function CreateBudgetScreen() {
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View style={styles.headerTitleRow}>
-            <Text style={styles.headerTitle}>Create Budget</Text>
+            <Text style={styles.headerTitle}>{ES.createYourBudget}</Text>
             <ProBadge tone="dark" />
           </View>
-          <Text style={styles.headerSubtitle}>Set up your financial plan</Text>
+          <Text style={styles.headerSubtitle}>Configura tu plan financiero</Text>
         </View>
       </View>
 

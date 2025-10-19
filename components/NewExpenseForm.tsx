@@ -12,13 +12,14 @@ import { useTheme } from "../src/theme/ThemeContext";
 import { FONT_SIZES, FONT_WEIGHTS } from "../src/theme/layout";
 import CustomPicker from "./Picker";
 import { AmountInput, DescriptionInput, DatePickerField, FormField } from "./form-fields";
+import { ES } from "../src/lib/spanish";
 
 const expenseSchema = z.object({
-  description: z.string().min(1, "Description is required"),
-  amount: z.coerce.number().min(0.01, "Amount must be greater than 0"),
+  description: z.string().min(1, ES.required),
+  amount: z.coerce.number().min(0.01, ES.greaterThanZero),
   type: z.enum(["expense", "income"]),
-  categoryId: z.string().min(1, "Category is required"),
-  date: z.string().min(1, "Date is required"),
+  categoryId: z.string().min(1, ES.required),
+  date: z.string().min(1, ES.required),
 });
 
 type ExpenseFormData = z.infer<typeof expenseSchema>;
@@ -54,12 +55,12 @@ export default function NewExpenseForm() {
 
   const onSubmit = async (data: ExpenseFormData) => {
     if (!session?.user?.id) {
-      Alert.alert("Error", "Please log in to add transactions");
+      Alert.alert(ES.error, "Por favor inicia sesión para agregar transacciones");
       return;
     }
 
     if (!budget?._id) {
-      Alert.alert("Error", "No budget found. Please create a budget first.");
+      Alert.alert(ES.error, "No se encontró presupuesto. Por favor crea un presupuesto primero.");
       return;
     }
 
@@ -75,9 +76,9 @@ export default function NewExpenseForm() {
       });
 
       reset();
-      Alert.alert("Success", "Transaction added successfully");
+      Alert.alert(ES.success, "Transacción agregada exitosamente");
     } catch (error) {
-      Alert.alert("Error", "Failed to add transaction");
+      Alert.alert(ES.error, "Error al agregar transacción");
     }
   };
 
@@ -105,14 +106,14 @@ export default function NewExpenseForm() {
             name="type"
             render={({ value, onChange, error }) => (
               <CustomPicker
-                label="Type"
+                label={ES.type}
                 value={value}
                 onValueChange={onChange}
                 items={[
-                  { label: "Expense", value: "expense" },
-                  { label: "Income", value: "income" }
+                  { label: ES.expense, value: "expense" },
+                  { label: ES.income, value: "income" }
                 ]}
-                placeholder="Select type"
+                placeholder="Seleccionar tipo"
                 error={error}
               />
             )}
@@ -146,11 +147,11 @@ export default function NewExpenseForm() {
               if (categoriesLoading) {
                 return (
                   <CustomPicker
-                    label="Category"
+                    label={ES.category}
                     value=""
                     onValueChange={() => {}}
-                    items={[{ label: "Loading categories...", value: "" }]}
-                    placeholder="Loading..."
+                    items={[{ label: "Cargando categorías...", value: "" }]}
+                    placeholder={ES.loading}
                     error={error}
                   />
                 );
@@ -161,15 +162,15 @@ export default function NewExpenseForm() {
                     label: category.name,
                     value: category._id || category.id || category.name
                   }))
-                : [{ label: "No categories available", value: "" }];
+                : [{ label: "No hay categorías disponibles", value: "" }];
 
               return (
                 <CustomPicker
-                  label="Category"
+                  label={ES.category}
                   value={value}
                   onValueChange={onChange}
                   items={categoryItems}
-                  placeholder={categories.length > 0 ? "Select a category" : "Create categories first"}
+                  placeholder={categories.length > 0 ? "Seleccionar una categoría" : "Crear categorías primero"}
                   error={error}
                 />
               );
@@ -199,7 +200,7 @@ export default function NewExpenseForm() {
       >
         <Ionicons name="add" size={20} color={theme.surface} style={styles.buttonIcon} />
         <Text style={styles.buttonText}>
-          {createExpense.isPending ? "Adding..." : "Add Transaction"}
+          {createExpense.isPending ? "Agregando..." : ES.addTransaction}
         </Text>
       </Pressable>
     </View>

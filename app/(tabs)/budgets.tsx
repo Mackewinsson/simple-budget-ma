@@ -13,6 +13,7 @@ import { useFeatureFlags } from "../../src/hooks/useFeatureFlags";
 import CategoryList from "../../components/CategoryList";
 import BudgetSetupSection from "../../components/BudgetSetupSection";
 import ProBadge from "../../components/ProBadge";
+import { ES } from "../../src/lib/spanish";
 
 function BudgetsScreenContent() {
   const { session } = useAuthStore();
@@ -43,7 +44,7 @@ function BudgetsScreenContent() {
       <View style={{ flex: 1, backgroundColor: theme.background, paddingTop: insets.top }}>
         <View style={styles.loadingContainer}>
           <Ionicons name="wallet-outline" size={48} color={theme.textSecondary} />
-          <Text style={styles.loadingText}>Loading your budget...</Text>
+          <Text style={styles.loadingText}>{ES.loading}</Text>
         </View>
       </View>
     );
@@ -54,8 +55,8 @@ function BudgetsScreenContent() {
       <View style={{ flex: 1, backgroundColor: theme.background, paddingTop: insets.top }}>
         <View style={styles.loadingContainer}>
           <Ionicons name="alert-circle-outline" size={48} color={theme.error} />
-          <Text style={styles.errorTitle}>Error loading data</Text>
-          <Text style={styles.errorText}>Please try again later</Text>
+          <Text style={styles.errorTitle}>{ES.error}</Text>
+          <Text style={styles.errorText}>{ES.tryAgain}</Text>
         </View>
       </View>
     );
@@ -71,7 +72,7 @@ function BudgetsScreenContent() {
       >
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <Text style={styles.title}>Budgets</Text>
+            <Text style={styles.title}>{ES.budgets}</Text>
             <ProBadge tone="light" />
           </View>
           <View style={styles.headerRight}>
@@ -80,7 +81,7 @@ function BudgetsScreenContent() {
               <View style={styles.budgetBadge}>
                 <Ionicons name="calendar-outline" size={16} color={theme.onPrimaryMuted} />
                 <Text style={styles.budgetPeriod}>
-                  {budget.month && budget.year ? `${budget.month}/${budget.year}` : 'Monthly'}
+                  {budget.month && budget.year ? `${budget.month}/${budget.year}` : ES.month}
                 </Text>
               </View>
             )}

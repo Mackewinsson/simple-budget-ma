@@ -12,6 +12,7 @@ import { useFeatureFlags } from "../../src/hooks/useFeatureFlags";
 import { FEATURE_FLAG_KEYS } from "../../src/types/featureFlags";
 import { SPACING, BORDER_RADIUS, FONT_SIZES, FONT_WEIGHTS, SHADOW } from "../../src/theme/layout";
 import ProBadge from "../../components/ProBadge";
+import { ES } from "../../src/lib/spanish";
 
 function ReportsScreenContent() {
   const { session } = useAuthStore();
@@ -31,9 +32,9 @@ function ReportsScreenContent() {
 
   const handleExportData = () => {
     Alert.alert(
-      "Export Data",
-      "Export functionality will be available in a future update.",
-      [{ text: "OK" }]
+      ES.exportData,
+      ES.exportComingSoon,
+      [{ text: ES.done }]
     );
   };
 
@@ -42,7 +43,7 @@ function ReportsScreenContent() {
       <View style={{ flex: 1, backgroundColor: theme.background, paddingTop: insets.top }}>
         <View style={styles.loadingContainer}>
           <Ionicons name="bar-chart-outline" size={48} color={theme.textSecondary} />
-          <Text style={styles.loadingText}>Loading reports...</Text>
+          <Text style={styles.loadingText}>{ES.loadingReports}</Text>
         </View>
       </View>
     );
@@ -53,8 +54,8 @@ function ReportsScreenContent() {
       <View style={{ flex: 1, backgroundColor: theme.background, paddingTop: insets.top }}>
         <View style={styles.emptyContainer}>
           <Ionicons name="bar-chart-outline" size={64} color={theme.textSecondary} />
-          <Text style={styles.emptyTitle}>No reports yet</Text>
-          <Text style={styles.emptyText}>Create a budget first to view your financial reports</Text>
+          <Text style={styles.emptyTitle}>{ES.noReports}</Text>
+          <Text style={styles.emptyText}>{ES.createBudgetFirst}</Text>
         </View>
       </View>
     );
@@ -104,12 +105,12 @@ function ReportsScreenContent() {
       >
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <Text style={styles.title}>Reports</Text>
+            <Text style={styles.title}>{ES.reports}</Text>
             <ProBadge tone="light" />
           </View>
           <View style={styles.periodBadge}>
             <Ionicons name="time-outline" size={16} color={theme.onPrimaryMuted} />
-            <Text style={styles.periodText}>This month</Text>
+            <Text style={styles.periodText}>{ES.thisMonth}</Text>
           </View>
         </View>
       </LinearGradient>
@@ -120,23 +121,23 @@ function ReportsScreenContent() {
       >
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Budget Overview</Text>
+        <Text style={styles.sectionTitle}>{ES.overview}</Text>
         <View style={styles.overviewGrid}>
           <View style={styles.overviewCard}>
             <Ionicons name="wallet-outline" size={24} color={theme.primary} />
-            <Text style={styles.overviewLabel}>Budgeted</Text>
+            <Text style={styles.overviewLabel}>{ES.budgeted}</Text>
             <Text style={styles.overviewValue}>${totalBudget.toFixed(2)}</Text>
           </View>
           <View style={styles.overviewCard}>
             <Ionicons name="trending-down-outline" size={24} color={theme.error} />
-            <Text style={styles.overviewLabel}>Spent</Text>
+            <Text style={styles.overviewLabel}>{ES.spent}</Text>
             <Text style={[styles.overviewValue, { color: theme.error }]}>
               ${totalSpent.toFixed(2)}
             </Text>
           </View>
           <View style={styles.overviewCard}>
             <Ionicons name="cash-outline" size={24} color={remaining >= 0 ? theme.success : theme.error} />
-            <Text style={styles.overviewLabel}>Remaining</Text>
+            <Text style={styles.overviewLabel}>{ES.remaining}</Text>
             <Text style={[
               styles.overviewValue,
               { color: remaining >= 0 ? theme.success : theme.error }
@@ -146,7 +147,7 @@ function ReportsScreenContent() {
           </View>
           <View style={styles.overviewCard}>
             <Ionicons name="pie-chart-outline" size={24} color={theme.primary} />
-            <Text style={styles.overviewLabel}>Usage</Text>
+            <Text style={styles.overviewLabel}>Uso</Text>
             <Text style={styles.overviewValue}>{spendingPercentage.toFixed(1)}%</Text>
           </View>
         </View>
@@ -154,24 +155,24 @@ function ReportsScreenContent() {
 
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Monthly Spending</Text>
+          <Text style={styles.sectionTitle}>{ES.monthlySpending}</Text>
           <Ionicons name="calendar-outline" size={20} color={theme.textSecondary} />
         </View>
         <View style={styles.monthlyCard}>
           <Text style={styles.monthlyAmount}>${monthlySpending.toFixed(2)}</Text>
           <Text style={styles.monthlyLabel}>
-            {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+            {new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
           </Text>
-          <Text style={styles.monthlyTransactions}>{monthlyExpenses.length} transactions</Text>
+          <Text style={styles.monthlyTransactions}>{monthlyExpenses.length} transacciones</Text>
         </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Top Spending Categories</Text>
+        <Text style={styles.sectionTitle}>{ES.topCategories}</Text>
         {categorySpending.length === 0 ? (
           <View style={styles.emptyCategories}>
             <Ionicons name="albums-outline" size={40} color={theme.textSecondary} />
-            <Text style={styles.emptyCategoriesText}>No spending data yet</Text>
+            <Text style={styles.emptyCategoriesText}>Aún no hay datos de gastos</Text>
           </View>
         ) : (
           categorySpending.slice(0, 5).map((category, index) => (
@@ -209,10 +210,10 @@ function ReportsScreenContent() {
 
         {isExportEnabled && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Actions</Text>
+            <Text style={styles.sectionTitle}>{ES.actions}</Text>
             <Pressable style={styles.actionButton} onPress={handleExportData}>
               <Ionicons name="download-outline" size={20} color={theme.onPrimary} />
-              <Text style={styles.actionButtonText}>Export Data</Text>
+              <Text style={styles.actionButtonText}>{ES.exportData}</Text>
             </Pressable>
           </View>
         )}

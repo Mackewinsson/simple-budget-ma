@@ -17,21 +17,22 @@ import CustomPicker from "./Picker";
 import ErrorScreen from "./ErrorScreen";
 import { categorizeError, logError } from "../src/lib/errorUtils";
 import { useNetworkStatus } from "../src/hooks/useNetworkStatus";
+import { ES } from "../src/lib/spanish";
 
 const MONTH_NAMES = [
   "",
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
+  ES.months.january,
+  ES.months.february,
+  ES.months.march,
+  ES.months.april,
+  ES.months.may,
+  ES.months.june,
+  ES.months.july,
+  ES.months.august,
+  ES.months.september,
+  ES.months.october,
+  ES.months.november,
+  ES.months.december,
 ];
 
 const CURRENT_YEAR = new Date().getFullYear();
@@ -46,8 +47,8 @@ const formatBudgetPeriod = (month: number, year: number) => {
 const budgetSchema = z.object({
   totalBudgeted: z.coerce
     .number()
-    .min(0.01, "Budget amount must be greater than 0")
-    .refine((value) => Number.isFinite(value), "Budget amount must be a valid number"),
+    .min(0.01, ES.greaterThanZero)
+    .refine((value) => Number.isFinite(value), "El monto del presupuesto debe ser un número válido"),
   month: z.coerce.number().min(1).max(12),
   year: z.coerce.number().refine(
     (value) => value >= MIN_YEAR && value <= MAX_YEAR,
@@ -507,24 +508,24 @@ export default function NewBudgetForm() {
                 name="month"
                 render={({ field: { onChange, value } }) => (
                   <CustomPicker
-                    label="Month"
+                    label={ES.month}
                     value={value}
                     onValueChange={onChange}
                     items={[
-                      { label: "January", value: 1 },
-                      { label: "February", value: 2 },
-                      { label: "March", value: 3 },
-                      { label: "April", value: 4 },
-                      { label: "May", value: 5 },
-                      { label: "June", value: 6 },
-                      { label: "July", value: 7 },
-                      { label: "August", value: 8 },
-                      { label: "September", value: 9 },
-                      { label: "October", value: 10 },
-                      { label: "November", value: 11 },
-                      { label: "December", value: 12 }
+                      { label: ES.months.january, value: 1 },
+                      { label: ES.months.february, value: 2 },
+                      { label: ES.months.march, value: 3 },
+                      { label: ES.months.april, value: 4 },
+                      { label: ES.months.may, value: 5 },
+                      { label: ES.months.june, value: 6 },
+                      { label: ES.months.july, value: 7 },
+                      { label: ES.months.august, value: 8 },
+                      { label: ES.months.september, value: 9 },
+                      { label: ES.months.october, value: 10 },
+                      { label: ES.months.november, value: 11 },
+                      { label: ES.months.december, value: 12 }
                     ]}
-                    placeholder="Select month"
+                    placeholder="Seleccionar mes"
                     error={errors.month?.message}
                   />
                 )}
@@ -537,14 +538,14 @@ export default function NewBudgetForm() {
                 name="year"
                 render={({ field: { onChange, value } }) => (
                   <CustomPicker
-                    label="Year"
+                    label={ES.year}
                     value={value}
                     onValueChange={onChange}
                     items={yearOptions.map((year) => ({
                       label: year.toString(),
                       value: year,
                     }))}
-                    placeholder="Select year"
+                    placeholder="Seleccionar año"
                     error={errors.year?.message}
                   />
                 )}
@@ -562,10 +563,10 @@ export default function NewBudgetForm() {
           >
             <Text style={styles.buttonText}>
               {budgetsLoading
-                ? "Checking budgets..."
+                ? "Verificando presupuestos..."
                 : createBudget.isPending
-                  ? "Creating..."
-                  : "Create Budget"}
+                  ? "Creando..."
+                  : ES.createYourBudget}
             </Text>
           </Pressable>
         </View>
@@ -575,12 +576,12 @@ export default function NewBudgetForm() {
       {isAIEnabled && activeTab === 'ai' && (
         <View style={styles.tabContent}>
           <View style={styles.field}>
-            <Text style={styles.label}>Describe your budget</Text>
+            <Text style={styles.label}>{ES.describeBudget}</Text>
             <TextInput
               style={[styles.input, styles.textArea]}
               value={aiDescription}
               onChangeText={setAiDescription}
-              placeholder="Example: I make 5000. Rent 2000, food 1000, the rest is savings."
+              placeholder="Ejemplo: Gano 5000. Renta 2000, comida 1000, el resto es ahorros."
               multiline
               numberOfLines={4}
               textAlignVertical="top"
@@ -590,13 +591,13 @@ export default function NewBudgetForm() {
                 {aiDescription.length}/1000 characters
               </Text>
               <Text style={styles.characterCountText}>
-                {aiDescription.length < 10 ? 'Need more detail' : 'Good description'}
+                {aiDescription.length < 10 ? ES.needMoreDetail : "Buena descripción"}
               </Text>
             </View>
           </View>
 
           <View style={styles.examplesContainer}>
-            <Text style={styles.examplesTitle}>Examples:</Text>
+            <Text style={styles.examplesTitle}>{ES.tryExamples}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.examplesScroll}>
               <View style={styles.examplesList}>
                 <Text style={styles.exampleText}>

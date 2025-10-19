@@ -17,6 +17,7 @@ import NewExpenseForm from "../../components/NewExpenseForm";
 import AITransactionInput from "../../components/AITransactionInput";
 import BeautifulLoadingOverlay from "../../components/BeautifulLoadingOverlay";
 import ProBadge from "../../components/ProBadge";
+import { ES } from "../../src/lib/spanish";
 
 function TransactionsScreenContent() {
   const { session } = useAuthStore();
@@ -104,13 +105,13 @@ function TransactionsScreenContent() {
 
   const handleDeleteExpense = (expenseId: string, description: string) => {
     Alert.alert(
-      "Delete Transaction",
-      `Are you sure you want to delete "${description}"?`,
+      ES.deleteExpense,
+      `¿Estás seguro que quieres eliminar "${description}"?`,
       [
-        { text: "Cancel", style: "cancel" },
-        { 
-          text: "Delete", 
-          style: "destructive", 
+        { text: ES.cancel, style: "cancel" },
+        {
+          text: ES.delete,
+          style: "destructive",
           onPress: () => deleteExpense.mutate(expenseId)
         },
       ]
@@ -143,10 +144,10 @@ function TransactionsScreenContent() {
         <View style={styles.expenseLeft}>
           <View style={styles.expenseDetails}>
             <Text style={styles.expenseDescription}>
-              {item.description || `${item.type === "expense" ? "Expense" : "Income"} for ${category?.name || "Unknown"}`}
+              {item.description || `${item.type === "expense" ? ES.expense : ES.income} para ${category?.name || "Desconocido"}`}
             </Text>
             <Text style={styles.expenseDate}>
-              {category?.name || "Unknown"} • {new Date(item.date).toLocaleDateString('en-US', {
+              {category?.name || "Desconocido"} • {new Date(item.date).toLocaleDateString('es-ES', {
                 month: 'short',
                 day: 'numeric',
                 year: 'numeric'
@@ -185,7 +186,7 @@ function TransactionsScreenContent() {
     return (
       <View style={{ flex: 1, backgroundColor: theme.background, paddingTop: insets.top }}>
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading transactions...</Text>
+          <Text style={styles.loadingText}>{ES.loading}</Text>
         </View>
       </View>
     );
@@ -196,8 +197,8 @@ function TransactionsScreenContent() {
       {/* Loading Overlay for Pull-to-Refresh */}
       <BeautifulLoadingOverlay
         visible={isRefreshing}
-        title="Refreshing..."
-        subtitle="Getting latest data"
+        title={ES.loading}
+        subtitle="Obteniendo datos recientes"
         iconName="refresh"
       />
       {/* Header */}
@@ -210,13 +211,13 @@ function TransactionsScreenContent() {
         <View style={styles.header}>
           <View style={styles.headerContent}>
             <View style={styles.headerTitleRow}>
-              <Text style={styles.title}>Transactions</Text>
+              <Text style={styles.title}>{ES.transactions}</Text>
               <ProBadge tone="light" />
             </View>
-            <Text style={styles.subtitle}>Manage your finances</Text>
+            <Text style={styles.subtitle}>{ES.manageYourFinances}</Text>
           </View>
           <View style={styles.balanceCard}>
-            <Text style={styles.balanceLabel}>Available to Spend</Text>
+            <Text style={styles.balanceLabel}>{ES.availableToSpend}</Text>
             <View style={styles.balanceRow}>
               <Ionicons name="wallet-outline" size={24} color={theme.surface} />
               <Text style={styles.balanceAmount}>
@@ -235,7 +236,7 @@ function TransactionsScreenContent() {
             onPress={() => setActiveTab('add')}
           >
             <Text style={[styles.tabText, activeTab === 'add' && styles.activeTabText]}>
-              Add Transaction
+              {ES.addTransaction}
             </Text>
           </Pressable>
           {isAIEnabled && (
@@ -244,7 +245,7 @@ function TransactionsScreenContent() {
               onPress={() => setActiveTab('ai')}
             >
               <Text style={[styles.tabText, activeTab === 'ai' && styles.activeTabText]}>
-                AI Quick Input
+                {ES.aiQuickInput}
               </Text>
             </Pressable>
           )}
@@ -253,7 +254,7 @@ function TransactionsScreenContent() {
             onPress={() => setActiveTab('history')}
           >
             <Text style={[styles.tabText, activeTab === 'history' && styles.activeTabText]}>
-              Transaction History
+              {ES.transactionHistory}
             </Text>
           </Pressable>
         </View>
@@ -267,10 +268,9 @@ function TransactionsScreenContent() {
             <View style={styles.noCategoriesIcon}>
               <Ionicons name="folder-outline" size={48} color={theme.textMuted} />
             </View>
-            <Text style={styles.noCategoriesTitle}>No Categories Yet</Text>
+            <Text style={styles.noCategoriesTitle}>{ES.noCategories}</Text>
             <Text style={styles.noCategoriesMessage}>
-              You need to create budget categories before you can add transactions. 
-              Each transaction must be assigned to a category.
+              {ES.needCategories}
             </Text>
             <Pressable
               style={styles.createCategoriesButton}
@@ -278,7 +278,7 @@ function TransactionsScreenContent() {
             >
               <Ionicons name="add-circle" size={20} color={theme.surface} style={styles.buttonIcon} />
               <Text style={styles.createCategoriesButtonText}>
-                Create Categories
+                {ES.createCategories}
               </Text>
             </Pressable>
           </View>
@@ -303,7 +303,7 @@ function TransactionsScreenContent() {
                 <Ionicons name="search" size={16} color={theme.textMuted} style={styles.searchIcon} />
                 <TextInput
                   style={styles.searchInput}
-                  placeholder="Search transactions..."
+                  placeholder={ES.searchTransactions}
                   value={searchTerm}
                   onChangeText={setSearchTerm}
                   placeholderTextColor={theme.textMuted}
@@ -312,7 +312,7 @@ function TransactionsScreenContent() {
               
               <View style={styles.dateFilterContainer}>
                 <View style={styles.dateInputContainer}>
-                  <Text style={styles.dateLabel}>Start Date</Text>
+                  <Text style={styles.dateLabel}>Fecha Inicio</Text>
                   <TextInput
                     style={styles.dateInput}
                     placeholder="YYYY-MM-DD"
@@ -322,7 +322,7 @@ function TransactionsScreenContent() {
                   />
                 </View>
                 <View style={styles.dateInputContainer}>
-                  <Text style={styles.dateLabel}>End Date</Text>
+                  <Text style={styles.dateLabel}>Fecha Fin</Text>
                   <TextInput
                     style={styles.dateInput}
                     placeholder="YYYY-MM-DD"
@@ -355,7 +355,7 @@ function TransactionsScreenContent() {
               {filteredExpenses.length === 0 ? (
                 <View style={styles.emptyState}>
                   <Text style={styles.emptyStateText}>
-                    {currentBudgetExpenses.length === 0 ? "No transactions yet" : "No transactions found matching your search."}
+                    {currentBudgetExpenses.length === 0 ? ES.noTransactions : "No se encontraron transacciones que coincidan con tu búsqueda."}
                   </Text>
                 </View>
               ) : (

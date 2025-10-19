@@ -8,6 +8,7 @@ import { useAuthStore } from "../../src/store/authStore";
 import { useRouter } from "expo-router";
 import { useTheme } from "../../src/theme/ThemeContext";
 import ProBadge from "../../components/ProBadge";
+import { ES } from "../../src/lib/spanish";
 
 function SettingsScreenContent() {
   const { session, signOut } = useAuthStore();
@@ -23,12 +24,12 @@ function SettingsScreenContent() {
 
   const handleSignOut = () => {
     Alert.alert(
-      "Sign Out",
-      "Are you sure you want to sign out?",
+      ES.signOut,
+      ES.signOutConfirm,
       [
-        { text: "Cancel", style: "cancel" },
+        { text: ES.cancel, style: "cancel" },
         { 
-          text: "Sign Out", 
+          text: ES.signOut, 
           style: "destructive", 
           onPress: async () => {
             try {
@@ -37,7 +38,7 @@ function SettingsScreenContent() {
               router.replace('/auth/login');
             } catch (error) {
               console.error('[Settings] Sign out error:', error);
-              Alert.alert('Error', 'Failed to sign out');
+              Alert.alert(ES.error, 'Error al cerrar sesión');
             }
           }
         },
@@ -51,15 +52,15 @@ function SettingsScreenContent() {
 
   const handleClearData = () => {
     Alert.alert(
-      "Clear All Data",
-      "This will delete all your budgets, categories, and expenses. This action cannot be undone.",
+      "Eliminar Todos los Datos",
+      "Esto eliminará todos tus presupuestos, categorías y gastos. Esta acción no se puede deshacer.",
       [
-        { text: "Cancel", style: "cancel" },
+        { text: ES.cancel, style: "cancel" },
         { 
-          text: "Clear Data", 
+          text: "Eliminar Datos", 
           style: "destructive", 
           onPress: () => {
-            Alert.alert("Feature Coming Soon", "Data clearing will be available in a future update.");
+            Alert.alert(ES.comingSoon, "La eliminación de datos estará disponible en una futura actualización.");
           }
         },
       ]
@@ -68,14 +69,14 @@ function SettingsScreenContent() {
 
   const handleExportData = () => {
     Alert.alert(
-      "Export Data",
-      "Export your budget data to a file.",
+      ES.exportData,
+      "Exporta los datos de tu presupuesto a un archivo.",
       [
-        { text: "Cancel", style: "cancel" },
+        { text: ES.cancel, style: "cancel" },
         { 
-          text: "Export", 
+          text: ES.export, 
           onPress: () => {
-            Alert.alert("Feature Coming Soon", "Data export will be available in a future update.");
+            Alert.alert(ES.comingSoon, ES.exportComingSoon);
           }
         },
       ]
@@ -84,9 +85,9 @@ function SettingsScreenContent() {
 
   const handleAbout = () => {
     Alert.alert(
-      "About PresuSimple",
-      "Version 1.0.0\n\nA simple and intuitive budgeting app to help you manage your finances.\n\nBuilt with React Native and Expo.",
-      [{ text: "OK" }]
+      ES.aboutPresuSimple,
+      ES.aboutMessage,
+      [{ text: ES.done }]
     );
   };
 
@@ -100,7 +101,7 @@ function SettingsScreenContent() {
       >
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <Text style={styles.title}>Settings</Text>
+            <Text style={styles.title}>{ES.settings}</Text>
             <ProBadge tone="light" />
           </View>
           <View style={styles.profileBadge}>
@@ -115,30 +116,30 @@ function SettingsScreenContent() {
       >
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Account</Text>
+        <Text style={styles.sectionTitle}>{ES.account}</Text>
         <View style={styles.settingItem}>
           <View style={styles.settingLeft}>
             <Ionicons name="person-outline" size={20} color={theme.textMuted} />
-            <Text style={styles.settingLabel}>Name</Text>
+            <Text style={styles.settingLabel}>Nombre</Text>
           </View>
-          <Text style={styles.settingValue}>{session?.user?.name || "Loading..."}</Text>
+          <Text style={styles.settingValue}>{session?.user?.name || ES.loading}</Text>
         </View>
         <View style={styles.settingItem}>
           <View style={styles.settingLeft}>
             <Ionicons name="mail-outline" size={20} color={theme.textMuted} />
-            <Text style={styles.settingLabel}>Email</Text>
+            <Text style={styles.settingLabel}>{ES.email}</Text>
           </View>
-          <Text style={styles.settingValue}>{session?.user?.email || "Loading..."}</Text>
+          <Text style={styles.settingValue}>{session?.user?.email || ES.loading}</Text>
         </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Preferences</Text>
+        <Text style={styles.sectionTitle}>{ES.preferences}</Text>
 
         <View style={styles.settingItem}>
           <View style={styles.settingLeft}>
             <Ionicons name="cash-outline" size={20} color={theme.textMuted} />
-            <Text style={styles.settingLabel}>Currency</Text>
+            <Text style={styles.settingLabel}>{ES.currency}</Text>
           </View>
           <View style={styles.currencyContainer}>
             <Pressable
@@ -184,7 +185,7 @@ function SettingsScreenContent() {
         <View style={styles.settingItem}>
           <View style={styles.settingLeft}>
             <Ionicons name={isDark ? "moon" : "sunny-outline"} size={20} color={theme.textSecondary} />
-            <Text style={styles.settingLabel}>Theme</Text>
+            <Text style={styles.settingLabel}>{ES.theme}</Text>
           </View>
           <View style={styles.themeButtons}>
             <Pressable
@@ -224,12 +225,12 @@ function SettingsScreenContent() {
       </View> */}
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>About</Text>
+        <Text style={styles.sectionTitle}>{ES.about}</Text>
 
         <Pressable style={styles.aboutButton} onPress={handleAbout}>
           <View style={styles.aboutLeft}>
             <Ionicons name="information-circle-outline" size={20} color={theme.textMuted} />
-            <Text style={styles.aboutButtonText}>About PresuSimple</Text>
+            <Text style={styles.aboutButtonText}>{ES.aboutPresuSimple}</Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color={theme.textSecondary} />
         </Pressable>
@@ -237,7 +238,7 @@ function SettingsScreenContent() {
         <View style={styles.settingItem}>
           <View style={styles.settingLeft}>
             <Ionicons name="code-outline" size={20} color={theme.textMuted} />
-            <Text style={styles.settingLabel}>Version</Text>
+            <Text style={styles.settingLabel}>{ES.version}</Text>
           </View>
           <Text style={styles.settingValue}>1.0.0</Text>
         </View>
@@ -246,7 +247,7 @@ function SettingsScreenContent() {
         <View style={styles.section}>
           <Pressable style={styles.signOutButton} onPress={handleSignOut}>
             <Ionicons name="log-out-outline" size={20} color={theme.onPrimary} />
-            <Text style={styles.signOutButtonText}>Sign Out</Text>
+            <Text style={styles.signOutButtonText}>{ES.signOut}</Text>
           </Pressable>
         </View>
       </ScrollView>

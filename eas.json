@@ -25,7 +25,8 @@
       "ios": {
         "simulator": false,
         "buildConfiguration": "Release"
-      }
+      },
+      "node": "22.11.0"
     }
   },
   "submit": {

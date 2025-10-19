@@ -16,16 +16,17 @@
 - [ ] Set offering as current
 
 ### ✅ App Store Connect Setup
-- [ ] Create app in App Store Connect with bundle ID `com.simplebudget.app`
+- [ ] Create app in App Store Connect with bundle ID `com.mackewinsson.budgetingmobile`
 - [ ] Create IAP products (monthly and yearly subscriptions)
 - [ ] Submit IAP products for review
 - [ ] Get App Store Connect App ID (numeric)
 - [ ] Complete app information (name, description, etc.)
+- [ ] Update `eas.json` with your `appleId` (email) and `ascAppId`
 
 ### ✅ Apple Developer Portal
-- [ ] Register App ID with bundle ID `com.simplebudget.app`
+- [ ] Register App ID with bundle ID `com.mackewinsson.budgetingmobile`
 - [ ] Enable "In-App Purchase" capability
-- [ ] Get Apple Developer Team ID
+- [x] Apple Developer Team ID: `H3FV2Q782F` (already configured)
 - [ ] Ensure Apple Developer account is active ($99/year)
 
 ## Build Process
@@ -103,8 +104,9 @@ eas submit --platform ios
 - **Production Store**: `your_production_api_key_here` (for App Store)
 
 ### 📱 Bundle ID
-- **Must match exactly**: `com.simplebudget.app`
+- **Current Bundle ID**: `com.mackewinsson.budgetingmobile`
 - **Used in**: App Store Connect, Apple Developer Portal, RevenueCat, app.config.ts
+- **Note**: Changed from `com.simplebudget.app` (not available)
 
 ### 🛒 Product IDs
 - **Monthly**: `com.simplebudget.pro.monthly`

@@ -10,16 +10,31 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   icon: "./assets/icon.png",
   userInterfaceStyle: "automatic",
   scheme: "budgetingmobile",
+  privacy: "public",
+  description: "A simple and intuitive budgeting app to help you manage your finances.",
   
   ios: {
     bundleIdentifier: "com.mackewinsson.budgetingmobile",
     supportsTablet: true,
+    buildNumber: "1",
     infoPlist: {
       NSUserTrackingUsageDescription: "We use tracking to provide you with personalized features and improve your experience.",
-      ITSAppUsesNonExemptEncryption: false
+      ITSAppUsesNonExemptEncryption: false,
+      NSCameraUsageDescription: "This app does not use the camera.",
+      NSPhotoLibraryUsageDescription: "This app does not access your photo library.",
+      NSLocationWhenInUseUsageDescription: "This app does not use your location."
     }
   },
-  
+
+  android: {
+    package: "com.mackewinsson.budgetingmobile",
+    versionCode: 1,
+    adaptiveIcon: {
+      foregroundImage: "./assets/adaptive-icon.png",
+      backgroundColor: "#ffffff"
+    }
+  },
+
   plugins: [
     "expo-secure-store",
     "expo-dev-client"

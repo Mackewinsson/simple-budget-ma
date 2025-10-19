@@ -6,8 +6,6 @@ import { queryClient } from "../src/query/queryClient";
 import GlobalLoadingIndicator from "../components/GlobalLoadingIndicator";
 import { ThemeProvider, useTheme } from "../src/theme/ThemeContext";
 import { useBackgroundSync } from "../src/hooks/useBackgroundSync";
-import UpgradeModal from "../components/UpgradeModal";
-import RevenueCatProvider from "../components/RevenueCatProvider";
 
 function AppContent() {
   // Initialize background sync inside QueryClientProvider
@@ -22,10 +20,8 @@ function AppContent() {
         <Stack.Screen name="auth/login" options={{ title: "Sign In" }} />
         <Stack.Screen name="test" options={{ title: "Test" }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="upgrade" options={{ title: "Upgrade to Pro" }} />
       </Stack>
       <GlobalLoadingIndicator />
-      <UpgradeModal />
     </>
   );
 }
@@ -37,9 +33,7 @@ function RootLayoutContent() {
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: theme.background }}>
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
-          <RevenueCatProvider>
-            <AppContent />
-          </RevenueCatProvider>
+          <AppContent />
         </QueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

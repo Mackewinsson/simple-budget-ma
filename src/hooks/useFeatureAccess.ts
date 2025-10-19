@@ -1,11 +1,8 @@
 import { useAuthStore } from '../store/authStore';
-import { useSubscriptionStore } from '../store/subscriptionStore';
 import { useFeatureFlags } from './useFeatureFlags';
-import { useRevenueCat } from './useRevenueCat';
 import { FEATURES, FeatureKey } from '../lib/features';
 import { trackFeatureAccessDenied } from '../lib/analytics';
 import { FEATURE_FLAG_KEYS } from '../types/featureFlags';
-import { ENTITLEMENT_IDS } from '../lib/revenueCat';
 
 export interface FeatureAccess {
   hasAccess: boolean;
@@ -27,39 +24,34 @@ const FEATURE_TO_FLAG_MAPPING: Record<FeatureKey, string> = {
 
 export const useFeatureAccess = (featureKey: FeatureKey): FeatureAccess => {
   const { session } = useAuthStore();
-  const { showUpgradeModal: openModal } = useSubscriptionStore();
   const { isFeatureEnabled, isProUser } = useFeatureFlags();
-  const { hasProAccess: hasRevenueCatProAccess, isInitialized: isRevenueCatInitialized } = useRevenueCat();
-  
+
   // Get the corresponding feature flag key
   const featureFlagKey = FEATURE_TO_FLAG_MAPPING[featureKey];
-  
+
   // Check if feature flag is enabled
   const isFeatureFlagEnabled = featureFlagKey ? isFeatureEnabled(featureFlagKey, false) : false;
-  
+
   // Check if user has pro plan (legacy check)
   const isProUserLegacy = session?.user?.plan === "pro" || session?.user?.isPaid === true;
-  
+
   // Check if user is pro user (from feature flags)
   const isProUserFromFlags = isProUser();
-  
-  // Check if user has pro access via RevenueCat
-  const isProUserFromRevenueCat = isRevenueCatInitialized && hasRevenueCatProAccess;
-  
-  // Determine access: feature flag enabled OR pro user (any source)
-  const hasAccess = isFeatureFlagEnabled || isProUserFromFlags || isProUserLegacy || isProUserFromRevenueCat;
-  
+
+  // Determine access: feature flag enabled OR pro user
+  const hasAccess = isFeatureFlagEnabled || isProUserFromFlags || isProUserLegacy;
+
   const showUpgradeModal = (featureContext?: string) => {
     const feature = FEATURES[featureKey];
     trackFeatureAccessDenied(featureKey);
-    openModal(featureContext || feature.label);
-    console.log(`[FeatureAccess] Showing upgrade modal for: ${feature.label}`);
+    console.log(`[FeatureAccess] Feature requires upgrade: ${feature.label}`);
+    // TODO: Show upgrade UI if needed
   };
 
   return {
     hasAccess,
     showUpgradeModal,
     isFeatureFlagEnabled,
-    isProUser: isProUserFromFlags || isProUserLegacy || isProUserFromRevenueCat
+    isProUser: isProUserFromFlags || isProUserLegacy
   };
 };

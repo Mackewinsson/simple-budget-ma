@@ -7,25 +7,15 @@
 - [ ] Update `eas.json` with your Apple ID, App Store Connect App ID, and Team ID
 - [ ] Verify all environment variables are set correctly
 
-### ✅ RevenueCat Production Setup
-- [ ] Create production RevenueCat project (separate from test store)
-- [ ] Configure production API key in `.env.production`
-- [ ] Create products: `com.simplebudget.pro.monthly` and `com.simplebudget.pro.yearly`
-- [ ] Create entitlement: `pro`
-- [ ] Create offering: `default` with `monthly` and `yearly` packages
-- [ ] Set offering as current
-
 ### ✅ App Store Connect Setup
-- [ ] Create app in App Store Connect with bundle ID `com.mackewinsson.budgetingmobile`
-- [ ] Create IAP products (monthly and yearly subscriptions)
-- [ ] Submit IAP products for review
+- [ ] Create app in App Store Connect with bundle ID `com.presusimple.app`
 - [ ] Get App Store Connect App ID (numeric)
 - [ ] Complete app information (name, description, etc.)
 - [ ] Update `eas.json` with your `appleId` (email) and `ascAppId`
+- [ ] Prepare app screenshots and metadata
 
 ### ✅ Apple Developer Portal
-- [ ] Register App ID with bundle ID `com.mackewinsson.budgetingmobile`
-- [ ] Enable "In-App Purchase" capability
+- [ ] Register App ID with bundle ID `com.presusimple.app`
 - [x] Apple Developer Team ID: `H3FV2Q782F` (already configured)
 - [ ] Ensure Apple Developer account is active ($99/year)
 
@@ -34,9 +24,8 @@
 ### ✅ Pre-Build Verification
 - [ ] All environment variables configured
 - [ ] EAS configuration updated with correct IDs
-- [ ] RevenueCat production project ready
 - [ ] App Store Connect app created
-- [ ] IAP products approved
+- [ ] App metadata and screenshots ready
 
 ### ✅ Build Commands
 ```bash
@@ -84,38 +73,17 @@ eas submit --platform ios
 ### ✅ Production Build Testing
 - [ ] App launches successfully
 - [ ] All features work correctly
-- [ ] IAP flow works with production RevenueCat
-- [ ] Pro features unlock after purchase
-- [ ] Restore purchases works
+- [ ] User authentication works
+- [ ] Data sync works correctly
 - [ ] Error handling works correctly
 - [ ] No crashes or major issues
 
-### ✅ App Store Connect Testing
-- [ ] Test with sandbox account
-- [ ] Verify IAP products work
-- [ ] Test subscription flow
-- [ ] Verify pro features unlock
-- [ ] Test restore purchases
-
 ## Important Notes
 
-### 🔑 API Keys
-- **Test Store**: `test_zJUnetiYMNVPtWOCXjuOeTPIBoB` (for development)
-- **Production Store**: `your_production_api_key_here` (for App Store)
-
 ### 📱 Bundle ID
-- **Current Bundle ID**: `com.mackewinsson.budgetingmobile`
-- **Used in**: App Store Connect, Apple Developer Portal, RevenueCat, app.config.ts
-- **Note**: Changed from `com.simplebudget.app` (not available)
-
-### 🛒 Product IDs
-- **Monthly**: `com.simplebudget.pro.monthly`
-- **Yearly**: `com.simplebudget.pro.yearly`
-- **Must match**: App Store Connect, RevenueCat, and app code
-
-### 🎯 Entitlement ID
-- **Pro Features**: `pro`
-- **Must match**: RevenueCat configuration and app code
+- **Current Bundle ID**: `com.presusimple.app`
+- **Domain**: presusimple.com
+- **Used in**: App Store Connect, Apple Developer Portal, app.config.ts
 
 ## Common Issues & Solutions
 
@@ -128,14 +96,8 @@ eas submit --platform ios
 ### ❌ Submission Fails
 - **Check**: App Store Connect app exists
 - **Check**: Team ID and App ID are correct
-- **Check**: IAP products are approved
 - **Check**: App information is complete
-
-### ❌ IAP Not Working
-- **Check**: RevenueCat configuration
-- **Check**: Product IDs match exactly
-- **Check**: Entitlement is configured
-- **Check**: Offering is set as current
+- **Check**: All required metadata is provided
 
 ## Timeline
 
@@ -147,20 +109,19 @@ eas submit --platform ios
 ## Support
 
 - **EAS Documentation**: https://docs.expo.dev/build/introduction/
-- **RevenueCat Documentation**: https://docs.revenuecat.com/
 - **App Store Connect Help**: https://developer.apple.com/help/app-store-connect/
+- **Expo Documentation**: https://docs.expo.dev/
 
 ## Current Status
 
-- ✅ **Development Build**: Working with test store
-- ✅ **IAP Integration**: Complete with RevenueCat
+- ✅ **App Rebranded**: PresuSimple (presusimple.com)
 - ✅ **Production Configuration**: Ready
 - ⏳ **Production Build**: Ready to create
 - ⏳ **App Store Submission**: Ready after build
 
 ## Next Steps
 
-1. **Complete Pre-Build Requirements** (RevenueCat, App Store Connect, Apple Developer)
+1. **Complete Pre-Build Requirements** (App Store Connect, Apple Developer)
 2. **Create Production Build** (`npm run build:prod:ios`)
 3. **Submit to App Store** (`npm run submit:ios`)
 4. **Complete App Store Listing**

@@ -2,19 +2,19 @@ import type { ConfigContext, ExpoConfig } from "@expo/config";
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: "Simple Budget",
-  slug: "budgeting-mobile",
+  name: "PresuSimple",
+  slug: "presusimple",
   owner: "mackewinsson",
   version: "1.0.0",
   orientation: "portrait",
   icon: "./assets/icon.png",
   userInterfaceStyle: "automatic",
-  scheme: "budgetingmobile",
+  scheme: "presusimple",
   privacy: "public",
   description: "A simple and intuitive budgeting app to help you manage your finances.",
-  
+
   ios: {
-    bundleIdentifier: "com.mackewinsson.budgetingmobile",
+    bundleIdentifier: "com.presusimple.app",
     supportsTablet: true,
     buildNumber: "1",
     infoPlist: {
@@ -27,7 +27,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
 
   android: {
-    package: "com.mackewinsson.budgetingmobile",
+    package: "com.presusimple.app",
     versionCode: 1,
     adaptiveIcon: {
       foregroundImage: "./assets/adaptive-icon.png",
@@ -48,8 +48,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     GOOGLE_IOS_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || "",
     GOOGLE_ANDROID_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || "",
     GOOGLE_WEB_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || "",
-    EXPO_PROJECT_NAME_FOR_PROXY: process.env.EXPO_PUBLIC_PROJECT_NAME_FOR_PROXY || "@mackewinsson/simple-budget",
-    REVENUECAT_API_KEY_IOS: process.env.EXPO_PUBLIC_REVENUECAT_API_KEY_IOS || "",
+    EXPO_PROJECT_NAME_FOR_PROXY: process.env.EXPO_PUBLIC_PROJECT_NAME_FOR_PROXY || "@mackewinsson/presusimple",
     eas: {
       projectId: "e4ba31e1-acfd-4050-bf55-a26bdd9f5c86"
     }

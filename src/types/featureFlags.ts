@@ -53,7 +53,8 @@ export const FEATURE_FLAG_KEYS = {
   NEW_CHECKOUT_FLOW: 'new_checkout_flow',
   MOBILE_OFFLINE_SYNC: 'mobile_offline_sync',
   PRO_FEATURES: 'pro_features',
-  AA: 'aa', // Test feature flag
+  AA: 'aa', // AI features flag
+  EE: 'ee', // Export data flag
 } as const;
 
 export type FeatureFlagKey = keyof typeof FEATURE_FLAG_KEYS;

@@ -8,6 +8,8 @@ import { useCategories } from "../../src/api/hooks/useCategories";
 import { useExpenses } from "../../src/api/hooks/useExpenses";
 import { useAuthStore } from "../../src/store/authStore";
 import { useTheme } from "../../src/theme/ThemeContext";
+import { useFeatureFlags } from "../../src/hooks/useFeatureFlags";
+import { FEATURE_FLAG_KEYS } from "../../src/types/featureFlags";
 import { SPACING, BORDER_RADIUS, FONT_SIZES, FONT_WEIGHTS, SHADOW } from "../../src/theme/layout";
 import ProBadge from "../../components/ProBadge";
 
@@ -18,6 +20,10 @@ function ReportsScreenContent() {
   const { data: expenses = [], isLoading: expensesLoading } = useExpenses(session?.user?.id || "");
   const insets = useSafeAreaInsets();
   const { theme } = useTheme();
+  const { isFeatureEnabled } = useFeatureFlags();
+
+  // Check if Export Data feature is enabled via 'ee' feature flag
+  const isExportEnabled = isFeatureEnabled(FEATURE_FLAG_KEYS.EE, false);
 
   const isLoading = budgetLoading || categoriesLoading || expensesLoading;
 
@@ -27,14 +33,6 @@ function ReportsScreenContent() {
     Alert.alert(
       "Export Data",
       "Export functionality will be available in a future update.",
-      [{ text: "OK" }]
-    );
-  };
-
-  const handleGenerateReport = () => {
-    Alert.alert(
-      "Generate Report",
-      "Report generation will be available in a future update.",
       [{ text: "OK" }]
     );
   };
@@ -209,17 +207,15 @@ function ReportsScreenContent() {
         )}
       </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Actions</Text>
-          <Pressable style={styles.actionButton} onPress={handleExportData}>
-            <Ionicons name="download-outline" size={20} color={theme.onPrimary} />
-            <Text style={styles.actionButtonText}>Export Data</Text>
-          </Pressable>
-          <Pressable style={styles.actionButton} onPress={handleGenerateReport}>
-            <Ionicons name="document-text-outline" size={20} color={theme.onPrimary} />
-            <Text style={styles.actionButtonText}>Generate Report</Text>
-          </Pressable>
-        </View>
+        {isExportEnabled && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Actions</Text>
+            <Pressable style={styles.actionButton} onPress={handleExportData}>
+              <Ionicons name="download-outline" size={20} color={theme.onPrimary} />
+              <Text style={styles.actionButtonText}>Export Data</Text>
+            </Pressable>
+          </View>
+        )}
       </ScrollView>
     </View>
   );

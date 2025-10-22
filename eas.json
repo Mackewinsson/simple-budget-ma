@@ -7,15 +7,46 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_ENV": "development"
+      },
       "ios": {
-        "simulator": true
-      }
+        "simulator": true,
+        "buildConfiguration": "Debug"
+      },
+      "android": {
+        "buildType": "apk"
+      },
+      "channel": "development"
+    },
+    "staging": {
+      "developmentClient": false,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_ENV": "staging"
+      },
+      "ios": {
+        "simulator": false,
+        "buildConfiguration": "Release"
+      },
+      "android": {
+        "buildType": "apk"
+      },
+      "channel": "staging"
     },
     "preview": {
       "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_ENV": "staging"
+      },
       "ios": {
-        "simulator": false
-      }
+        "simulator": false,
+        "buildConfiguration": "Release"
+      },
+      "android": {
+        "buildType": "apk"
+      },
+      "channel": "preview"
     },
     "production": {
       "autoIncrement": true,
@@ -26,6 +57,9 @@
         "simulator": false,
         "buildConfiguration": "Release"
       },
+      "android": {
+        "buildType": "aab"
+      },
       "node": "22.11.0",
       "channel": "production"
     }
@@ -34,6 +68,19 @@
     "production": {
       "ios": {
         "appleTeamId": "H3FV2Q782F"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./google-service-account.json",
+        "track": "production"
+      }
+    },
+    "staging": {
+      "ios": {
+        "appleTeamId": "H3FV2Q782F"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./google-service-account.json",
+        "track": "internal"
       }
     }
   }

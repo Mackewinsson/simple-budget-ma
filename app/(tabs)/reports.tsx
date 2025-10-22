@@ -61,7 +61,7 @@ function ReportsScreenContent() {
     );
   }
 
-  // Calculate analytics (matching simple-budget logic)
+  // Calculate analytics (matching PresuSimple logic)
   const totalBudgetedInCategories = categories.reduce((sum, cat) => sum + cat.budgeted, 0);
   const totalBudget = totalBudgetedInCategories + (budget?.totalAvailable || 0);
   const totalSpent = expenses.reduce((sum, expense) => {

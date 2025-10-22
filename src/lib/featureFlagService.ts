@@ -220,7 +220,7 @@ export class FeatureFlagService {
 
 // Default configuration
 const defaultConfig: FeatureFlagServiceConfig = {
-  baseUrl: 'https://www.simple-budget.pro',
+  baseUrl: 'https://www.presusimple.com',
   refreshInterval: 30000, // 30 seconds
   fallbackFeatures: {
     new_dashboard: false,

@@ -9,7 +9,7 @@ export default function LoadingScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
       <View style={styles.content}>
-        <Text style={styles.title}>Simple Budget</Text>
+        <Text style={styles.title}>PresuSimple</Text>
         <ActivityIndicator size="large" color="#4CAF50" style={styles.spinner} />
         <Text style={styles.subtitle}>Loading...</Text>
       </View>

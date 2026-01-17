@@ -20,7 +20,14 @@
     "ios": {
       "bundleIdentifier": "com.presusimple.app",
       "supportsTablet": true,
-      "buildNumber": "1"
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSUserTrackingUsageDescription": "We use tracking to provide you with personalized features and improve your experience.",
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "This app does not use the camera.",
+        "NSPhotoLibraryUsageDescription": "This app does not access your photo library.",
+        "NSLocationWhenInUseUsageDescription": "This app does not use your location."
+      }
     },
     "android": {
       "package": "com.presusimple.app",
@@ -52,6 +59,12 @@
       "eas": {
         "projectId": "77abe935-0d1a-42ea-bae4-470f978f8d3b"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/77abe935-0d1a-42ea-bae4-470f978f8d3b"
     }
   }
 }

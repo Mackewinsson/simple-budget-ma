@@ -31,12 +31,10 @@ yarn-error.*
 *.pem
 
 # Environment files
+# Only .env.example is committed - it's a template
+# .env.local contains secrets and is gitignored
+.env.local
 .env*.local
-.env.production
-# Keep these environment files in version control
-!.env.development
-!.env.staging
-!.env.example
 
 # typescript
 *.tsbuildinfo

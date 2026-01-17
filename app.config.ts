@@ -3,51 +3,63 @@ import type { ConfigContext, ExpoConfig } from "@expo/config";
 // Get environment from process.env or default to development
 const ENV = process.env.EXPO_PUBLIC_ENV || "development";
 
-// Environment-specific configurations
-const getEnvironmentConfig = (env: string) => {
-  const baseConfig = {
+// ============================================
+// ENVIRONMENT-SPECIFIC CONFIGURATION
+// URLs are defined here, secrets in .env.local
+// ============================================
+const ENVIRONMENT_CONFIG = {
+  development: {
+    name: "PresuSimple (Dev)",
+    apiBaseUrl: "http://localhost:3000",
+    analyticsEnabled: false,
+    analyticsDebug: true,
+    debugMode: true,
+    logLevel: "debug",
+  },
+  staging: {
+    name: "PresuSimple (Staging)",
+    apiBaseUrl: "https://www.presusimple.com", // Same as prod for now
+    analyticsEnabled: true,
+    analyticsDebug: false,
+    debugMode: false,
+    logLevel: "warn",
+  },
+  production: {
     name: "PresuSimple",
-    slug: "presusimple",
-    owner: "mackewinsson",
-    version: "1.0.0",
-    orientation: "portrait" as const,
-    icon: "./assets/icon.png",
-    userInterfaceStyle: "automatic" as const,
-    scheme: "presusimple",
-    privacy: "public" as const,
-    description: "A simple and intuitive budgeting app to help you manage your finances.",
-  };
+    apiBaseUrl: "https://www.presusimple.com",
+    analyticsEnabled: true,
+    analyticsDebug: false,
+    debugMode: false,
+    logLevel: "error",
+  },
+} as const;
 
-  // Environment-specific overrides
-  switch (env) {
-    case "production":
-      return {
-        ...baseConfig,
-        name: "PresuSimple",
-        // Production-specific overrides can go here
-      };
-    case "staging":
-      return {
-        ...baseConfig,
-        name: "PresuSimple (Staging)",
-        // Staging-specific overrides can go here
-      };
-    case "development":
-    default:
-      return {
-        ...baseConfig,
-        name: "PresuSimple (Dev)",
-        // Development-specific overrides can go here
-      };
-  }
+type EnvironmentKey = keyof typeof ENVIRONMENT_CONFIG;
+
+const getEnvironmentConfig = (env: string) => {
+  const envKey = (env in ENVIRONMENT_CONFIG ? env : "development") as EnvironmentKey;
+  return ENVIRONMENT_CONFIG[envKey];
 };
 
 export default ({ config }: ConfigContext): ExpoConfig => {
   const envConfig = getEnvironmentConfig(ENV);
   
+  // Allow env var override for API URL (useful for testing)
+  const apiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL || envConfig.apiBaseUrl;
+  const featureFlagsUrl = process.env.EXPO_PUBLIC_FEATURE_FLAGS_URL || `${apiBaseUrl}/api/feature-flags`;
+  
   return {
     ...config,
-    ...envConfig,
+    name: envConfig.name,
+    slug: "presusimple",
+    owner: "mackewinsson",
+    version: "1.0.0",
+    orientation: "portrait",
+    icon: "./assets/icon.png",
+    userInterfaceStyle: "automatic",
+    scheme: "presusimple",
+    privacy: "public",
+    description: "A simple and intuitive budgeting app to help you manage your finances.",
     
     ios: {
       bundleIdentifier: "com.presusimple.app",
@@ -77,20 +89,28 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ],
     
     extra: {
-      // Environment variables
+      // Environment
       ENV,
-      API_BASE_URL: process.env.EXPO_PUBLIC_API_BASE_URL || "http://localhost:3000",
+      
+      // API URLs (from environment config, can be overridden via env var)
+      API_BASE_URL: apiBaseUrl,
+      FEATURE_FLAGS_URL: featureFlagsUrl,
+      
+      // Google OAuth (from .env.local - secrets)
       GOOGLE_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || "",
       GOOGLE_CLIENT_SECRET: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_SECRET || "",
       GOOGLE_EXPO_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_EXPO_CLIENT_ID || "",
       GOOGLE_IOS_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || "",
       GOOGLE_ANDROID_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || "",
       GOOGLE_WEB_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || "",
-      FEATURE_FLAGS_URL: process.env.EXPO_PUBLIC_FEATURE_FLAGS_URL || "http://localhost:3000/api/feature-flags",
-      ANALYTICS_ENABLED: process.env.EXPO_PUBLIC_ANALYTICS_ENABLED === "true",
-      ANALYTICS_DEBUG: process.env.EXPO_PUBLIC_ANALYTICS_DEBUG === "true",
-      DEBUG_MODE: process.env.EXPO_PUBLIC_DEBUG_MODE === "true",
-      LOG_LEVEL: process.env.EXPO_PUBLIC_LOG_LEVEL || "info",
+      
+      // Environment-specific settings (from config above)
+      ANALYTICS_ENABLED: envConfig.analyticsEnabled,
+      ANALYTICS_DEBUG: envConfig.analyticsDebug,
+      DEBUG_MODE: envConfig.debugMode,
+      LOG_LEVEL: envConfig.logLevel,
+      
+      // EAS
       EXPO_PROJECT_NAME_FOR_PROXY: process.env.EXPO_PUBLIC_PROJECT_NAME_FOR_PROXY || "@mackewinsson/presusimple",
       eas: {
         projectId: "77abe935-0d1a-42ea-bae4-470f978f8d3b"

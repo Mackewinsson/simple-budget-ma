@@ -58,7 +58,7 @@
         "buildConfiguration": "Release"
       },
       "android": {
-        "buildType": "aab"
+        "buildType": "app-bundle"
       },
       "node": "22.11.0",
       "channel": "production"

@@ -58,7 +58,6 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     icon: "./assets/icon.png",
     userInterfaceStyle: "automatic",
     scheme: "presusimple",
-    privacy: "public",
     description: "A simple and intuitive budgeting app to help you manage your finances.",
     
     ios: {

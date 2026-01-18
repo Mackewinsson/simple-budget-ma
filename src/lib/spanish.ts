@@ -42,6 +42,12 @@ export const ES = {
   email: 'Correo electrónico',
   password: 'Contraseña',
   forgotPassword: '¿Olvidaste tu contraseña?',
+  createAccount: 'Crear cuenta',
+  alreadyHaveAccount: '¿Ya tienes cuenta?',
+  dontHaveAccount: '¿No tienes cuenta?',
+  passwordRequirements: 'Mínimo 8 caracteres, una mayúscula, una minúscula y un número',
+  registrationSuccess: 'Cuenta creada exitosamente',
+  name: 'Nombre',
   
   // Financial Terms
   budget: 'Presupuesto',

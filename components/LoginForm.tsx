@@ -4,10 +4,11 @@ import { useAuthStore } from '../src/store/authStore';
 import { useSafeAreaStyles } from '../src/hooks/useSafeAreaStyles';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../src/theme/ThemeContext';
+import { ES } from '../src/lib/spanish';
 
 export default function LoginForm() {
-  const [email, setEmail] = useState('mackewinsson@gmail.com');
-  const [password, setPassword] = useState('MobilePass123!');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { signIn, loading } = useAuthStore();
   const safeAreaStyles = useSafeAreaStyles();
@@ -17,7 +18,7 @@ export default function LoginForm() {
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
-      Alert.alert('Error', 'Please enter both email and password');
+      Alert.alert(ES.error, 'Email y contraseña son requeridos');
       return;
     }
 
@@ -30,8 +31,8 @@ export default function LoginForm() {
       router.replace('/(tabs)/transactions');
     } catch (error: any) {
       console.error('Login error:', error);
-      const errorMessage = error.response?.data?.message || 'Login failed. Please try again.';
-      Alert.alert('Login Failed', errorMessage);
+      const errorMessage = error.response?.data?.message || 'Error al iniciar sesión. Intenta de nuevo.';
+      Alert.alert(ES.error, errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -42,16 +43,16 @@ export default function LoginForm() {
     <View style={safeAreaStyles.containerWithBottomPadding}>
       <View style={styles.container}>
         <View style={styles.form}>
-        <Text style={styles.title}>Sign In</Text>
-        <Text style={styles.subtitle}>Enter your credentials to continue</Text>
+        <Text style={styles.title}>{ES.signIn}</Text>
+        <Text style={styles.subtitle}>Ingresa tus credenciales para continuar</Text>
         
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Email</Text>
+          <Text style={styles.label}>{ES.email}</Text>
           <TextInput
             style={styles.input}
             value={email}
             onChangeText={setEmail}
-            placeholder="Enter your email"
+            placeholder="Ingresa tu correo"
             placeholderTextColor={theme.textMuted}
             autoCapitalize="none"
             autoCorrect={false}
@@ -61,12 +62,12 @@ export default function LoginForm() {
         </View>
 
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Password</Text>
+          <Text style={styles.label}>{ES.password}</Text>
           <TextInput
             style={styles.input}
             value={password}
             onChangeText={setPassword}
-            placeholder="Enter your password"
+            placeholder="Ingresa tu contraseña"
             placeholderTextColor={theme.textMuted}
             secureTextEntry
             autoCapitalize="none"
@@ -83,11 +84,20 @@ export default function LoginForm() {
           {(isLoading || loading) ? (
             <ActivityIndicator color={theme.onPrimary} />
           ) : (
-            <Text style={styles.buttonText}>Sign In</Text>
+            <Text style={styles.buttonText}>{ES.signIn}</Text>
           )}
         </Pressable>
 
-        {/* Google login removed */}
+        <Pressable 
+          style={styles.linkContainer}
+          onPress={() => router.push('/auth/register')}
+          disabled={isLoading || loading}
+        >
+          <Text style={styles.linkText}>
+            {ES.dontHaveAccount}{' '}
+            <Text style={styles.link}>{ES.signUp}</Text>
+          </Text>
+        </Pressable>
         </View>
       </View>
     </View>
@@ -152,6 +162,18 @@ const createStyles = (theme: any) =>
     buttonText: {
       color: theme.onPrimary,
       fontSize: 16,
+      fontWeight: '600',
+    },
+    linkContainer: {
+      marginTop: 16,
+      alignItems: 'center',
+    },
+    linkText: {
+      fontSize: 14,
+      color: theme.textSecondary,
+    },
+    link: {
+      color: theme.primary,
       fontWeight: '600',
     },
   });

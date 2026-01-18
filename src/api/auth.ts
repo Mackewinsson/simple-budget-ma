@@ -27,6 +27,29 @@ export const logout = async (): Promise<void> => {
   await client.post('/api/auth/logout');
 };
 
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  name?: string;
+}
+
+export interface RegisterResponse {
+  message: string;
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    plan: string;
+    isPaid: boolean;
+    trialEnd: string;
+  };
+}
+
+export const register = async (data: RegisterRequest): Promise<RegisterResponse> => {
+  const { data: response } = await client.post('/api/mobile-register', data);
+  return response;
+};
+
 // Google auth code exchange (expo-auth-session -> backend)
 export interface GoogleExchangeParams {
   code: string;

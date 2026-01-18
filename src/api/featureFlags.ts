@@ -74,8 +74,9 @@ export const fetchFeatureFlags = async (
     
     // Handle specific error cases
     if (error.response?.status === 401) {
-      console.log('[FeatureFlags API] Unauthorized - user needs to login');
-      throw new Error('Unauthorized - please login again');
+      console.log('[FeatureFlags API] Unauthorized - user not authenticated, using default features');
+      // Return null instead of throwing - 401 is expected when not logged in
+      return null;
     } else if (error.response?.status === 400) {
       console.log('[FeatureFlags API] Bad request - platform parameter required');
       throw new Error('Platform parameter is required');
